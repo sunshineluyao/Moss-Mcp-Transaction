@@ -45,6 +45,7 @@
 - [🎯 Demo Goal](#demo-goal)
 - [🧭 User Experience Walkthrough](#user-experience-walkthrough)
 - [🗺️ Visual Flow Diagram](#visual-flow-diagram)
+- [🎬 Demo GIF Generation Pipeline](#demo-gif-generation-pipeline)
 - [⚙️ Core Features](#core-features)
 - [📊 Status Lifecycle](#status-lifecycle)
 - [🛣️ Roadmap](#roadmap)
@@ -96,6 +97,36 @@ flowchart LR
   F -->|Yes| G[Manual Wallet Review]
   F -->|No| H[Edit Params / Stop]
 ```
+
+### 🎬 Demo GIF Generation Pipeline
+
+This repository includes a reproducible script pipeline to generate `assets/moss-mcp-transaction-preview-demo.gif` from real UI interaction.
+
+```mermaid
+flowchart TD
+  A[pnpm install] --> B[pnpm run demo:gif]
+  B --> C[Start local app with PORT + BASE_PATH]
+  C --> D[Health check APP_URL]
+  D --> E[Playwright runs real clicks + scrolls]
+  E --> F[Capture PNG frames in /tmp/demo-frames]
+  F --> G[Generate palette + encode GIF via ffmpeg-static]
+  G --> H[Write assets/moss-mcp-transaction-preview-demo.gif]
+```
+
+**Commands**
+
+```bash
+pnpm install
+pnpm run demo:gif
+```
+
+**What the capture includes (post-click coverage):**
+
+- Expand "What is Moss MCP?"
+- Configure operation/scenario/amount
+- Click **Generate Preview**
+- Wait for preview result card to appear
+- Scroll and capture risk/warnings/status lifecycle sections
 
 ### 🔍 What Is Moss MCP?
 
@@ -219,6 +250,7 @@ No wallet, no funds, and no API key are needed for mock mode.
 - [🎯 Demo 目标](#demo-目标)
 - [🧭 用户体验流程](#用户体验流程)
 - [🗺️ 可视化流程图](#可视化流程图)
+- [🎬 Demo GIF 生成流程](#demo-gif-生成流程)
 - [⚙️ 核心功能](#核心功能)
 - [📊 状态生命周期](#状态生命周期)
 - [🛣️ 路线图](#路线图)
@@ -270,6 +302,36 @@ flowchart LR
   F -->|是| G[进入钱包手动复核]
   F -->|否| H[修改参数 / 终止]
 ```
+
+### 🎬 Demo GIF 生成流程
+
+仓库中已经内置了可复现脚本流程，可通过真实页面交互自动生成 `assets/moss-mcp-transaction-preview-demo.gif`。
+
+```mermaid
+flowchart TD
+  A[pnpm install] --> B[pnpm run demo:gif]
+  B --> C[使用 PORT + BASE_PATH 启动本地应用]
+  C --> D[对 APP_URL 做就绪检查]
+  D --> E[Playwright 执行真实点击与滚动]
+  E --> F[在 /tmp/demo-frames 生成 PNG 帧]
+  F --> G[通过 ffmpeg-static 生成调色板并编码 GIF]
+  G --> H[输出 assets/moss-mcp-transaction-preview-demo.gif]
+```
+
+**执行命令**
+
+```bash
+pnpm install
+pnpm run demo:gif
+```
+
+**录制覆盖内容（包含点击后场景）：**
+
+- 展开 "What is Moss MCP?"
+- 配置 operation / scenario / amount
+- 点击 **Generate Preview**
+- 等待预览结果卡片出现
+- 滚动并录制 risk / warnings / status lifecycle 区域
 
 ### 🔍 什么是 Moss MCP？
 
