@@ -27,13 +27,37 @@
 </p>
 
 <p align="center">
-  <img src="assets/moss-mcp-transaction-preview-demo.gif" alt="30-second demo walkthrough" />
+  <strong>🎬 Visual Storyboard · 三段式演示导览</strong>
 </p>
 
-<p align="center">
-  <img src="assets/moss-mcp-transaction-preview-success.gif" alt="Success scenario walkthrough" width="48%" />
-  <img src="assets/moss-mcp-transaction-preview-rejected.gif" alt="User rejected scenario walkthrough" width="48%" />
-</p>
+<table>
+  <thead>
+    <tr>
+      <th>🧭 Overview · 全局预览</th>
+      <th>✅ Success Path · 成功路径</th>
+      <th>🛑 Rejected Path · 拒签路径</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <img src="assets/moss-mcp-transaction-preview-demo.gif" alt="30-second demo overview" /><br/>
+        <strong>EN:</strong> End-to-end flow from parameter input to result timeline.<br/>
+        <strong>中文：</strong>从参数配置到结果时间线的完整流程。
+      </td>
+      <td>
+        <img src="assets/moss-mcp-transaction-preview-success.gif" alt="Success scenario walkthrough" /><br/>
+        <strong>EN:</strong> Shows confirmed outcome, green status progression, and final review confidence.<br/>
+        <strong>中文：</strong>展示确认成功、绿色状态流转与最终复核信心。
+      </td>
+      <td>
+        <img src="assets/moss-mcp-transaction-preview-rejected.gif" alt="User rejected scenario walkthrough" /><br/>
+        <strong>EN:</strong> Shows user rejection boundary, no broadcast, and safe stop behavior.<br/>
+        <strong>中文：</strong>展示用户拒签边界、不会广播、并安全终止流程。
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 <p align="center">
   <strong>🧩 Preview First · Explain Risks · Keep Users In Control</strong><br/>
