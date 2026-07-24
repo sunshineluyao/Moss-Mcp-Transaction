@@ -163,8 +163,8 @@ flowchart TB
   subgraph R2[Step 2 - Decide]
     direction LR
     E["⑤ 📊 Review<br/>Risk<br/>Lifecycle<br/>Safety checks"] --> F{"⑥ 🛡 Continue?"}
-    F -->|Yes| G["✅ Wallet review<br/>Manual approval<br/>User controlled"]
-    F -->|No| H["🛑 Edit or stop<br/>No transaction<br/>submitted"]
+    F -->|YES| G["✅ Wallet review<br/>Manual approval<br/>User controlled"]
+    F -->|NO| H["🛑 Edit or stop<br/>No transaction<br/>submitted"]
   end
 
   D --> E
@@ -269,6 +269,10 @@ All Mermaid diagrams use a consistent visual token strategy to balance readabili
 - Compatibility note:
   - Mermaid config intentionally uses conservative syntax supported by GitHub's renderer.
   - Solid hex colors are used for maximum cross-environment rendering reliability.
+- Anti-clipping note (for future updates):
+  - Keep edge labels short and single-line (for example: `YES`, `NO`, `Sign`, `Reject`, `New preview`).
+  - Prefer moving detailed explanations into nodes instead of multi-line arrow labels.
+  - If a label is truncated on GitHub, shorten text first, then increase `nodeSpacing`/`rankSpacing` only if still needed.
 
 ### 🎞️ Scenario Comparison
 
@@ -334,19 +338,19 @@ All Mermaid diagrams use a consistent visual token strategy to balance readabili
 %%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 96, 'rankSpacing': 110, 'curve': 'basis', 'padding': 28, 'diagramPadding': 24, 'wrappingWidth': 260},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   Idle["🌙 Idle"] --> Awaiting["✍️ Awaiting<br/>Signature"]
-  Awaiting -->|User<br/>signs| Pending["📨 Pending"]
-  Awaiting -->|User<br/>rejects| Rejected["🛑 Rejected"]
+  Awaiting -->|Sign| Pending["📨 Pending"]
+  Awaiting -->|Reject| Rejected["🛑 Rejected"]
 
   Pending --> Confirming["🔄 Confirming"]
   Confirming --> Confirmed["✅ Confirmed"]
-  Pending -->|Execution<br/>failed| Reverted["↩️ Reverted"]
-  Pending -->|RPC / network<br/>failure| SystemError["⚠️ System<br/>Error"]
-  Confirming -->|unexpected<br/>failure| SystemError
+  Pending -->|Revert| Reverted["↩️ Reverted"]
+  Pending -->|RPC error| SystemError["⚠️ System<br/>Error"]
+  Confirming -->|Error| SystemError
 
-  Rejected -.->|start a new<br/>preview| Idle
-  Reverted -.->|start a new<br/>preview| Idle
+  Rejected -.->|New preview| Idle
+  Reverted -.->|New preview| Idle
   SystemError -.->|Retry| Idle
-  Confirmed -.->|start a new<br/>preview| Idle
+  Confirmed -.->|New preview| Idle
 
   classDef neutral fill:#f1f5f9,stroke:#64748b,stroke-width:1.8px,color:#0f172a;
   classDef success fill:#ecfdf5,stroke:#15803d,stroke-width:1.8px,color:#14532d;
@@ -552,8 +556,8 @@ flowchart TB
   subgraph R2[步骤二 - 复核与决策]
     direction LR
     E["⑤ 📊 复核结果<br/>风险<br/>状态<br/>安全检查"] --> F{"⑥ 🛡 继续？"}
-    F -->|是| G["✅ 钱包复核<br/>手动确认<br/>用户控制"]
-    F -->|否| H["🛑 修改或终止<br/>没有提交<br/>任何交易"]
+    F -->|继续| G["✅ 钱包复核<br/>手动确认<br/>用户控制"]
+    F -->|终止| H["🛑 修改或终止<br/>没有提交<br/>任何交易"]
   end
 
   D --> E
@@ -658,6 +662,10 @@ pnpm run demo:gif
 - 兼容性说明：
   - Mermaid 配置采用 GitHub 渲染器更稳妥的保守语法。
   - 统一使用纯十六进制颜色，优先保证跨环境渲染稳定性。
+- 防裁切说明（后续维护建议）：
+  - 连接线标签尽量使用短文本且单行（例如：`YES`、`NO`、`签名`、`拒绝`、`新预览`）。
+  - 详细语义优先放在节点内容中，避免在线标签中使用多行长句。
+  - 若 GitHub 渲染仍出现截断，先缩短标签，再按需小幅增大 `nodeSpacing` / `rankSpacing`。
 
 ### 🎞️ 场景对比
 
@@ -723,19 +731,19 @@ pnpm run demo:gif
 %%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 96, 'rankSpacing': 110, 'curve': 'basis', 'padding': 28, 'diagramPadding': 24, 'wrappingWidth': 260},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   Idle["🌙 Idle"] --> Awaiting["✍️ Awaiting<br/>Signature"]
-  Awaiting -->|用户签名| Pending["📨 Pending"]
-  Awaiting -->|用户拒绝| Rejected["🛑 Rejected"]
+  Awaiting -->|签名| Pending["📨 Pending"]
+  Awaiting -->|拒绝| Rejected["🛑 Rejected"]
 
   Pending --> Confirming["🔄 Confirming"]
   Confirming --> Confirmed["✅ Confirmed"]
-  Pending -->|链上执行<br/>失败| Reverted["↩️ Reverted"]
-  Pending -->|RPC / 网络<br/>故障| SystemError["⚠️ System<br/>Error"]
-  Confirming -->|过程<br/>异常| SystemError
+  Pending -->|回滚| Reverted["↩️ Reverted"]
+  Pending -->|RPC 故障| SystemError["⚠️ System<br/>Error"]
+  Confirming -->|异常| SystemError
 
-  Rejected -.->|发起<br/>新预览| Idle
-  Reverted -.->|发起<br/>新预览| Idle
+  Rejected -.->|新预览| Idle
+  Reverted -.->|新预览| Idle
   SystemError -.->|重试| Idle
-  Confirmed -.->|发起<br/>新预览| Idle
+  Confirmed -.->|新预览| Idle
 
   classDef neutral fill:#f1f5f9,stroke:#64748b,stroke-width:1.8px,color:#0f172a;
   classDef success fill:#ecfdf5,stroke:#15803d,stroke-width:1.8px,color:#14532d;
