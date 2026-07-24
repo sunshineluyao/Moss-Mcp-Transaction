@@ -17,9 +17,9 @@ This demo bridges that gap: it takes a transaction intent (ERC20 transfer, appro
 
 ---
 
-## What Moss MCP Means in This Demo
+## What Moss MCP Is (and Is Not)
 
-[Moss MCP](https://github.com/nishuzumi/moss/tree/main/packages/mcp-server) is a **Model Context Protocol server** for the Monad ecosystem. It is **not** an auto-trading bot. It exposes a four-step lifecycle that a dApp or AI agent can call to understand a transaction before the user signs:
+[Moss MCP](https://github.com/nishuzumi/moss/tree/main/packages/mcp-server) is a **Model Context Protocol server** for the Monad ecosystem. **It is not an auto-trading AI agent.** It exposes a four-step lifecycle that a dApp or AI agent can call to understand a transaction before the user signs:
 
 | Step | What it does |
 |------|-------------|
@@ -28,20 +28,15 @@ This demo bridges that gap: it takes a transaction intent (ERC20 transfer, appro
 | `action(manifest, userParams)` | Constructs the unsigned transaction |
 | `simulate(unsignedTx, rpcUrl)` | Dry-runs the tx and returns a structured risk report |
 
-In this demo, `src/lib/mockMcp.ts` contains a local stub that returns the same data shape a real Moss MCP call would return. Swapping mock → real requires changing only the body of `simulateMCP()`:
+---
 
-```ts
-// Today: pure mock (in mockMcp.ts)
-export async function simulateMCP(params) { /* deterministic local logic */ }
+## Mock-First Status
 
-// Tomorrow: real MCP call
-import { MossClient } from "@moss/mcp-server";
-const client   = new MossClient({ rpcUrl: process.env.MONAD_RPC_URL });
-const actions  = await client.discover(params.accountAddress);
-const manifest = await client.load(actions[0].id, params);
-const tx       = await client.action(manifest, params);
-return           await client.simulate(tx);
-```
+This demo runs entirely in the browser with no live network calls.
+
+- `src/lib/mockMcp.ts` is the local stub that returns the same data shape a real Moss MCP call would return.
+- All four scenarios (Success, User Rejected, On-chain Reverted, System Error) are driven by the Scenario selector in the form.
+- No wallet, no RPC node, and no API key are needed to run or explore the demo.
 
 ---
 
@@ -92,19 +87,45 @@ This demo is intentionally constrained:
 
 ---
 
-## User Feedback Addressed
+## User Feedback and Improvements
 
 The following UX issues raised in user feedback were addressed in this pass:
 
-1. **Intro block** — A clear project title, subtitle, and two-sentence plain-English description now appear at the very top of the page, above the form.
-2. **Top safety notice** — A second amber safety notice bar appears directly beneath the intro, so users see it before interacting with any input.
-3. **"What is Moss MCP?" section** — A collapsible card between the intro and the form explains the discover/load/action/simulate lifecycle in beginner-friendly language and explicitly states this is not an auto-trading bot.
-4. **Input field helper text** — Every form field now has a short descriptive hint beneath it (Operation Type, Account Address, Token Address, Recipient/Spender, Amount, Scenario).
-5. **Contextual Recipient/Spender hint** — The helper text under the Recipient/Spender field adjusts based on the selected operation type (Transfer vs. Approve).
-6. **"Before you generate" checklist** — Three informational bullet points appear above the Generate Preview button as a reminder. The checklist is display-only and does not gate the button.
-7. **"How to read this preview" section** — When a result is shown, an info card above the preview card defines all 8 result fields (Protocol, Method, Intent, Parameters, Risk Labels, Warnings, Confidence, Receipt Texts) in one sentence each.
-8. **Status legend** — A compact two-column definition list beneath the Status Timeline defines all 8 states (Idle, Awaiting Signature, Pending, Confirming, Confirmed, Rejected, Reverted, System Error) with their exact plain-English meanings.
-9. **README rewrite** — This file was rewritten to include Project Purpose, What Moss MCP Means in This Demo, How to Run, Safety Boundary, this feedback section, Known Issues, and Next Steps.
+1. **The app introduction should appear before Generate Preview.**
+   A full-width intro block — project title, subtitle, and a plain-English description — now appears at the very top of the page, above the form. Users know what the app does before they touch any input.
+
+2. **Each input option needs a short explanation.**
+   Every form field now has helper text directly beneath it explaining what to enter and why. The Recipient/Spender hint also adapts based on the selected operation type (Transfer vs. Approve vs. Swap), so the label always matches the transaction being simulated.
+
+3. **Generated results need a "How to read this preview" guide.**
+   When a result appears, an info card above the preview card defines all eight result fields in one sentence each: Protocol, Method, Intent, Parameters, Risk Labels, Warnings, Confidence, and Receipt Texts. A status legend beneath the timeline defines all eight possible states in plain English.
+
+4. **The app should explain what Moss MCP does and clarify it is not an auto-trading AI Agent.**
+   A "What is Moss MCP?" card between the intro and the form explains the discover → load → action → simulate lifecycle in beginner-friendly language. It explicitly states that Moss MCP does not make decisions or execute trades.
+
+---
+
+## Future Integration Plan
+
+Swapping the mock for a real Moss MCP + Monad RPC integration requires changing only the body of `simulateMCP()` in `src/lib/mockMcp.ts`. The data types, UI, and result rendering stay the same.
+
+```ts
+// Today: pure mock (in mockMcp.ts)
+export async function simulateMCP(params) { /* deterministic local logic */ }
+
+// Tomorrow: real MCP call
+import { MossClient } from "@moss/mcp-server";
+const client   = new MossClient({ rpcUrl: process.env.MONAD_RPC_URL });
+const actions  = await client.discover(params.accountAddress);
+const manifest = await client.load(actions[0].id, params);
+const tx       = await client.action(manifest, params);
+return           await client.simulate(tx);
+```
+
+Planned additions after the mock is replaced:
+- ENS / hex address validation before the call is made
+- Live token balance check (warn when simulated amount exceeds wallet balance)
+- Real wallet handoff via MetaMask deep-link or WalletConnect after the checklist passes
 
 ---
 
@@ -127,6 +148,8 @@ The following UX issues raised in user feedback were addressed in this pass:
 - [ ] **Address validation** — validate hex addresses and support ENS resolution
 - [ ] **Token balance check** — warn when the simulated amount exceeds the connected account's balance
 - [ ] **Real wallet handoff** — after checklist completion, deep-link to MetaMask / WalletConnect with the pre-built transaction payload
+- [ ] **Moss RPC integration** — connect VITE_MONAD_RPC_URL for live balance checks and gas estimation
+- [ ] **PDF export** — let users save or print a simulation result as a report
 
 ---
 
