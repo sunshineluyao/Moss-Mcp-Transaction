@@ -62,11 +62,19 @@ No wallet, no funds, and no API key are needed to run the mock demo.
 
 **Environment variables** (optional — only needed for real MCP integration):
 
-```env
-# .env
-VITE_MOSS_RPC_URL=    # Moss MCP server endpoint — leave blank for mock mode
-VITE_MONAD_RPC_URL=   # Monad testnet/mainnet RPC — leave blank for mock mode
+A `.env.example` file is included in the project root. Copy it to `.env` to configure live endpoints:
+
+```bash
+cp .env.example .env
 ```
+
+```env
+# .env.example — placeholder values; replace with real endpoints when integrating
+VITE_MOSS_RPC_URL=https://mock.moss-mcp.local/rpc   # Moss MCP server endpoint
+VITE_MONAD_RPC_URL=https://mock.monad.local/rpc     # Monad testnet/mainnet RPC
+```
+
+Both variables default to mock/placeholder URLs. The mock runs without them set — they are only read once `simulateMCP()` is wired to a real `MossClient`.
 
 > **Never put private keys, seed phrases, or funded wallet credentials in `.env` or anywhere in this project.**
 
@@ -115,7 +123,7 @@ export async function simulateMCP(params) { /* deterministic local logic */ }
 
 // Tomorrow: real MCP call
 import { MossClient } from "@moss/mcp-server";
-const client   = new MossClient({ rpcUrl: process.env.MONAD_RPC_URL });
+const client   = new MossClient({ rpcUrl: import.meta.env.VITE_MONAD_RPC_URL });
 const actions  = await client.discover(params.accountAddress);
 const manifest = await client.load(actions[0].id, params);
 const tx       = await client.action(manifest, params);
