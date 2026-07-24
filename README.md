@@ -114,25 +114,68 @@ Moss MCP Transaction Preview is a beginner-friendly Web3 demo that helps users u
 7. Check the status badge and follow the status timeline.
 8. Review any warnings and the safety checklist before proceeding.
 
+### 🧾 Input Guide (Detailed)
+
+Use this section as a quick reference before clicking **Generate Preview**.
+
+| Field | What It Means | Practical Tip |
+|------|----------------|---------------|
+| `Operation Type` | Chooses which contract behavior to simulate. | Start with `ERC20 Transfer` for the clearest baseline. |
+| `Account Address` | The wallet context for the simulation. | Use a test/mock address only. |
+| `Token Address` | Token contract used by the operation. | Keep it consistent across scenarios for easier comparison. |
+| `Recipient / Spender Address` | Target receiver (Transfer/Swap) or approved spender (Approve). | Double-check role meaning before reading the intent text. |
+| `Amount` | Token amount used in simulation. | Try both small and large values to trigger different warnings. |
+| `Mock Scenario` | Forces terminal outcome states for learning and demo. | Use this to rehearse success/failure communication. |
+
+#### ⚙️ Operation Type Explained
+
+| Operation Type | Simulated Method | Primary Intent | Typical Risk Signal |
+|---------------|------------------|----------------|---------------------|
+| `ERC20 Transfer` | `transfer(address,uint256)` | Send tokens to recipient. | `LARGE_AMOUNT` warning when amount is high. |
+| `ERC20 Approve` | `approve(address,uint256)` | Allow spender to use tokens. | `APPROVE_UNLIMITED` for very large approvals. |
+| `Mock Swap Preview` | `exactInputSingle(params)` | Swap input token for estimated output. | `SLIPPAGE_RISK` due to execution uncertainty. |
+
+#### 🎭 Mock Scenario Explained
+
+| Scenario | Final Status | What It Simulates | How to Read It |
+|----------|--------------|-------------------|----------------|
+| `Success` | `CONFIRMED` | Simulated happy path confirmation. | Treat as best-case preview, not guarantee. |
+| `User Rejected` | `REJECTED` | User declines signing in wallet. | No on-chain submission happened. |
+| `On-chain Reverted` | `REVERTED` | Tx would fail during chain execution. | Watch revert warnings and cause hints. |
+| `System Error` | `SYSTEM_ERROR` | RPC/MCP pipeline failure. | Infrastructure issue, not user action. |
+
+> Safety reminder: all values are mock/demo inputs. The app does not sign or broadcast transactions.
+
 ### 🗺️ Visual Flow Diagram
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','primaryColor':'#ecfeff','primaryBorderColor':'#0ea5a4','primaryTextColor':'#0f172a','lineColor':'#0f766e','secondaryColor':'#fff7ed','tertiaryColor':'#f8fafc'}}}%%
 flowchart TB
   subgraph R1[Step 1 - Build]
     direction LR
-    A[Input Params] --> B[Generate Preview]
-    B --> C[MCP Mock Engine]
-    C --> D[Decoded Preview]
+    A([🎛 Input Params]) --> B([⚡ Generate Preview])
+    B --> C([🧠 MCP Mock Engine])
+    C --> D([🧾 Decoded Preview])
   end
 
   subgraph R2[Step 2 - Decide]
     direction LR
-    E[Lifecycle Status Timeline] --> F{Safe to Continue?}
-    F -->|Yes| G[Manual Wallet Review]
-    F -->|No| H[Edit or Stop]
+    E([📊 Status Timeline]) --> F{🛡 Safe to Continue?}
+    F -->|Yes| G([✅ Manual Wallet Review])
+    F -->|No| H([🛑 Edit or Stop])
   end
 
   D --> E
+
+  classDef main fill:#ecfeff,stroke:#0ea5a4,stroke-width:2px,color:#0f172a;
+  classDef decision fill:#fff7ed,stroke:#f97316,stroke-width:2px,color:#7c2d12;
+  classDef success fill:#ecfdf5,stroke:#16a34a,stroke-width:2px,color:#14532d;
+  classDef stop fill:#fef2f2,stroke:#ef4444,stroke-width:2px,color:#7f1d1d;
+
+  class A,B,C,D,E main;
+  class F decision;
+  class G success;
+  class H stop;
 ```
 
 ### 🎬 Demo GIF Generation Pipeline
@@ -144,24 +187,33 @@ This repository includes a reproducible script pipeline to generate dual compari
 - `assets/moss-mcp-transaction-preview-demo.gif` (compatibility copy of success)
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','primaryColor':'#ecfeff','primaryBorderColor':'#0284c7','primaryTextColor':'#0f172a','lineColor':'#0369a1','secondaryColor':'#eff6ff','tertiaryColor':'#f8fafc'}}}%%
 flowchart LR
   subgraph P1[Prepare]
-    A[pnpm install] --> B[pnpm run demo:gif]
+    A([📦 pnpm install]) --> B([🎬 pnpm run demo:gif])
   end
 
   subgraph P2[Capture]
-    C[Start local app] --> D[Auto interaction]
-    D --> E[Capture PNG frames]
+    C([🚀 Start local app]) --> D([🤖 Auto interaction])
+    D --> E([🖼 Capture PNG frames])
   end
 
   subgraph P3[Encode]
-    F[Palette + GIF encode]
-    G[success + rejected]
-    H[demo copy]
+    F([🎨 Palette + GIF encode])
+    G([✅ success + 🛑 rejected])
+    H([📎 demo compatibility copy])
   end
 
   B --> C
   E --> F --> G --> H
+
+  classDef prep fill:#eff6ff,stroke:#2563eb,stroke-width:2px,color:#1e3a8a;
+  classDef capture fill:#ecfeff,stroke:#0ea5a4,stroke-width:2px,color:#134e4a;
+  classDef encode fill:#fff7ed,stroke:#f97316,stroke-width:2px,color:#7c2d12;
+
+  class A,B prep;
+  class C,D,E capture;
+  class F,G,H encode;
 ```
 
 **Commands**
@@ -240,47 +292,69 @@ pnpm run demo:gif
 ### 🔄 Status Transition Diagram
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','primaryColor':'#f8fafc','primaryBorderColor':'#64748b','primaryTextColor':'#0f172a','lineColor':'#475569','secondaryColor':'#f1f5f9','tertiaryColor':'#ffffff'}}}%%
 flowchart TB
-  Idle[Idle] --> Awaiting[Awaiting Signature]
-  Awaiting -->|User Signs| Pending[Pending]
-  Awaiting -->|User Rejects| Rejected[Rejected]
+  Idle([🌙 Idle]) --> Awaiting([✍️ Awaiting Signature])
+  Awaiting -->|User Signs| Pending([📨 Pending])
+  Awaiting -->|User Rejects| Rejected([🛑 Rejected])
 
-  Pending --> Confirming[Confirming]
-  Confirming --> Confirmed[Confirmed]
-  Pending -->|Execution Failed| Reverted[Reverted]
-  Pending -->|RPC/Network Failure| SystemError[System Error]
+  Pending --> Confirming([🔄 Confirming])
+  Confirming --> Confirmed([✅ Confirmed])
+  Pending -->|Execution Failed| Reverted([↩️ Reverted])
+  Pending -->|RPC/Network Failure| SystemError([⚠️ System Error])
   Confirming -->|Unexpected Failure| SystemError
 
   Rejected --> Idle
   Reverted --> Idle
   SystemError --> Idle
   Confirmed --> Idle
+
+  classDef neutral fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#0f172a;
+  classDef success fill:#ecfdf5,stroke:#16a34a,stroke-width:2px,color:#14532d;
+  classDef danger fill:#fef2f2,stroke:#ef4444,stroke-width:2px,color:#7f1d1d;
+  classDef warn fill:#fff7ed,stroke:#f97316,stroke-width:2px,color:#7c2d12;
+
+  class Idle,Awaiting,Pending,Confirming neutral;
+  class Confirmed success;
+  class Rejected,Reverted danger;
+  class SystemError warn;
 ```
 
 ### 🏗️ Architecture at a Glance
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','primaryColor':'#f0fdfa','primaryBorderColor':'#14b8a6','primaryTextColor':'#0f172a','lineColor':'#0f766e','secondaryColor':'#f8fafc','tertiaryColor':'#ffffff'}}}%%
 flowchart TB
   subgraph L1[Frontend]
-    UI[React UI] --> Preview[Preview Panel]
+    UI([🖥 React UI]) --> Preview([🧾 Preview Panel])
   end
 
   subgraph L2[Simulation]
-    Engine[simulateMCP mock engine] --> Data[Deterministic Payload]
+    Engine([🧠 simulateMCP mock engine]) --> Data([📦 Deterministic Payload])
   end
 
   subgraph L3[Explanation]
-    Cards[Intent + Params + Warnings]
-    Timeline[Status Timeline]
+    Cards([🧩 Intent + Params + Warnings])
+    Timeline([📊 Status Timeline])
   end
 
   subgraph L4[Decision]
-    User[User Review Decision]
+    User([👤 User Review Decision])
   end
 
   Preview --> Engine
   Data --> Cards --> User
   Data --> Timeline --> User
+
+  classDef frontend fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#1e3a8a;
+  classDef sim fill:#ecfeff,stroke:#0ea5a4,stroke-width:2px,color:#134e4a;
+  classDef explain fill:#fff7ed,stroke:#f97316,stroke-width:2px,color:#7c2d12;
+  classDef decision fill:#ecfdf5,stroke:#16a34a,stroke-width:2px,color:#14532d;
+
+  class UI,Preview frontend;
+  class Engine,Data sim;
+  class Cards,Timeline explain;
+  class User decision;
 ```
 
 ### 🛠️ Developer Notes
@@ -382,25 +456,68 @@ Moss MCP Transaction Preview 是一个面向 Web3 新人的交易预览 Demo，�
 7. 查看状态徽章和状态时间线。
 8. 检查风险提示和安全检查清单，再决定是否继续。
 
+### 🧾 输入参数详解
+
+点击 **Generate Preview** 前，可先对照以下说明快速检查输入。
+
+| 字段 | 含义 | 实用建议 |
+|------|------|----------|
+| `Operation Type` | 选择要模拟的合约行为类型。 | 建议先用 `ERC20 Transfer` 建立基准认知。 |
+| `Account Address` | 作为模拟上下文的钱包地址。 | 仅使用测试/模拟地址。 |
+| `Token Address` | 本次操作关联的代币合约地址。 | 对比不同场景时尽量保持一致。 |
+| `Recipient / Spender Address` | 转账/兑换目标接收方，或授权中的 spender。 | 先确认角色再阅读 intent 文本。 |
+| `Amount` | 用于模拟的代币数量。 | 尝试小额和大额，观察 warning 变化。 |
+| `Mock Scenario` | 强制指定终态，用于学习和演示。 | 用来演练成功/失败路径说明。 |
+
+#### ⚙️ Operation Type 说明
+
+| Operation Type | 模拟方法 | 主要意图 | 常见风险信号 |
+|---------------|----------|----------|--------------|
+| `ERC20 Transfer` | `transfer(address,uint256)` | 向接收方发送代币。 | 数额过大时触发 `LARGE_AMOUNT`。 |
+| `ERC20 Approve` | `approve(address,uint256)` | 授权 spender 使用代币。 | 超大授权触发 `APPROVE_UNLIMITED`。 |
+| `Mock Swap Preview` | `exactInputSingle(params)` | 用输入代币兑换预估输出。 | 因执行不确定性触发 `SLIPPAGE_RISK`。 |
+
+#### 🎭 Mock Scenario 说明
+
+| 场景 | 最终状态 | 模拟含义 | 解读方式 |
+|------|----------|----------|----------|
+| `Success` | `CONFIRMED` | 模拟顺利完成的最佳路径。 | 这是理想预览，不是链上保证。 |
+| `User Rejected` | `REJECTED` | 用户在钱包侧拒绝签名。 | 不会产生上链提交。 |
+| `On-chain Reverted` | `REVERTED` | 交易在链上执行阶段失败。 | 重点查看回滚 warning 与原因提示。 |
+| `System Error` | `SYSTEM_ERROR` | RPC/MCP 链路异常。 | 属于基础设施问题，不是用户操作问题。 |
+
+> 安全提示：以上均为 mock/demo 输入，本应用不会签名或广播交易。
+
 ### 🗺️ 可视化流程图
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','primaryColor':'#ecfeff','primaryBorderColor':'#0ea5a4','primaryTextColor':'#0f172a','lineColor':'#0f766e','secondaryColor':'#fff7ed','tertiaryColor':'#f8fafc'}}}%%
 flowchart TB
   subgraph R1[步骤一 - 生成预览]
     direction LR
-    A[输入参数] --> B[点击 Generate Preview]
-    B --> C[Moss MCP 模拟引擎]
-    C --> D[已解码预览]
+    A([🎛 输入参数]) --> B([⚡ 点击 Generate Preview])
+    B --> C([🧠 Moss MCP 模拟引擎])
+    C --> D([🧾 已解码预览])
   end
 
   subgraph R2[步骤二 - 复核与决策]
     direction LR
-    E[生命周期状态时间线] --> F{是否可以继续?}
-    F -->|是| G[进入钱包手动复核]
-    F -->|否| H[修改或终止]
+    E([📊 生命周期状态时间线]) --> F{🛡 是否可以继续?}
+    F -->|是| G([✅ 进入钱包手动复核])
+    F -->|否| H([🛑 修改或终止])
   end
 
   D --> E
+
+  classDef main fill:#ecfeff,stroke:#0ea5a4,stroke-width:2px,color:#0f172a;
+  classDef decision fill:#fff7ed,stroke:#f97316,stroke-width:2px,color:#7c2d12;
+  classDef success fill:#ecfdf5,stroke:#16a34a,stroke-width:2px,color:#14532d;
+  classDef stop fill:#fef2f2,stroke:#ef4444,stroke-width:2px,color:#7f1d1d;
+
+  class A,B,C,D,E main;
+  class F decision;
+  class G success;
+  class H stop;
 ```
 
 ### 🎬 Demo GIF 生成流程
@@ -412,24 +529,33 @@ flowchart TB
 - `assets/moss-mcp-transaction-preview-demo.gif`（兼容副本，等同 success）
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','primaryColor':'#ecfeff','primaryBorderColor':'#0284c7','primaryTextColor':'#0f172a','lineColor':'#0369a1','secondaryColor':'#eff6ff','tertiaryColor':'#f8fafc'}}}%%
 flowchart LR
   subgraph P1[准备]
-    A[pnpm install] --> B[pnpm run demo:gif]
+    A([📦 pnpm install]) --> B([🎬 pnpm run demo:gif])
   end
 
   subgraph P2[录制]
-    C[启动本地应用] --> D[自动交互录制]
-    D --> E[输出 PNG 帧]
+    C([🚀 启动本地应用]) --> D([🤖 自动交互录制])
+    D --> E([🖼 输出 PNG 帧])
   end
 
   subgraph P3[编码]
-    F[调色板 + GIF 编码]
-    G[success + rejected]
-    H[demo 兼容副本]
+    F([🎨 调色板 + GIF 编码])
+    G([✅ success + 🛑 rejected])
+    H([📎 demo 兼容副本])
   end
 
   B --> C
   E --> F --> G --> H
+
+  classDef prep fill:#eff6ff,stroke:#2563eb,stroke-width:2px,color:#1e3a8a;
+  classDef capture fill:#ecfeff,stroke:#0ea5a4,stroke-width:2px,color:#134e4a;
+  classDef encode fill:#fff7ed,stroke:#f97316,stroke-width:2px,color:#7c2d12;
+
+  class A,B prep;
+  class C,D,E capture;
+  class F,G,H encode;
 ```
 
 **执行命令**
@@ -508,47 +634,69 @@ pnpm run demo:gif
 ### 🔄 状态流转图
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','primaryColor':'#f8fafc','primaryBorderColor':'#64748b','primaryTextColor':'#0f172a','lineColor':'#475569','secondaryColor':'#f1f5f9','tertiaryColor':'#ffffff'}}}%%
 flowchart TB
-  Idle[Idle] --> Awaiting[Awaiting Signature]
-  Awaiting -->|用户签名| Pending[Pending]
-  Awaiting -->|用户拒绝| Rejected[Rejected]
+  Idle([🌙 Idle]) --> Awaiting([✍️ Awaiting Signature])
+  Awaiting -->|用户签名| Pending([📨 Pending])
+  Awaiting -->|用户拒绝| Rejected([🛑 Rejected])
 
-  Pending --> Confirming[Confirming]
-  Confirming --> Confirmed[Confirmed]
-  Pending -->|链上执行失败| Reverted[Reverted]
-  Pending -->|RPC/网络故障| SystemError[System Error]
+  Pending --> Confirming([🔄 Confirming])
+  Confirming --> Confirmed([✅ Confirmed])
+  Pending -->|链上执行失败| Reverted([↩️ Reverted])
+  Pending -->|RPC/网络故障| SystemError([⚠️ System Error])
   Confirming -->|过程异常| SystemError
 
   Rejected --> Idle
   Reverted --> Idle
   SystemError --> Idle
   Confirmed --> Idle
+
+  classDef neutral fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#0f172a;
+  classDef success fill:#ecfdf5,stroke:#16a34a,stroke-width:2px,color:#14532d;
+  classDef danger fill:#fef2f2,stroke:#ef4444,stroke-width:2px,color:#7f1d1d;
+  classDef warn fill:#fff7ed,stroke:#f97316,stroke-width:2px,color:#7c2d12;
+
+  class Idle,Awaiting,Pending,Confirming neutral;
+  class Confirmed success;
+  class Rejected,Reverted danger;
+  class SystemError warn;
 ```
 
 ### 🏗️ 架构总览
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','primaryColor':'#f0fdfa','primaryBorderColor':'#14b8a6','primaryTextColor':'#0f172a','lineColor':'#0f766e','secondaryColor':'#f8fafc','tertiaryColor':'#ffffff'}}}%%
 flowchart TB
   subgraph L1[前端层]
-    UI[React 前端界面] --> Preview[预览面板]
+    UI([🖥 React 前端界面]) --> Preview([🧾 预览面板])
   end
 
   subgraph L2[模拟层]
-    Engine[simulateMCP 模拟引擎] --> Data[确定性预览数据]
+    Engine([🧠 simulateMCP 模拟引擎]) --> Data([📦 确定性预览数据])
   end
 
   subgraph L3[解释层]
-    Cards[意图 + 参数 + 风险提示]
-    Timeline[状态时间线]
+    Cards([🧩 意图 + 参数 + 风险提示])
+    Timeline([📊 状态时间线])
   end
 
   subgraph L4[决策层]
-    User[用户复核决策]
+    User([👤 用户复核决策])
   end
 
   Preview --> Engine
   Data --> Cards --> User
   Data --> Timeline --> User
+
+  classDef frontend fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#1e3a8a;
+  classDef sim fill:#ecfeff,stroke:#0ea5a4,stroke-width:2px,color:#134e4a;
+  classDef explain fill:#fff7ed,stroke:#f97316,stroke-width:2px,color:#7c2d12;
+  classDef decision fill:#ecfdf5,stroke:#16a34a,stroke-width:2px,color:#14532d;
+
+  class UI,Preview frontend;
+  class Engine,Data sim;
+  class Cards,Timeline explain;
+  class User decision;
 ```
 
 ### 🛠️ 开发者说明
