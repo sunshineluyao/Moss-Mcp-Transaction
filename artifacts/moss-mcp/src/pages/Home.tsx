@@ -12,7 +12,10 @@ import {
   ShieldAlert,
   ServerCrash,
   CheckCircle2,
-  ExternalLink
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  SquareCheck
 } from "lucide-react";
 import { simulateMCP } from "@/lib/mockMcp";
 import { MCPSimulationResult, SimulationFormParams, OperationType, ScenarioType } from "@/types/mcp";
@@ -26,6 +29,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const MOSS_MCP_GITHUB = "https://github.com/nishuzumi/moss/tree/main/packages/mcp-server";
+
+const SAFETY_TEXT =
+  "This demo is for transaction preview and learning only. It does not sign transactions, broadcast transactions, store private keys, or provide financial advice.";
 
 // Helper to truncate addresses
 function truncateAddress(address: string) {
@@ -77,12 +83,10 @@ function StatusTimeline({ currentStatus }: { currentStatus: MCPSimulationResult[
     failed?: boolean;
   };
 
-  // Build steps and determine active index based on status
   let steps: StepDef[];
   let activeIndex: number;
 
   if (currentStatus === "SYSTEM_ERROR") {
-    // Branches immediately — nothing after "Generated"
     steps = [
       { label: "Generated", icon: Activity, desc: "Simulation run" },
       { 
@@ -95,7 +99,6 @@ function StatusTimeline({ currentStatus }: { currentStatus: MCPSimulationResult[
     activeIndex = 1;
 
   } else if (currentStatus === "REJECTED") {
-    // Branches after "Awaiting Signature" — user declined before submission
     steps = [
       { label: "Generated", icon: Activity, desc: "Simulation run" },
       { label: "Awaiting", icon: ShieldCheck, desc: "User signature" },
@@ -109,7 +112,6 @@ function StatusTimeline({ currentStatus }: { currentStatus: MCPSimulationResult[
     activeIndex = 2;
 
   } else if (currentStatus === "REVERTED") {
-    // Branches after "Confirming" — tx was submitted but EVM execution failed
     steps = [
       { label: "Generated", icon: Activity, desc: "Simulation run" },
       { label: "Awaiting", icon: ShieldCheck, desc: "User signature" },
@@ -125,7 +127,6 @@ function StatusTimeline({ currentStatus }: { currentStatus: MCPSimulationResult[
     activeIndex = 4;
 
   } else {
-    // Normal happy-path states
     const normalStates = ["IDLE", "AWAITING_SIGNATURE", "PENDING", "CONFIRMING", "CONFIRMED"];
     steps = [
       { label: "Generated", icon: Activity, desc: "Simulation run" },
@@ -170,7 +171,6 @@ function StatusTimeline({ currentStatus }: { currentStatus: MCPSimulationResult[
             <div className="text-[10px] text-muted-foreground mt-1 text-center max-w-[90px] leading-tight">
               {step.desc}
             </div>
-            {/* Connecting Line */}
             {idx < steps.length - 1 && (
               <div className="hidden md:block absolute top-5 left-[50%] w-full h-[2px] -z-10 bg-border">
                 <div 
@@ -182,6 +182,36 @@ function StatusTimeline({ currentStatus }: { currentStatus: MCPSimulationResult[
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// Status Legend Component
+function StatusLegend() {
+  const states = [
+    { name: "Idle", def: "Simulation has been configured but not yet run." },
+    { name: "Awaiting Signature", def: "Preview generated; waiting for the user to approve in their wallet." },
+    { name: "Pending", def: "Transaction submitted to the chain; awaiting inclusion in a block." },
+    { name: "Confirming", def: "Transaction is in a block; waiting for enough block confirmations." },
+    { name: "Confirmed", def: "Transaction fully settled on-chain — success." },
+    { name: "Rejected", def: "User or wallet declined to sign; nothing was submitted on-chain." },
+    { name: "Reverted", def: "Transaction was submitted but the EVM execution failed on-chain." },
+    { name: "System Error", def: "MCP/RPC/integration failure — not an on-chain event." },
+  ];
+
+  return (
+    <div className="mt-6 border-t border-border/40 pt-4">
+      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
+        <Info className="w-3.5 h-3.5" /> Status Legend
+      </h4>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
+        {states.map((s) => (
+          <div key={s.name} className="flex gap-2 text-xs">
+            <span className="font-semibold text-foreground whitespace-nowrap">{s.name}:</span>
+            <span className="text-muted-foreground">{s.def}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -204,11 +234,116 @@ function BilingualBox({ enTitle, enBody, zhTitle, zhBody }: { enTitle: string; e
   );
 }
 
+// What is Moss MCP? collapsible section
+function WhatIsMossMCP() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Card className="border-border/60 bg-card/40">
+      <button
+        className="w-full text-left"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+      >
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-primary" />
+              What is Moss MCP?
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <a
+                href={MOSS_MCP_GITHUB}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-mono"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ExternalLink className="w-3 h-3" />
+                mcp-server
+              </a>
+              {open ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+            </div>
+          </div>
+          <CardDescription className="text-sm leading-relaxed mt-1">
+            A Model Context Protocol server that decodes and risk-scores blockchain transactions — not an auto-trading bot.
+          </CardDescription>
+        </CardHeader>
+      </button>
+
+      {open && (
+        <CardContent className="pt-0 pb-5 px-6 space-y-4 border-t border-border/40">
+          <p className="text-sm text-muted-foreground leading-relaxed pt-4">
+            <strong className="text-foreground">Moss MCP</strong> sits between your dApp and a Monad RPC node. It exposes a four-step lifecycle that a dApp or AI agent can call to understand a transaction before the user ever sees a signature prompt:
+          </p>
+          <ol className="space-y-2 text-sm text-muted-foreground list-none">
+            {[
+              { step: "discover", desc: "Finds available on-chain actions for a wallet address." },
+              { step: "load", desc: "Fetches the action manifest and resolves the ABI." },
+              { step: "action", desc: "Constructs the unsigned transaction from user parameters." },
+              { step: "simulate", desc: "Dry-runs the transaction and returns a structured risk report." },
+            ].map((item) => (
+              <li key={item.step} className="flex gap-3">
+                <code className="font-mono text-primary text-xs px-1.5 py-0.5 bg-primary/10 rounded shrink-0 h-fit">{item.step}</code>
+                <span>{item.desc}</span>
+              </li>
+            ))}
+          </ol>
+          <div className="bg-amber-500/5 border border-amber-500/20 rounded-md p-3 text-xs text-amber-400 leading-relaxed">
+            <strong>Important:</strong> Moss MCP is a preview and risk-analysis tool. It does not automatically execute trades, approve transactions, or move funds on your behalf.
+          </div>
+        </CardContent>
+      )}
+    </Card>
+  );
+}
+
+// "How to read this preview" info card
+function HowToReadPreview() {
+  const fields = [
+    { name: "Protocol", def: "The token standard or DeFi protocol the transaction targets (e.g. ERC20, Uniswap V3)." },
+    { name: "Method", def: "The specific smart-contract function being called (e.g. transfer, approve)." },
+    { name: "Intent", def: "A plain-English summary of what the transaction will do if signed." },
+    { name: "Parameters", def: "The decoded input values passed to the contract function (addresses, amounts, etc.)." },
+    { name: "Risk Labels", def: "Heuristic flags raised during simulation — red means high concern, amber means caution, green means low risk." },
+    { name: "Warnings", def: "Specific advisories generated by the simulation engine explaining detected risks." },
+    { name: "Confidence", def: "How certain the MCP is about its decoding — HIGH means well-known ABI, LOW means unverified contract." },
+    { name: "Receipt Texts", def: "The predicted state changes on-chain if the transaction succeeds — treat as a simulated outcome, not a guarantee." },
+  ];
+
+  return (
+    <Card className="border-border/60 bg-card/30">
+      <CardHeader className="pb-3 border-b border-border/40">
+        <CardTitle className="text-sm flex items-center gap-2 text-muted-foreground uppercase tracking-wider">
+          <Info className="w-4 h-4" /> How to read this preview
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+          {fields.map((f) => (
+            <div key={f.name} className="flex gap-2 text-xs">
+              <span className="font-semibold text-foreground whitespace-nowrap shrink-0">{f.name}:</span>
+              <span className="text-muted-foreground">{f.def}</span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Helper text displayed beneath a form field
+function FieldHint({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-xs text-muted-foreground mt-1 leading-snug">{children}</p>
+  );
+}
+
 export default function Home() {
   const [form, setForm] = useState<SimulationFormParams>({
     accountAddress: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
     operationType: "ERC20 Transfer",
-    tokenAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC mock
+    tokenAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     recipientAddress: "0x111122223333444455556666777788889999aAaa",
     amount: 100,
     scenario: "Success"
@@ -217,7 +352,6 @@ export default function Home() {
   const [isSimulating, setIsSimulating] = useState(false);
   const [result, setResult] = useState<MCPSimulationResult | null>(null);
   
-  // Safety checks
   const [checks, setChecks] = useState({
     recipient: false,
     effect: false,
@@ -245,6 +379,11 @@ export default function Home() {
 
   const isTerminal = result?.status === "REJECTED" || result?.status === "REVERTED" || result?.status === "SYSTEM_ERROR";
 
+  const recipientOrSpenderHelper =
+    form.operationType === "ERC20 Approve"
+      ? "Spender is allowed to use tokens after the approval is signed."
+      : "Recipient receives tokens; spender is allowed to use tokens after approval.";
+
   return (
     <div className="min-h-screen bg-background w-full text-foreground pb-20 selection:bg-primary/30">
       
@@ -264,6 +403,28 @@ export default function Home() {
         </div>
       </header>
 
+      {/* ── INTRO BLOCK ── */}
+      <div className="max-w-6xl mx-auto px-4 md:px-6 mt-8 space-y-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Moss MCP Transaction Preview</h2>
+          <p className="text-muted-foreground font-mono text-sm mt-1">Understand before you sign.</p>
+          <p className="text-sm text-muted-foreground leading-relaxed mt-3 max-w-2xl">
+            This demo shows you exactly what a blockchain transaction will do — in plain English — before you ever tap "Confirm" in your wallet.
+            Configure a mock operation, click <strong className="text-foreground">Generate Preview</strong>, and see the decoded intent, risk labels, and simulated outcome.
+            <span className="text-muted-foreground/70"> All data is mocked; nothing is broadcast to any network.</span>
+          </p>
+        </div>
+
+        {/* ── TOP SAFETY NOTICE ── */}
+        <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-lg px-4 py-3">
+          <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+          <p className="text-xs text-amber-400 leading-relaxed">{SAFETY_TEXT}</p>
+        </div>
+
+        {/* ── WHAT IS MOSS MCP? ── */}
+        <WhatIsMossMCP />
+      </div>
+
       <main className="max-w-6xl mx-auto px-4 md:px-6 mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* INPUT ZONE */}
@@ -275,17 +436,9 @@ export default function Home() {
 
           <Card className="bg-card/50 backdrop-blur">
             <CardContent className="p-5 space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="account">Account Address</Label>
-                <Input 
-                  id="account" 
-                  className="font-mono text-xs" 
-                  value={form.accountAddress} 
-                  onChange={(e) => setForm({ ...form, accountAddress: e.target.value })} 
-                />
-              </div>
 
-              <div className="space-y-2">
+              {/* Operation Type */}
+              <div className="space-y-1">
                 <Label>Operation Type</Label>
                 <Select value={form.operationType} onValueChange={(v: OperationType) => setForm({ ...form, operationType: v })}>
                   <SelectTrigger>
@@ -297,9 +450,23 @@ export default function Home() {
                     <SelectItem value="Mock Swap Preview">Mock Swap Preview</SelectItem>
                   </SelectContent>
                 </Select>
+                <FieldHint>Choose the type of Web3 operation you want to preview.</FieldHint>
               </div>
 
-              <div className="space-y-2">
+              {/* Account Address */}
+              <div className="space-y-1">
+                <Label htmlFor="account">Account Address</Label>
+                <Input 
+                  id="account" 
+                  className="font-mono text-xs" 
+                  value={form.accountAddress} 
+                  onChange={(e) => setForm({ ...form, accountAddress: e.target.value })} 
+                />
+                <FieldHint>Use a test address only. Do not enter private keys or seed phrases.</FieldHint>
+              </div>
+
+              {/* Token Address */}
+              <div className="space-y-1">
                 <Label htmlFor="token">Token Address</Label>
                 <Input 
                   id="token" 
@@ -307,9 +474,11 @@ export default function Home() {
                   value={form.tokenAddress} 
                   onChange={(e) => setForm({ ...form, tokenAddress: e.target.value })} 
                 />
+                <FieldHint>The token contract involved in the mock operation.</FieldHint>
               </div>
 
-              <div className="space-y-2">
+              {/* Recipient / Spender */}
+              <div className="space-y-1">
                 <Label htmlFor="recipient">{form.operationType === "ERC20 Approve" ? "Spender Address" : "Recipient Address"}</Label>
                 <Input 
                   id="recipient" 
@@ -317,10 +486,12 @@ export default function Home() {
                   value={form.recipientAddress} 
                   onChange={(e) => setForm({ ...form, recipientAddress: e.target.value })} 
                 />
+                <FieldHint>{recipientOrSpenderHelper}</FieldHint>
               </div>
 
+              {/* Amount + Scenario */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <Label htmlFor="amount">Amount</Label>
                   <Input 
                     id="amount" 
@@ -329,8 +500,9 @@ export default function Home() {
                     value={form.amount} 
                     onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })} 
                   />
+                  <FieldHint>The mock token amount used for preview.</FieldHint>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <Label>Mock Scenario</Label>
                   <Select value={form.scenario} onValueChange={(v: ScenarioType) => setForm({ ...form, scenario: v })}>
                     <SelectTrigger>
@@ -343,12 +515,32 @@ export default function Home() {
                       <SelectItem value="System Error">System Error</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FieldHint>Choose how the simulated transaction lifecycle should behave.</FieldHint>
                 </div>
+              </div>
+
+              {/* ── BEFORE YOU GENERATE checklist (informational only) ── */}
+              <div className="mt-2 rounded-md border border-border/50 bg-card/30 p-3 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <SquareCheck className="w-3.5 h-3.5" /> Before you generate
+                </p>
+                <ul className="space-y-1.5">
+                  {[
+                    "You are using a test or mock address — not a live funded wallet.",
+                    "You understand this is a simulation only; nothing will be signed or broadcast.",
+                    "You will verify all details again inside your real wallet before signing.",
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
 
               <Button 
                 onClick={handleSimulate} 
-                className="w-full mt-4 font-semibold shadow-lg shadow-primary/20" 
+                className="w-full mt-2 font-semibold shadow-lg shadow-primary/20" 
                 disabled={isSimulating}
               >
                 {isSimulating ? (
@@ -390,6 +582,9 @@ export default function Home() {
 
           {result && !isSimulating && (
             <div className="space-y-6 animate-in slide-in-from-bottom-4 fade-in duration-500">
+
+              {/* ── HOW TO READ THIS PREVIEW ── */}
+              <HowToReadPreview />
               
               <Card className="overflow-hidden border-border shadow-2xl">
                 {/* Status bar top edge */}
@@ -479,7 +674,6 @@ export default function Home() {
                         {result.riskLabels.length > 0 ? (
                           <div className="flex flex-wrap gap-2">
                             {result.riskLabels.map(label => {
-                              // Color by severity — no non-existent variants
                               let cls = "font-mono text-[10px] border";
                               if (label.includes("UNLIMITED") || label.includes("UNVERIFIED") || label.includes("REVERT")) {
                                 cls += " bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive/20";
@@ -570,10 +764,11 @@ export default function Home() {
                 </CardFooter>
               </Card>
 
-              {/* Status Timeline */}
+              {/* Status Timeline + Legend */}
               <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Transaction Lifecycle</h3>
                 <StatusTimeline currentStatus={result.status} />
+                <StatusLegend />
               </div>
 
               {/* Moss MCP Integration Explainer */}
@@ -608,7 +803,6 @@ export default function Home() {
                 </CardHeader>
 
                 <CardContent className="p-6 space-y-5">
-                  {/* Code callout */}
                   <div>
                     <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-2">
                       Swap stub → real SDK (one function body change)
@@ -626,7 +820,6 @@ async function simulateMCP(params: SimulationFormParams) {
                     </pre>
                   </div>
 
-                  {/* Bilingual info boxes */}
                   <div className="space-y-3">
                     <BilingualBox
                       enTitle="What is Moss MCP?"
@@ -664,7 +857,7 @@ async function simulateMCP(params: SimulationFormParams) {
       {/* Safety Notice Banner */}
       <div className="fixed bottom-0 left-0 right-0 bg-amber-500/10 border-t border-amber-500/20 text-amber-500/80 backdrop-blur-md z-50">
         <div className="max-w-6xl mx-auto px-4 py-2 text-[10px] md:text-xs text-center font-medium">
-          This demo is for transaction preview and learning only. It does not sign transactions, broadcast transactions, store private keys, or provide financial advice.
+          {SAFETY_TEXT}
         </div>
       </div>
     </div>
