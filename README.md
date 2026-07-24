@@ -156,7 +156,7 @@ flowchart TB
   subgraph R1[Step 1 - Build]
     direction LR
     A["🎛 Input<br/>Params"] --> B["⚡ Generate<br/>Preview"]
-    B --> C["🧠 MCP Mock<br/>Engine"]
+    B --> C["🧠 Local<br/>Simulation<br/>Engine"]
     C --> D["🧾 Decoded<br/>Preview"]
   end
 
@@ -362,7 +362,7 @@ flowchart TB
   end
 
   subgraph L2[Simulation]
-    Engine["🧠 simulateMCP<br/>mock engine"] --> Data["📦 Deterministic<br/>Payload"]
+    Engine["🧠 simulateMCP<br/>local sim"] --> Data["📦 Deterministic<br/>Payload"]
   end
 
   subgraph L3[Explanation]
@@ -392,10 +392,11 @@ flowchart TB
 ### 🛠️ Developer Notes
 
 - The current app is **mock-first** — `src/lib/mockMcp.ts` returns deterministic simulated data with no network calls.
+- It is **not connected to a live Moss MCP server yet**.
 - Future integration: replace the body of `simulateMCP()` with live Moss MCP `discover / load / action / simulate` SDK calls.
 - Environment variables use placeholders only:
   ```
-  VITE_MOSS_RPC_URL=    # Moss MCP server endpoint
+  VITE_MOSS_RPC_URL=    # Planned Moss MCP server endpoint (not active in mock mode)
   VITE_MONAD_RPC_URL=   # Monad testnet/mainnet RPC
   ```
 - **Never commit private keys, seed phrases, or funded wallet credentials.**
@@ -530,7 +531,7 @@ flowchart TB
   subgraph R1[步骤一 - 生成预览]
     direction LR
     A["🎛 输入<br/>参数"] --> B["⚡ 点击 Generate<br/>Preview"]
-    B --> C["🧠 Moss MCP<br/>模拟引擎"]
+    B --> C["🧠 本地<br/>模拟<br/>引擎"]
     C --> D["🧾 已解码<br/>预览"]
   end
 
@@ -736,7 +737,7 @@ flowchart TB
   end
 
   subgraph L2[模拟层]
-    Engine["🧠 simulateMCP<br/>模拟引擎"] --> Data["📦 确定性<br/>预览数据"]
+    Engine["🧠 simulateMCP<br/>本地模拟"] --> Data["📦 确定性<br/>预览数据"]
   end
 
   subgraph L3[解释层]
@@ -766,10 +767,11 @@ flowchart TB
 ### 🛠️ 开发者说明
 
 - 当前版本采用 **mock-first**——`src/lib/mockMcp.ts` 返回确定性的模拟数据，无任何网络请求。
+- 当前**尚未连接 live Moss MCP server**。
 - 后续集成：将 `simulateMCP()` 的函数体替换为真实 Moss MCP 的 `discover / load / action / simulate` SDK 调用。
 - 环境变量只使用占位符：
   ```
-  VITE_MOSS_RPC_URL=    # Moss MCP server 地址
+  VITE_MOSS_RPC_URL=    # 预留的 Moss MCP server 地址（mock 模式下不生效）
   VITE_MONAD_RPC_URL=   # Monad 测试网 / 主网 RPC
   ```
 - **不要提交私钥、助记词或任何含资金的钱包凭据。**
