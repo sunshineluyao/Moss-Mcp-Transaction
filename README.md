@@ -178,12 +178,12 @@ stateDiagram-v2
   Confirmed --> Idle
 ```
 
-### 🏗️ Architecture At A Glance
+### 🏗️ Architecture at a Glance
 
 ```mermaid
 flowchart TB
   UI[React UI] --> Preview[Preview Builder]
-  Preview --> Engine[simulateMCP() Mock Engine]
+  Preview --> Engine[simulateMCP mock engine]
   Engine --> Data[Deterministic Preview Payload]
   Data --> Cards[Intent / Params / Warning Cards]
   Data --> Timeline[Status Timeline + Final State]
@@ -383,12 +383,12 @@ stateDiagram-v2
   Confirmed --> Idle
 ```
 
-### 🏗️ 架构一览
+### 🏗️ 架构总览
 
 ```mermaid
 flowchart TB
   UI[React 前端界面] --> Preview[预览构建器]
-  Preview --> Engine[simulateMCP() 模拟引擎]
+  Preview --> Engine[simulateMCP 模拟引擎]
   Engine --> Data[确定性预览数据]
   Data --> Cards[意图 / 参数 / 风险提示卡片]
   Data --> Timeline[状态时间线 + 最终状态]
