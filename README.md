@@ -209,8 +209,8 @@ flowchart LR
     H["📎 Create demo<br/>compatibility copy"]
   end
 
-  B -->|launches| C
-  E -->|Frames<br/>captured| F -->|Two<br/>outcomes| G -->|Copy success<br/>build| H
+  B --> C
+  E --> F --> G --> H
 
   classDef prep fill:#eff6ff,stroke:#2563eb,stroke-width:1.8px,color:#1e3a8a;
   classDef capture fill:#ecfeff,stroke:#0f766e,stroke-width:1.8px,color:#134e4a;
@@ -598,12 +598,12 @@ flowchart LR
 
   subgraph P3[编码]
     F["🎨 生成调色板<br/>编码 GIF"]
-    G["✅ success 版本<br/>🛑 rejected 版本"]
-    H["📎 demo<br/>兼容副本"]
+    G["✅ 成功版本<br/>🛑 拒签版本"]
+    H["📎 演示<br/>兼容副本"]
   end
 
-  B -->|启动| C
-  E -->|帧录制<br/>完成| F -->|生成<br/>双场景| G -->|复制<br/>成功版本| H
+  B --> C
+  E --> F --> G --> H
 
   classDef prep fill:#eff6ff,stroke:#2563eb,stroke-width:1.8px,color:#1e3a8a;
   classDef capture fill:#ecfeff,stroke:#0f766e,stroke-width:1.8px,color:#134e4a;
@@ -730,14 +730,14 @@ pnpm run demo:gif
 ```mermaid
 %%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 132, 'rankSpacing': 132, 'curve': 'basis', 'padding': 40, 'diagramPadding': 32, 'wrappingWidth': 320},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'14px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
-  Idle["Idle"] --> Awaiting["Awaiting Signature"]
-  Awaiting --> Pending["Pending"]
-  Awaiting --> Rejected["Rejected"]
+  Idle["空闲"] --> Awaiting["等待签名"]
+  Awaiting --> Pending["处理中"]
+  Awaiting --> Rejected["已拒绝"]
 
-  Pending --> Confirming["Confirming"]
-  Confirming --> Confirmed["Confirmed"]
-  Pending --> Reverted["Reverted"]
-  Pending --> SystemError["System<br/>Error"]
+  Pending --> Confirming["确认中"]
+  Confirming --> Confirmed["已确认"]
+  Pending --> Reverted["已回滚"]
+  Pending --> SystemError["系统错误"]
   Confirming --> SystemError
 
   Rejected -.->|新预览| Idle
