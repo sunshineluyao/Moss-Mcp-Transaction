@@ -151,7 +151,7 @@ Use this section as a quick reference before clicking **Generate Preview**.
 ### 🗺️ Visual Flow Diagram
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 58, 'rankSpacing': 72, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'transparent','primaryBorderColor':'#5eead4','primaryTextColor':'#e6edf7','lineColor':'#93c5fd','secondaryColor':'rgba(15,23,42,0.18)','tertiaryColor':'transparent','background':'transparent','edgeLabelBackground':'rgba(15,23,42,0.62)'},'themeCSS': '.edgeLabel rect{fill:rgba(15,23,42,0.62)!important;stroke:rgba(148,163,184,0.45)!important;} .edgeLabel p,.edgeLabel span{color:#e6edf7!important;}'} }%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 58, 'rankSpacing': 72, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'#eef6ff','primaryBorderColor':'#3b82f6','primaryTextColor':'#0f172a','lineColor':'#334155','secondaryColor':'#f8fafc','tertiaryColor':'#f1f5f9','edgeLabelBackground':'#e2e8f0'}}}%%
 flowchart TB
   subgraph R1[Step 1 - Build]
     direction LR
@@ -169,10 +169,10 @@ flowchart TB
 
   D --> E
 
-  classDef main fill:#0f766e29,stroke:#5eead4,stroke-width:1.8px,color:#e6fffb;
-  classDef decision fill:#b4530933,stroke:#fdba74,stroke-width:1.8px,color:#fff7ed;
-  classDef success fill:#16a34a2e,stroke:#86efac,stroke-width:1.8px,color:#f0fdf4;
-  classDef stop fill:#dc26262e,stroke:#fca5a5,stroke-width:1.8px,color:#fff1f2;
+  classDef main fill:#ecfeff,stroke:#0f766e,stroke-width:1.8px,color:#0f172a;
+  classDef decision fill:#fff7ed,stroke:#c2410c,stroke-width:1.8px,color:#7c2d12;
+  classDef success fill:#ecfdf5,stroke:#15803d,stroke-width:1.8px,color:#14532d;
+  classDef stop fill:#fef2f2,stroke:#dc2626,stroke-width:1.8px,color:#7f1d1d;
 
   class A,B,C,D,E main;
   class F decision;
@@ -189,7 +189,7 @@ This repository includes a reproducible script pipeline to generate dual compari
 - `assets/moss-mcp-transaction-preview-demo.gif` (compatibility copy of success)
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 56, 'rankSpacing': 70, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'transparent','primaryBorderColor':'#93c5fd','primaryTextColor':'#e6edf7','lineColor':'#93c5fd','secondaryColor':'rgba(15,23,42,0.18)','tertiaryColor':'transparent','background':'transparent','edgeLabelBackground':'rgba(15,23,42,0.62)'},'themeCSS': '.edgeLabel rect{fill:rgba(15,23,42,0.62)!important;stroke:rgba(148,163,184,0.45)!important;} .edgeLabel p,.edgeLabel span{color:#e6edf7!important;}'} }%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 56, 'rankSpacing': 70, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'#eef6ff','primaryBorderColor':'#3b82f6','primaryTextColor':'#0f172a','lineColor':'#334155','secondaryColor':'#f8fafc','tertiaryColor':'#f1f5f9','edgeLabelBackground':'#e2e8f0'}}}%%
 flowchart LR
   subgraph P1[Prepare]
     A["📦 pnpm install"] --> B["🎬 pnpm run<br/>demo:gif"]
@@ -209,9 +209,9 @@ flowchart LR
   B --> C
   E --> F --> G --> H
 
-  classDef prep fill:#1e40af2e,stroke:#93c5fd,stroke-width:1.8px,color:#eff6ff;
-  classDef capture fill:#0f766e29,stroke:#5eead4,stroke-width:1.8px,color:#e6fffb;
-  classDef encode fill:#b4530933,stroke:#fdba74,stroke-width:1.8px,color:#fff7ed;
+  classDef prep fill:#eff6ff,stroke:#2563eb,stroke-width:1.8px,color:#1e3a8a;
+  classDef capture fill:#ecfeff,stroke:#0f766e,stroke-width:1.8px,color:#134e4a;
+  classDef encode fill:#fff7ed,stroke:#c2410c,stroke-width:1.8px,color:#7c2d12;
 
   class A,B prep;
   class C,D,E capture;
@@ -260,8 +260,8 @@ All Mermaid diagrams use a consistent visual token strategy to balance readabili
 - Semantic colors:
   - Teal = simulation/primary flow, blue = system/process, green = success, red = stop/error, amber = warning/decision.
 - Compatibility note:
-  - Mermaid `classDef` styles avoid `rgba(...)` fill syntax to prevent parser conflicts.
-  - Hex alpha colors are used instead for transparent effects and reliable rendering.
+  - Mermaid config intentionally uses conservative syntax supported by GitHub's renderer.
+  - Solid hex colors are used for maximum cross-environment rendering reliability.
 
 ### 🎞️ Scenario Comparison
 
@@ -324,7 +324,7 @@ All Mermaid diagrams use a consistent visual token strategy to balance readabili
 ### 🔄 Status Transition Diagram
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 56, 'rankSpacing': 72, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'transparent','primaryBorderColor':'#cbd5e1','primaryTextColor':'#e6edf7','lineColor':'#cbd5e1','secondaryColor':'rgba(15,23,42,0.18)','tertiaryColor':'transparent','background':'transparent','edgeLabelBackground':'rgba(15,23,42,0.62)'},'themeCSS': '.edgeLabel rect{fill:rgba(15,23,42,0.62)!important;stroke:rgba(148,163,184,0.45)!important;} .edgeLabel p,.edgeLabel span{color:#e6edf7!important;}'} }%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 56, 'rankSpacing': 72, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'#eef6ff','primaryBorderColor':'#3b82f6','primaryTextColor':'#0f172a','lineColor':'#334155','secondaryColor':'#f8fafc','tertiaryColor':'#f1f5f9','edgeLabelBackground':'#e2e8f0'}}}%%
 flowchart TB
   Idle["🌙 Idle"] --> Awaiting["✍️ Awaiting<br/>Signature"]
   Awaiting -->|User Signs| Pending["📨 Pending"]
@@ -341,10 +341,10 @@ flowchart TB
   SystemError --> Idle
   Confirmed --> Idle
 
-  classDef neutral fill:#47556938,stroke:#cbd5e1,stroke-width:1.8px,color:#f8fafc;
-  classDef success fill:#16a34a2e,stroke:#86efac,stroke-width:1.8px,color:#f0fdf4;
-  classDef danger fill:#dc26262e,stroke:#fca5a5,stroke-width:1.8px,color:#fff1f2;
-  classDef warn fill:#b4530933,stroke:#fdba74,stroke-width:1.8px,color:#fff7ed;
+  classDef neutral fill:#f1f5f9,stroke:#64748b,stroke-width:1.8px,color:#0f172a;
+  classDef success fill:#ecfdf5,stroke:#15803d,stroke-width:1.8px,color:#14532d;
+  classDef danger fill:#fef2f2,stroke:#dc2626,stroke-width:1.8px,color:#7f1d1d;
+  classDef warn fill:#fff7ed,stroke:#c2410c,stroke-width:1.8px,color:#7c2d12;
 
   class Idle,Awaiting,Pending,Confirming neutral;
   class Confirmed success;
@@ -355,7 +355,7 @@ flowchart TB
 ### 🏗️ Architecture at a Glance
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 58, 'rankSpacing': 72, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'transparent','primaryBorderColor':'#5eead4','primaryTextColor':'#e6edf7','lineColor':'#93c5fd','secondaryColor':'rgba(15,23,42,0.18)','tertiaryColor':'transparent','background':'transparent','edgeLabelBackground':'rgba(15,23,42,0.62)'},'themeCSS': '.edgeLabel rect{fill:rgba(15,23,42,0.62)!important;stroke:rgba(148,163,184,0.45)!important;} .edgeLabel p,.edgeLabel span{color:#e6edf7!important;}'} }%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 58, 'rankSpacing': 72, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'#eef6ff','primaryBorderColor':'#3b82f6','primaryTextColor':'#0f172a','lineColor':'#334155','secondaryColor':'#f8fafc','tertiaryColor':'#f1f5f9','edgeLabelBackground':'#e2e8f0'}}}%%
 flowchart TB
   subgraph L1[Frontend]
     UI["🖥 React UI"] --> Preview["🧾 Preview<br/>Panel"]
@@ -378,10 +378,10 @@ flowchart TB
   Data --> Cards --> User
   Data --> Timeline --> User
 
-  classDef frontend fill:#1e40af2e,stroke:#93c5fd,stroke-width:1.8px,color:#eff6ff;
-  classDef sim fill:#0f766e29,stroke:#5eead4,stroke-width:1.8px,color:#e6fffb;
-  classDef explain fill:#b4530933,stroke:#fdba74,stroke-width:1.8px,color:#fff7ed;
-  classDef decision fill:#16a34a2e,stroke:#86efac,stroke-width:1.8px,color:#f0fdf4;
+  classDef frontend fill:#eff6ff,stroke:#2563eb,stroke-width:1.8px,color:#1e3a8a;
+  classDef sim fill:#ecfeff,stroke:#0f766e,stroke-width:1.8px,color:#134e4a;
+  classDef explain fill:#fff7ed,stroke:#c2410c,stroke-width:1.8px,color:#7c2d12;
+  classDef decision fill:#ecfdf5,stroke:#15803d,stroke-width:1.8px,color:#14532d;
 
   class UI,Preview frontend;
   class Engine,Data sim;
@@ -525,7 +525,7 @@ Moss MCP Transaction Preview 是一个面向 Web3 新人的交易预览 Demo，�
 ### 🗺️ 可视化流程图
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 58, 'rankSpacing': 72, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'transparent','primaryBorderColor':'#5eead4','primaryTextColor':'#e6edf7','lineColor':'#93c5fd','secondaryColor':'rgba(15,23,42,0.18)','tertiaryColor':'transparent','background':'transparent','edgeLabelBackground':'rgba(15,23,42,0.62)'},'themeCSS': '.edgeLabel rect{fill:rgba(15,23,42,0.62)!important;stroke:rgba(148,163,184,0.45)!important;} .edgeLabel p,.edgeLabel span{color:#e6edf7!important;}'} }%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 58, 'rankSpacing': 72, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'#eef6ff','primaryBorderColor':'#3b82f6','primaryTextColor':'#0f172a','lineColor':'#334155','secondaryColor':'#f8fafc','tertiaryColor':'#f1f5f9','edgeLabelBackground':'#e2e8f0'}}}%%
 flowchart TB
   subgraph R1[步骤一 - 生成预览]
     direction LR
@@ -543,10 +543,10 @@ flowchart TB
 
   D --> E
 
-  classDef main fill:#0f766e29,stroke:#5eead4,stroke-width:1.8px,color:#e6fffb;
-  classDef decision fill:#b4530933,stroke:#fdba74,stroke-width:1.8px,color:#fff7ed;
-  classDef success fill:#16a34a2e,stroke:#86efac,stroke-width:1.8px,color:#f0fdf4;
-  classDef stop fill:#dc26262e,stroke:#fca5a5,stroke-width:1.8px,color:#fff1f2;
+  classDef main fill:#ecfeff,stroke:#0f766e,stroke-width:1.8px,color:#0f172a;
+  classDef decision fill:#fff7ed,stroke:#c2410c,stroke-width:1.8px,color:#7c2d12;
+  classDef success fill:#ecfdf5,stroke:#15803d,stroke-width:1.8px,color:#14532d;
+  classDef stop fill:#fef2f2,stroke:#dc2626,stroke-width:1.8px,color:#7f1d1d;
 
   class A,B,C,D,E main;
   class F decision;
@@ -563,7 +563,7 @@ flowchart TB
 - `assets/moss-mcp-transaction-preview-demo.gif`（兼容副本，等同 success）
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 56, 'rankSpacing': 70, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'transparent','primaryBorderColor':'#93c5fd','primaryTextColor':'#e6edf7','lineColor':'#93c5fd','secondaryColor':'rgba(15,23,42,0.18)','tertiaryColor':'transparent','background':'transparent','edgeLabelBackground':'rgba(15,23,42,0.62)'},'themeCSS': '.edgeLabel rect{fill:rgba(15,23,42,0.62)!important;stroke:rgba(148,163,184,0.45)!important;} .edgeLabel p,.edgeLabel span{color:#e6edf7!important;}'} }%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 56, 'rankSpacing': 70, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'#eef6ff','primaryBorderColor':'#3b82f6','primaryTextColor':'#0f172a','lineColor':'#334155','secondaryColor':'#f8fafc','tertiaryColor':'#f1f5f9','edgeLabelBackground':'#e2e8f0'}}}%%
 flowchart LR
   subgraph P1[准备]
     A["📦 pnpm install"] --> B["🎬 pnpm run<br/>demo:gif"]
@@ -583,9 +583,9 @@ flowchart LR
   B --> C
   E --> F --> G --> H
 
-  classDef prep fill:#1e40af2e,stroke:#93c5fd,stroke-width:1.8px,color:#eff6ff;
-  classDef capture fill:#0f766e29,stroke:#5eead4,stroke-width:1.8px,color:#e6fffb;
-  classDef encode fill:#b4530933,stroke:#fdba74,stroke-width:1.8px,color:#fff7ed;
+  classDef prep fill:#eff6ff,stroke:#2563eb,stroke-width:1.8px,color:#1e3a8a;
+  classDef capture fill:#ecfeff,stroke:#0f766e,stroke-width:1.8px,color:#134e4a;
+  classDef encode fill:#fff7ed,stroke:#c2410c,stroke-width:1.8px,color:#7c2d12;
 
   class A,B prep;
   class C,D,E capture;
@@ -634,8 +634,8 @@ pnpm run demo:gif
 - 语义配色：
   - 青色 = 模拟/主流程，蓝色 = 系统/过程，绿色 = 成功，红色 = 停止/错误，琥珀色 = 警告/决策。
 - 兼容性说明：
-  - Mermaid `classDef` 避免使用 `rgba(...)` 作为填充，防止解析冲突。
-  - 统一改用 8 位十六进制透明色以保证渲染稳定。
+  - Mermaid 配置采用 GitHub 渲染器更稳妥的保守语法。
+  - 统一使用纯十六进制颜色，优先保证跨环境渲染稳定性。
 
 ### 🎞️ 场景对比
 
@@ -698,7 +698,7 @@ pnpm run demo:gif
 ### 🔄 状态流转图
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 56, 'rankSpacing': 72, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'transparent','primaryBorderColor':'#cbd5e1','primaryTextColor':'#e6edf7','lineColor':'#cbd5e1','secondaryColor':'rgba(15,23,42,0.18)','tertiaryColor':'transparent','background':'transparent','edgeLabelBackground':'rgba(15,23,42,0.62)'},'themeCSS': '.edgeLabel rect{fill:rgba(15,23,42,0.62)!important;stroke:rgba(148,163,184,0.45)!important;} .edgeLabel p,.edgeLabel span{color:#e6edf7!important;}'} }%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 56, 'rankSpacing': 72, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'#eef6ff','primaryBorderColor':'#3b82f6','primaryTextColor':'#0f172a','lineColor':'#334155','secondaryColor':'#f8fafc','tertiaryColor':'#f1f5f9','edgeLabelBackground':'#e2e8f0'}}}%%
 flowchart TB
   Idle["🌙 Idle"] --> Awaiting["✍️ Awaiting<br/>Signature"]
   Awaiting -->|用户签名| Pending["📨 Pending"]
@@ -715,10 +715,10 @@ flowchart TB
   SystemError --> Idle
   Confirmed --> Idle
 
-  classDef neutral fill:#47556938,stroke:#cbd5e1,stroke-width:1.8px,color:#f8fafc;
-  classDef success fill:#16a34a2e,stroke:#86efac,stroke-width:1.8px,color:#f0fdf4;
-  classDef danger fill:#dc26262e,stroke:#fca5a5,stroke-width:1.8px,color:#fff1f2;
-  classDef warn fill:#b4530933,stroke:#fdba74,stroke-width:1.8px,color:#fff7ed;
+  classDef neutral fill:#f1f5f9,stroke:#64748b,stroke-width:1.8px,color:#0f172a;
+  classDef success fill:#ecfdf5,stroke:#15803d,stroke-width:1.8px,color:#14532d;
+  classDef danger fill:#fef2f2,stroke:#dc2626,stroke-width:1.8px,color:#7f1d1d;
+  classDef warn fill:#fff7ed,stroke:#c2410c,stroke-width:1.8px,color:#7c2d12;
 
   class Idle,Awaiting,Pending,Confirming neutral;
   class Confirmed success;
@@ -729,7 +729,7 @@ flowchart TB
 ### 🏗️ 架构总览
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 58, 'rankSpacing': 72, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'transparent','primaryBorderColor':'#5eead4','primaryTextColor':'#e6edf7','lineColor':'#93c5fd','secondaryColor':'rgba(15,23,42,0.18)','tertiaryColor':'transparent','background':'transparent','edgeLabelBackground':'rgba(15,23,42,0.62)'},'themeCSS': '.edgeLabel rect{fill:rgba(15,23,42,0.62)!important;stroke:rgba(148,163,184,0.45)!important;} .edgeLabel p,.edgeLabel span{color:#e6edf7!important;}'} }%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 58, 'rankSpacing': 72, 'curve': 'linear'},'themeVariables': {'fontFamily':'Trebuchet MS, Segoe UI, sans-serif','fontSize':'15px','primaryColor':'#eef6ff','primaryBorderColor':'#3b82f6','primaryTextColor':'#0f172a','lineColor':'#334155','secondaryColor':'#f8fafc','tertiaryColor':'#f1f5f9','edgeLabelBackground':'#e2e8f0'}}}%%
 flowchart TB
   subgraph L1[前端层]
     UI["🖥 React<br/>前端界面"] --> Preview["🧾 预览<br/>面板"]
@@ -752,10 +752,10 @@ flowchart TB
   Data --> Cards --> User
   Data --> Timeline --> User
 
-  classDef frontend fill:#1e40af2e,stroke:#93c5fd,stroke-width:1.8px,color:#eff6ff;
-  classDef sim fill:#0f766e29,stroke:#5eead4,stroke-width:1.8px,color:#e6fffb;
-  classDef explain fill:#b4530933,stroke:#fdba74,stroke-width:1.8px,color:#fff7ed;
-  classDef decision fill:#16a34a2e,stroke:#86efac,stroke-width:1.8px,color:#f0fdf4;
+  classDef frontend fill:#eff6ff,stroke:#2563eb,stroke-width:1.8px,color:#1e3a8a;
+  classDef sim fill:#ecfeff,stroke:#0f766e,stroke-width:1.8px,color:#134e4a;
+  classDef explain fill:#fff7ed,stroke:#c2410c,stroke-width:1.8px,color:#7c2d12;
+  classDef decision fill:#ecfdf5,stroke:#15803d,stroke-width:1.8px,color:#14532d;
 
   class UI,Preview frontend;
   class Engine,Data sim;
