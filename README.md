@@ -151,20 +151,20 @@ Use this section as a quick reference before clicking **Generate Preview**.
 ### 🗺️ Visual Flow Diagram
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 72, 'rankSpacing': 92, 'curve': 'basis', 'padding': 18},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 96, 'rankSpacing': 110, 'curve': 'basis', 'padding': 24, 'wrappingWidth': 180},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   subgraph R1[Step 1 - Build]
     direction LR
-    A["① 🎛 Configure<br/><small>operation · addresses · amount</small>"] --> B["② ⚡ Generate<br/><small>transaction preview</small>"]
-    B --> C["③ 🧠 Simulate locally<br/><small>deterministic · no broadcast</small>"]
-    C --> D["④ 🧾 Inspect preview<br/><small>intent · parameters · warnings</small>"]
+    A["① 🎛 Configure<br/>Operation · addresses · amount"] --> B["② ⚡ Generate<br/>Transaction preview"]
+    B --> C["③ 🧠 Simulate locally<br/>Deterministic · no broadcast"]
+    C --> D["④ 🧾 Inspect preview<br/>Intent · parameters · warnings"]
   end
 
   subgraph R2[Step 2 - Decide]
     direction LR
-    E["⑤ 📊 Review outcome<br/><small>risk · lifecycle · safety checks</small>"] --> F{"⑥ 🛡 Comfortable<br/>continuing?"}
-    F -->|Yes — review again| G["✅ Manual wallet<br/>review<br/><small>user remains in control</small>"]
-    F -->|No / unsure| H["🛑 Edit inputs<br/>or stop<br/><small>nothing was submitted</small>"]
+    E["⑤ 📊 Review outcome<br/>Risk · lifecycle · safety checks"] --> F{"⑥ 🛡 Comfortable<br/>continuing?"}
+    F -->|Yes — review again| G["✅ Manual wallet review<br/>User remains in control"]
+    F -->|No / unsure| H["🛑 Edit inputs or stop<br/>Nothing was submitted"]
   end
 
   D --> E
@@ -540,20 +540,20 @@ Moss MCP Transaction Preview 是一个面向 Web3 新人的交易预览 Demo，�
 ### 🗺️ 可视化流程图
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 72, 'rankSpacing': 92, 'curve': 'basis', 'padding': 18},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 96, 'rankSpacing': 110, 'curve': 'basis', 'padding': 24, 'wrappingWidth': 180},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   subgraph R1[步骤一 - 生成预览]
     direction LR
-    A["① 🎛 配置参数<br/><small>操作 · 地址 · 数量</small>"] --> B["② ⚡ 生成<br/><small>交易预览</small>"]
-    B --> C["③ 🧠 本地模拟<br/><small>结果确定 · 不广播</small>"]
-    C --> D["④ 🧾 检查预览<br/><small>意图 · 参数 · 风险</small>"]
+    A["① 🎛 配置参数<br/>操作 · 地址 · 数量"] --> B["② ⚡ 生成<br/>交易预览"]
+    B --> C["③ 🧠 本地模拟<br/>结果确定 · 不广播"]
+    C --> D["④ 🧾 检查预览<br/>意图 · 参数 · 风险"]
   end
 
   subgraph R2[步骤二 - 复核与决策]
     direction LR
-    E["⑤ 📊 复核结果<br/><small>风险 · 状态 · 安全检查</small>"] --> F{"⑥ 🛡 是否确认<br/>继续？"}
-    F -->|是 — 再次复核| G["✅ 钱包<br/>手动复核<br/><small>始终由用户控制</small>"]
-    F -->|否 / 不确定| H["🛑 修改<br/>或终止<br/><small>尚未提交任何交易</small>"]
+    E["⑤ 📊 复核结果<br/>风险 · 状态 · 安全检查"] --> F{"⑥ 🛡 是否确认<br/>继续？"}
+    F -->|是 — 再次复核| G["✅ 钱包手动复核<br/>始终由用户控制"]
+    F -->|否 / 不确定| H["🛑 修改或终止<br/>尚未提交任何交易"]
   end
 
   D --> E
