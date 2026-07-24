@@ -1,0 +1,97 @@
+Please improve my existing Replit demo app: Moss MCP Transaction Preview.
+
+Current demo URL:
+https://moss-mcp-transaction.replit.app/
+
+Goal:
+Improve the product experience based on user feedback. The demo should help Monad/Web3 beginners understand blockchain operations before signing. It is a transaction preview and simulation learning tool, not an auto-trading AI agent.
+
+Important safety boundary:
+- Do not ask for or store private keys.
+- Do not ask for or store seed phrases.
+- Do not sign transactions.
+- Do not broadcast real transactions.
+- Do not handle real funds.
+- Do not present simulation as a guarantee of safety.
+
+Main user feedback to address:
+1. The app introduction appears too late. It should appear before the user clicks Generate Preview.
+2. Each input option needs explanation before the user interacts with it.
+3. After Generate Preview, the app needs to explain what each generated result means.
+4. The app needs to explain what Moss MCP is and clarify that it is not an auto-trading bot.
+
+Required UI changes:
+
+1. Add a top onboarding section before the form.
+Title:
+"Moss MCP Transaction Preview"
+
+Subtitle:
+"Understand before you sign."
+
+Short explanation:
+"This demo helps Monad/Web3 beginners preview and understand a blockchain operation before signing. It uses a Moss MCP-style flow for discover, load, action, and simulate. It does not sign transactions or broadcast them."
+
+2. Add a "What is Moss MCP?" section before Generate Preview.
+Use beginner-friendly copy:
+"Moss MCP is an interface that lets AI agents access Moss Web3 operation tools in a structured way. In this demo, Moss MCP is used only for transaction preview and simulation. It helps explain what an operation may do before signing. It is not an automatic trading bot and does not make trading decisions for users."
+
+3. Add short helper text under each input field:
+- Operation Type: "Choose the type of Web3 operation you want to preview."
+- Account Address: "Use a test address only. Do not enter private keys or seed phrases."
+- Token Address: "The token contract involved in the mock operation."
+- Recipient / Spender: "Recipient receives tokens; spender is allowed to use tokens after approval."
+- Amount: "The mock token amount used for preview."
+- Scenario: "Choose how the simulated transaction lifecycle should behave."
+
+4. Add a "Before you generate" checklist above the Generate Preview button:
+- I am using test data only.
+- I understand this demo does not sign or broadcast transactions.
+- I want to preview what this operation may do.
+
+5. After Generate Preview, add a "How to read this preview" section above or beside the result card.
+Explain these fields in plain language:
+- Protocol: the Web3 protocol or token standard involved.
+- Method: the operation being previewed.
+- Intent: what the operation is trying to do.
+- Parameters: the values used in the preview.
+- Risk labels: things the user should pay attention to.
+- Warnings: issues that should stop or slow down signing.
+- Confidence: how complete or reliable the preview is; not a safety guarantee.
+- Receipt texts: plain-language simulated effects.
+
+6. Improve status badge explanations.
+Add a small legend:
+- Idle: ready to preview.
+- Awaiting Signature: waiting for the user or wallet; nothing is submitted yet.
+- Pending: submitted or simulated as waiting; not confirmed yet.
+- Confirming: waiting for confirmations; not final success yet.
+- Confirmed: completed successfully in this scenario.
+- Rejected: user or wallet rejected; nothing was submitted.
+- Reverted: on-chain execution failed or contract logic reverted.
+- System Error: MCP, RPC, simulation, or integration error; not an on-chain failure.
+
+7. Add a persistent safety notice near both the top and the result:
+"This demo is for transaction preview and learning only. It does not sign transactions, broadcast transactions, store private keys, or provide financial advice."
+
+8. Keep the app visually simple and beginner-friendly.
+Use clear sections:
+- Intro
+- What is Moss MCP?
+- Preview Form
+- Before you generate checklist
+- Generated Preview
+- How to read this preview
+- Status legend
+- Safety notice
+
+9. Update README.md to include:
+- Project purpose
+- What Moss MCP means in this demo
+- How to run the app
+- Safety boundary
+- User feedback addressed
+- Known Issues
+- Next Steps
+
+Please implement these changes without expanding the project scope into wallet connection, auto-trading, real signing, or real transaction broadcasting.
