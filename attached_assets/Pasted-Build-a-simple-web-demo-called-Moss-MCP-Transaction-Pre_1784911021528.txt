@@ -1,0 +1,79 @@
+Build a simple web demo called "Moss MCP Transaction Preview".
+
+Goal:
+Create a beginner-friendly transaction preview UI for Monad/Web3 users. The demo helps users understand a blockchain operation before signing. It should focus on preview and simulation only, not automatic trading.
+
+Tech preference:
+- Use a simple React + TypeScript + Vite app if possible.
+- Keep the UI clean and usable.
+- No wallet connection is required for the MVP.
+- No private key, seed phrase, or API key should ever be requested or stored.
+
+Core user flow:
+1. User selects an operation type: ERC20 Transfer, ERC20 Approve, or Mock Swap Preview.
+2. User enters a test account address and simple parameters such as token address, recipient/spender, and amount.
+3. User clicks "Generate Preview".
+4. The app shows a transaction preview card.
+5. The app shows a status badge timeline.
+6. The app shows warnings and a safety checklist.
+
+UI sections:
+- Header: Moss MCP Transaction Preview
+- Short subtitle: "Understand before you sign."
+- Input form:
+  - Account address
+  - Operation type
+  - Token address
+  - Recipient or spender address
+  - Amount
+  - Scenario selector: Success, User Rejected, On-chain Reverted, System Error
+- Button: Generate Preview
+- Preview Card:
+  - Protocol
+  - Method
+  - Intent
+  - Parameters
+  - Simulated receipt texts
+  - Warnings
+  - Confidence note
+  - Safety checklist
+- Status timeline:
+  - Idle
+  - Awaiting Signature
+  - Pending
+  - Confirming
+  - Confirmed
+  - Rejected
+  - Reverted
+  - System Error
+
+Important state definitions:
+- Rejected means the user or wallet rejected the request and nothing was submitted.
+- Reverted means the transaction was submitted but failed on-chain or contract logic reverted.
+- System Error means the preview, MCP, RPC, or integration pipeline failed; it is not an on-chain failure.
+- Pending and Confirming must not be shown as guaranteed success.
+
+Data:
+Use mock data first. Create a mock response shaped like a Moss MCP simulation result with:
+- protocol
+- method
+- params
+- intent
+- risk labels
+- receipt texts
+- warnings
+- confidence level
+- status
+
+Future integration:
+Add a placeholder file or comments explaining where Moss MCP discover/load/action/simulate or MOSS_RPC_URL / Monad test chain RPC would be connected later.
+
+Safety:
+The app must include this notice:
+"This demo is for transaction preview and learning only. It does not sign transactions, broadcast transactions, store private keys, or provide financial advice."
+
+Deliverables:
+- Working UI
+- Clean component structure
+- README.md with setup instructions
+- .env.example with MOSS_RPC_URL and MONAD_RPC_URL placeholders only, no secrets

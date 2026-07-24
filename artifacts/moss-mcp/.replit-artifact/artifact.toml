@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Moss MCP Transaction Preview"
+version = "1.0.0"
+id = "artifacts/moss-mcp"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23076
+
+[services.development]
+run = "pnpm --filter @workspace/moss-mcp run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/moss-mcp", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/moss-mcp/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23076"
+BASE_PATH = "/"
