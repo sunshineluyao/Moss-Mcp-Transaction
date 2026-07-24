@@ -163,8 +163,8 @@ flowchart TB
   subgraph R2[Step 2 - Decide]
     direction LR
     E["⑤ 📊 Review<br/>Risk<br/>Lifecycle<br/>Safety checks"] --> F{"⑥ 🛡 Continue?"}
-    F -->|YES| G["✅ Wallet review<br/>Manual approval<br/>User controlled"]
-    F -->|NO| H["🛑 Edit or stop<br/>No transaction<br/>submitted"]
+    F -->|Yes| G["✅ Wallet review<br/>Manual approval<br/>User controlled"]
+    F -->|No| H["🛑 Edit or stop<br/>No transaction<br/>submitted"]
   end
 
   D --> E
@@ -270,7 +270,7 @@ All Mermaid diagrams use a consistent visual token strategy to balance readabili
   - Mermaid config intentionally uses conservative syntax supported by GitHub's renderer.
   - Solid hex colors are used for maximum cross-environment rendering reliability.
 - Anti-clipping note (for future updates):
-  - Keep edge labels short and single-line (for example: `YES`, `NO`, `Sign`, `Reject`, `New preview`).
+  - Keep edge labels short and single-line (for example: `Yes`, `No`, `Sign`, `Reject`, `New preview`).
   - Prefer moving detailed explanations into nodes instead of multi-line arrow labels.
   - If a label is truncated on GitHub, shorten text first, then increase `nodeSpacing`/`rankSpacing` only if still needed.
 
@@ -663,7 +663,7 @@ pnpm run demo:gif
   - Mermaid 配置采用 GitHub 渲染器更稳妥的保守语法。
   - 统一使用纯十六进制颜色，优先保证跨环境渲染稳定性。
 - 防裁切说明（后续维护建议）：
-  - 连接线标签尽量使用短文本且单行（例如：`YES`、`NO`、`签名`、`拒绝`、`新预览`）。
+  - 连接线标签尽量使用短文本且单行（例如：`Yes`、`No`、`签名`、`拒绝`、`新预览`）。
   - 详细语义优先放在节点内容中，避免在线标签中使用多行长句。
   - 若 GitHub 渲染仍出现截断，先缩短标签，再按需小幅增大 `nodeSpacing` / `rankSpacing`。
 
