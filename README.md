@@ -18,8 +18,6 @@
   <img src="assets/moss-mcp-transaction-preview-demo.gif" alt="30-second demo walkthrough" />
 </p>
 
-> **TODO:** Add a 30-second GIF showing: open page → read intro → choose operation → generate preview → read result → check status badge.
-
 ---
 
 ## English Version
@@ -121,7 +119,7 @@ No wallet, no funds, and no API key are needed for mock mode.
 - [ ] Add real Moss MCP integration (`discover / load / action / simulate`)
 - [ ] Add Monad test chain RPC configuration
 - [ ] Add better and more varied transaction examples
-- [ ] Add a 30-second GIF / video walkthrough
+- [x] Add a 30-second GIF / video walkthrough
 - [ ] Collect feedback from at least 3 real users
 - [ ] Improve onboarding copy based on user testing
 - [ ] Add MetaMask transaction handoff — after the preview passes, let users send the pre-built transaction to MetaMask, while keeping manual user review and signature confirmation intact
@@ -231,7 +229,7 @@ Mock 模式下无需钱包、资金或 API Key。
 - [ ] 接入真实 Moss MCP（`discover / load / action / simulate`）
 - [ ] 添加 Monad test chain RPC 配置
 - [ ] 增加更好、更多样的交易示例
-- [ ] 添加 30 秒 GIF / 视频演示
+- [x] 添加 30 秒 GIF / 视频演示
 - [ ] 收集至少 3 名真实用户的反馈
 - [ ] 根据用户测试改进 onboarding 文案
 - [ ] 添加 MetaMask 交易交接：在 preview 通过后，让用户可以把预构建交易发送到 MetaMask，但仍由用户手动检查和签名确认
