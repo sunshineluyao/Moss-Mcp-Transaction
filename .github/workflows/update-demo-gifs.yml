@@ -1,0 +1,61 @@
+name: Update Demo GIFs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - artifacts/moss-mcp/**
+      - scripts/capture-demo.mjs
+      - scripts/make-demo-gif.sh
+      - package.json
+      - pnpm-lock.yaml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-demo-gifs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regenerate-gifs:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Regenerate demo GIFs
+        run: pnpm run demo:gif
+
+      - name: Commit GIF updates
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(ci): auto-update demo gifs [skip ci]"
+          file_pattern: |
+            assets/moss-mcp-transaction-preview-demo.gif
+            assets/moss-mcp-transaction-preview-success.gif
+            assets/moss-mcp-transaction-preview-rejected.gif
+          branch: main
