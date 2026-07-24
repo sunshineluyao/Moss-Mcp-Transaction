@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "wouter";
+import React, { useState } from "react";
 import { 
   ShieldCheck, 
   AlertTriangle, 
@@ -12,7 +11,8 @@ import {
   Check, 
   ShieldAlert,
   ServerCrash,
-  CheckCircle2
+  CheckCircle2,
+  ExternalLink
 } from "lucide-react";
 import { simulateMCP } from "@/lib/mockMcp";
 import { MCPSimulationResult, SimulationFormParams, OperationType, ScenarioType } from "@/types/mcp";
@@ -24,6 +24,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
+const MOSS_MCP_GITHUB = "https://github.com/nishuzumi/moss/tree/main/packages/mcp-server";
 
 // Helper to truncate addresses
 function truncateAddress(address: string) {
@@ -68,43 +70,77 @@ function AddressDisplay({ address }: { address: string }) {
 
 // Status Timeline Component
 function StatusTimeline({ currentStatus }: { currentStatus: MCPSimulationResult["status"] }) {
-  const allStates = ["IDLE", "AWAITING_SIGNATURE", "PENDING", "CONFIRMING", "CONFIRMED"];
-  
-  // Failure states replace everything after AWAITING_SIGNATURE in a real app,
-  // but for the visual timeline, we'll map them appropriately.
-  let activeIndex = allStates.indexOf(currentStatus);
-  let isFailure = false;
-  let failureLabel = "";
+  type StepDef = {
+    label: string;
+    icon: React.ElementType;
+    desc: string;
+    failed?: boolean;
+  };
 
-  if (currentStatus === "REJECTED" || currentStatus === "REVERTED" || currentStatus === "SYSTEM_ERROR") {
-    activeIndex = 2; // Override the step after awaiting signature
-    isFailure = true;
-    failureLabel = currentStatus.replace("_", " ");
+  // Build steps and determine active index based on status
+  let steps: StepDef[];
+  let activeIndex: number;
+
+  if (currentStatus === "SYSTEM_ERROR") {
+    // Branches immediately — nothing after "Generated"
+    steps = [
+      { label: "Generated", icon: Activity, desc: "Simulation run" },
+      { 
+        label: "System Error", 
+        icon: ServerCrash, 
+        desc: "RPC / integration failure — not an on-chain event",
+        failed: true
+      },
+    ];
+    activeIndex = 1;
+
+  } else if (currentStatus === "REJECTED") {
+    // Branches after "Awaiting Signature" — user declined before submission
+    steps = [
+      { label: "Generated", icon: Activity, desc: "Simulation run" },
+      { label: "Awaiting", icon: ShieldCheck, desc: "User signature" },
+      { 
+        label: "Rejected", 
+        icon: XCircle, 
+        desc: "Rejected — nothing submitted on-chain",
+        failed: true
+      },
+    ];
+    activeIndex = 2;
+
+  } else if (currentStatus === "REVERTED") {
+    // Branches after "Confirming" — tx was submitted but EVM execution failed
+    steps = [
+      { label: "Generated", icon: Activity, desc: "Simulation run" },
+      { label: "Awaiting", icon: ShieldCheck, desc: "User signature" },
+      { label: "Pending", icon: Loader2, desc: "Submitted to chain" },
+      { label: "Confirming", icon: Activity, desc: "Waiting for blocks" },
+      { 
+        label: "Reverted", 
+        icon: AlertTriangle, 
+        desc: "Reverted — tx submitted but failed on-chain",
+        failed: true
+      },
+    ];
+    activeIndex = 4;
+
+  } else {
+    // Normal happy-path states
+    const normalStates = ["IDLE", "AWAITING_SIGNATURE", "PENDING", "CONFIRMING", "CONFIRMED"];
+    steps = [
+      { label: "Generated", icon: Activity, desc: "Simulation run" },
+      { label: "Awaiting", icon: ShieldCheck, desc: "User signature" },
+      { label: "Pending", icon: Loader2, desc: "Submitted to chain" },
+      { label: "Confirming", icon: Activity, desc: "Waiting for blocks" },
+      { label: "Confirmed", icon: CheckCircle, desc: "Success" },
+    ];
+    activeIndex = normalStates.indexOf(currentStatus);
+    if (activeIndex === -1) activeIndex = 0;
   }
-
-  if (activeIndex === -1) activeIndex = 0;
-
-  const steps = [
-    { label: "Generated", icon: Activity, desc: "Simulation run" },
-    { label: "Awaiting", icon: ShieldCheck, desc: "User signature" },
-    isFailure 
-      ? { 
-          label: failureLabel, 
-          icon: currentStatus === "SYSTEM_ERROR" ? ServerCrash : (currentStatus === "REJECTED" ? XCircle : AlertTriangle),
-          desc: "Terminal state",
-          failed: true
-        }
-      : { label: "Pending", icon: Loader2, desc: "Submitted to chain" },
-    { label: "Confirming", icon: Activity, desc: "Waiting for blocks" },
-    { label: "Confirmed", icon: CheckCircle, desc: "Success" }
-  ];
-
-  // Trim the timeline if failed
-  const visibleSteps = isFailure ? steps.slice(0, 3) : steps;
 
   return (
     <div className="mt-6 flex flex-col md:flex-row justify-between w-full relative">
-      {visibleSteps.map((step, idx) => {
+      {steps.map((step, idx) => {
         const isActive = idx <= activeIndex;
         const isCurrent = idx === activeIndex;
         const Icon = step.icon;
@@ -115,7 +151,10 @@ function StatusTimeline({ currentStatus }: { currentStatus: MCPSimulationResult[
         if (step.failed && isCurrent) {
           colorClass = "text-destructive border-destructive";
           bgClass = "bg-destructive/10";
-        } else if (isCurrent && step.label !== "Confirmed" && !step.failed) {
+        } else if (isCurrent && step.label === "Confirmed") {
+          colorClass = "text-emerald-400 border-emerald-500/50";
+          bgClass = "bg-emerald-500/10";
+        } else if (isCurrent && !step.failed) {
           colorClass = "text-amber-400 border-amber-500/50";
           bgClass = "bg-amber-500/10";
         }
@@ -128,11 +167,11 @@ function StatusTimeline({ currentStatus }: { currentStatus: MCPSimulationResult[
             <div className={`text-xs font-semibold uppercase tracking-wider ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
               {step.label}
             </div>
-            <div className="text-[10px] text-muted-foreground mt-1 text-center max-w-[80px] leading-tight">
+            <div className="text-[10px] text-muted-foreground mt-1 text-center max-w-[90px] leading-tight">
               {step.desc}
             </div>
             {/* Connecting Line */}
-            {idx < visibleSteps.length - 1 && (
+            {idx < steps.length - 1 && (
               <div className="hidden md:block absolute top-5 left-[50%] w-full h-[2px] -z-10 bg-border">
                 <div 
                   className={`h-full transition-all duration-700 ${isActive && idx < activeIndex ? (step.failed ? "bg-destructive" : "bg-primary") : "bg-transparent"}`}
@@ -143,6 +182,24 @@ function StatusTimeline({ currentStatus }: { currentStatus: MCPSimulationResult[
           </div>
         );
       })}
+    </div>
+  );
+}
+
+// Bilingual info box for the explainer section
+function BilingualBox({ enTitle, enBody, zhTitle, zhBody }: { enTitle: string; enBody: string; zhTitle: string; zhBody: string }) {
+  return (
+    <div className="rounded-lg border border-border/60 bg-card/40 overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/40">
+        <div className="p-4 space-y-1">
+          <div className="text-xs font-semibold text-primary uppercase tracking-wider">{enTitle}</div>
+          <div className="text-sm text-muted-foreground leading-relaxed">{enBody}</div>
+        </div>
+        <div className="p-4 space-y-1 bg-card/20">
+          <div className="text-xs font-semibold text-primary/80 uppercase tracking-wider">{zhTitle}</div>
+          <div className="text-sm text-muted-foreground leading-relaxed">{zhBody}</div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -336,7 +393,7 @@ export default function Home() {
               
               <Card className="overflow-hidden border-border shadow-2xl">
                 {/* Status bar top edge */}
-                <div className={`h-1 w-full ${isTerminal ? 'bg-destructive' : 'bg-primary'}`}></div>
+                <div className={`h-1 w-full ${isTerminal ? 'bg-destructive' : result.status === 'CONFIRMED' ? 'bg-emerald-500' : 'bg-primary'}`}></div>
                 
                 <CardHeader className="bg-card/50 border-b border-border/50 pb-4">
                   <div className="flex justify-between items-start">
@@ -422,14 +479,20 @@ export default function Home() {
                         {result.riskLabels.length > 0 ? (
                           <div className="flex flex-wrap gap-2">
                             {result.riskLabels.map(label => {
-                              // Simple color logic based on keywords
-                              let variant: "destructive" | "warning" | "success" | "outline" = "outline";
-                              if (label.includes("UNLIMITED") || label.includes("UNVERIFIED") || label.includes("REVERT")) variant = "destructive";
-                              else if (label.includes("LARGE") || label.includes("SLIPPAGE")) variant = "warning";
-                              else if (label.includes("VERIFIED")) variant = "success";
+                              // Color by severity — no non-existent variants
+                              let cls = "font-mono text-[10px] border";
+                              if (label.includes("UNLIMITED") || label.includes("UNVERIFIED") || label.includes("REVERT")) {
+                                cls += " bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive/20";
+                              } else if (label.includes("LARGE") || label.includes("SLIPPAGE")) {
+                                cls += " bg-amber-500/10 text-amber-400 border-amber-500/30 hover:bg-amber-500/20";
+                              } else if (label.includes("VERIFIED")) {
+                                cls += " bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20";
+                              } else {
+                                cls += " bg-secondary text-secondary-foreground border-border";
+                              }
 
                               return (
-                                <Badge key={label} variant={variant} className="font-mono text-[10px]">
+                                <Badge key={label} className={cls}>
                                   {label}
                                 </Badge>
                               );
@@ -512,6 +575,86 @@ export default function Home() {
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Transaction Lifecycle</h3>
                 <StatusTimeline currentStatus={result.status} />
               </div>
+
+              {/* Moss MCP Integration Explainer */}
+              <Card className="border-border/60 bg-card/40 shadow-sm">
+                <CardHeader className="border-b border-border/40 pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-primary" />
+                      Moss MCP Integration
+                    </CardTitle>
+                    <a
+                      href={MOSS_MCP_GITHUB}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-mono"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      mcp-server on GitHub
+                    </a>
+                  </div>
+                  <CardDescription className="text-sm leading-relaxed mt-2">
+                    The <strong className="text-foreground">Moss MCP server</strong> exposes a four-step lifecycle —{" "}
+                    <code className="font-mono text-primary text-xs px-1 py-0.5 bg-primary/10 rounded">discover</code>,{" "}
+                    <code className="font-mono text-primary text-xs px-1 py-0.5 bg-primary/10 rounded">load</code>,{" "}
+                    <code className="font-mono text-primary text-xs px-1 py-0.5 bg-primary/10 rounded">action</code>, and{" "}
+                    <code className="font-mono text-primary text-xs px-1 py-0.5 bg-primary/10 rounded">simulate</code>{" "}
+                    — that decodes raw transaction intent, runs an off-chain simulation against a Monad RPC node, and
+                    returns a structured risk report. In this demo,{" "}
+                    <code className="font-mono text-xs text-accent px-1 py-0.5 bg-accent/10 rounded">simulateMCP()</code>{" "}
+                    is a local stub; replacing it with real SDK calls requires only swapping the function body.
+                  </CardDescription>
+                </CardHeader>
+
+                <CardContent className="p-6 space-y-5">
+                  {/* Code callout */}
+                  <div>
+                    <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-2">
+                      Swap stub → real SDK (one function body change)
+                    </div>
+                    <pre className="text-xs font-mono bg-background border border-border/60 rounded-lg p-4 overflow-x-auto leading-relaxed text-muted-foreground">
+{`import { MossClient } from "@moss/mcp-server";
+
+async function simulateMCP(params: SimulationFormParams) {
+  const client  = new MossClient({ rpcUrl: process.env.MONAD_RPC_URL });
+  const actions = await client.discover(params.accountAddress);
+  const manifest = await client.load(actions[0].id, params);
+  const tx       = await client.action(manifest, params);
+  return          await client.simulate(tx);  // returns MCPSimulationResult
+}`}
+                    </pre>
+                  </div>
+
+                  {/* Bilingual info boxes */}
+                  <div className="space-y-3">
+                    <BilingualBox
+                      enTitle="What is Moss MCP?"
+                      enBody="Moss MCP is a Model Context Protocol server that sits between your dApp and a Monad RPC node. It decodes raw transaction calldata into human-readable intent, runs simulation, and scores risk — before the user ever sees a signature prompt."
+                      zhTitle="什么是 Moss MCP？"
+                      zhBody="Moss MCP 是一个模型上下文协议（MCP）服务器，位于 dApp 与 Monad RPC 节点之间。它将原始交易 calldata 解码为可读意图，执行模拟并进行风险评分——所有这些都在用户看到签名提示之前完成。"
+                    />
+                    <BilingualBox
+                      enTitle="Transaction Simulation"
+                      enBody="The simulate() call dry-runs the transaction against the current chain state without broadcasting. It returns predicted state changes, token balance deltas, and revert reasons — giving users certainty about what will happen before they sign."
+                      zhTitle="交易模拟"
+                      zhBody="simulate() 调用会在不广播的情况下针对当前链状态对交易进行预执行（dry-run）。它返回预测的状态变化、代币余额增量和回滚原因，让用户在签名前就能确定交易结果。"
+                    />
+                    <BilingualBox
+                      enTitle="Intent Decoding"
+                      enBody="Raw Ethereum calldata is opaque hex. Moss MCP's load() step resolves the ABI, matches function selectors, and renders the operation as a structured intent object — the protocol, method name, and decoded parameters shown in this preview."
+                      zhTitle="意图解析"
+                      zhBody="原始以太坊 calldata 是不透明的十六进制数据。Moss MCP 的 load() 步骤会解析 ABI、匹配函数选择器，并将操作渲染为结构化意图对象——即本预览中显示的协议名称、方法名和已解码参数。"
+                    />
+                    <BilingualBox
+                      enTitle="Safety Model"
+                      enBody="Risk labels (LARGE_AMOUNT, WILL_REVERT, VERIFIED_CONTRACT, etc.) are heuristics scored during simulation. They are advisory — not a guarantee. Always verify the full transaction in your wallet before signing."
+                      zhTitle="安全模型"
+                      zhBody="风险标签（如 LARGE_AMOUNT、WILL_REVERT、VERIFIED_CONTRACT 等）是在模拟过程中评分的启发式指标，仅供参考，不构成保证。在签名前，请务必在钱包中再次核实完整的交易内容。"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
 
             </div>
           )}

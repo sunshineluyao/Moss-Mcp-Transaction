@@ -1,19 +1,35 @@
 import { MCPSimulationResult, SimulationFormParams } from "../types/mcp";
 
-/**
- * MOCK MCP SIMULATION ENGINE
- * 
- * In a real environment, this function would:
- * 1. Gather the user's intent and parameters.
- * 2. Send a request to the Moss MCP backend / Monad RPC.
- * 3. The backend would trace the transaction, simulate state changes, and decode logs.
- * 4. The backend would run risk analysis and return a comprehensive payload.
- * 
- * This mock simulates that network delay and returns hardcoded scenarios 
- * for demonstration purposes.
- */
+// =============================================================================
+// MOCK MCP SIMULATION ENGINE
+//
+// ⚠️  THIS IS A DEMO STUB — replace the body of `simulateMCP` with real calls
+//     to the @moss/mcp-server SDK when integrating for real.
+//
+// Real integration entry point:
+//   https://github.com/nishuzumi/moss/tree/main/packages/mcp-server
+//
+// The real lifecycle uses four SDK methods:
+//   1. discover(walletAddress)         — finds available MCP actions for a wallet
+//   2. load(actionId, params)          — loads the action manifest / ABI
+//   3. action(manifest, userParams)    — constructs the unsigned transaction
+//   4. simulate(unsignedTx, rpcUrl)    — dry-runs the tx and returns risk analysis
+//
+// Replace the delay + hardcoded returns below with:
+//
+//   import { MossClient } from "@moss/mcp-server";
+//   const client = new MossClient({ rpcUrl: process.env.MONAD_RPC_URL });
+//   const actions   = await client.discover(params.accountAddress);
+//   const manifest  = await client.load(actions[0].id, params);
+//   const tx        = await client.action(manifest, params);
+//   const result    = await client.simulate(tx);
+//   return result;   // already matches MCPSimulationResult shape
+//
+// =============================================================================
+
 export async function simulateMCP(params: SimulationFormParams): Promise<MCPSimulationResult> {
-  // Simulate network delay (800 - 1200ms)
+  // --- MOCK: simulated network delay (800–1200 ms) ---
+  // In production this delay is replaced by the actual MCP round-trip.
   const delay = Math.floor(Math.random() * 400) + 800;
   await new Promise((resolve) => setTimeout(resolve, delay));
 
@@ -71,21 +87,30 @@ export async function simulateMCP(params: SimulationFormParams): Promise<MCPSimu
     result.riskLabels.push("SLIPPAGE_RISK");
   }
 
-  // Adjust outcome based on Scenario
+  // --- Adjust outcome based on Scenario ---
+  // In production: the scenario is determined by the actual simulate() call result,
+  // not a dropdown. These branches show what each terminal state means in practice.
+
   if (scenario === "Success") {
+    // Happy path: tx simulated, signed, submitted, and confirmed on-chain.
     result.confidenceLevel = "HIGH";
+    result.status = "CONFIRMED"; // ← must reach CONFIRMED for the green timeline
     if (result.warnings.length === 0) {
       result.riskLabels.push("VERIFIED_CONTRACT");
     }
   } else if (scenario === "User Rejected") {
+    // User declined to sign — nothing was ever submitted to the chain.
     result.status = "REJECTED";
     result.warnings.push("Transaction was rejected by the user.");
   } else if (scenario === "On-chain Reverted") {
+    // Tx was submitted but the EVM execution failed (e.g. insufficient funds, bad slippage).
     result.status = "REVERTED";
     result.confidenceLevel = "HIGH";
     result.warnings.push("Simulation indicates this transaction will revert on-chain (e.g., insufficient funds or slippage).");
     result.riskLabels.push("WILL_REVERT");
   } else if (scenario === "System Error") {
+    // The MCP pipeline itself failed — RPC timeout, decoding error, etc.
+    // No on-chain activity occurred.
     result.status = "SYSTEM_ERROR";
     result.confidenceLevel = "LOW";
     result.warnings.push("RPC endpoint failed to respond during simulation.");
