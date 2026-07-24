@@ -117,14 +117,22 @@ Moss MCP Transaction Preview is a beginner-friendly Web3 demo that helps users u
 ### 🗺️ Visual Flow Diagram
 
 ```mermaid
-flowchart LR
-  A[User Input] --> B[Generate Preview]
-  B --> C[Moss MCP Mock Engine]
-  C --> D[Intent + Params + Warnings]
-  D --> E[Lifecycle Status Timeline]
-  E --> F{Safe to Continue?}
-  F -->|Yes| G[Manual Wallet Review]
-  F -->|No| H[Edit Params / Stop]
+flowchart TB
+  subgraph R1[Step 1 - Build]
+    direction LR
+    A[Input Params] --> B[Generate Preview]
+    B --> C[MCP Mock Engine]
+    C --> D[Decoded Preview]
+  end
+
+  subgraph R2[Step 2 - Decide]
+    direction LR
+    E[Lifecycle Status Timeline] --> F{Safe to Continue?}
+    F -->|Yes| G[Manual Wallet Review]
+    F -->|No| H[Edit or Stop]
+  end
+
+  D --> E
 ```
 
 ### 🎬 Demo GIF Generation Pipeline
@@ -136,14 +144,24 @@ This repository includes a reproducible script pipeline to generate dual compari
 - `assets/moss-mcp-transaction-preview-demo.gif` (compatibility copy of success)
 
 ```mermaid
-flowchart TD
-  A[pnpm install] --> B[pnpm run demo:gif]
-  B --> C[Start local app with PORT + BASE_PATH]
-  C --> D[Health check APP_URL]
-  D --> E[Playwright runs real clicks + scrolls]
-  E --> F[Capture PNG frames in /tmp/demo-frames]
-  F --> G[Generate palette + encode GIF via ffmpeg-static]
-  G --> H[Write success + rejected GIF outputs]
+flowchart LR
+  subgraph P1[Prepare]
+    A[pnpm install] --> B[pnpm run demo:gif]
+  end
+
+  subgraph P2[Capture]
+    C[Start local app] --> D[Auto interaction]
+    D --> E[Capture PNG frames]
+  end
+
+  subgraph P3[Encode]
+    F[Palette + GIF encode]
+    G[success + rejected]
+    H[demo copy]
+  end
+
+  B --> C
+  E --> F --> G --> H
 ```
 
 **Commands**
@@ -222,16 +240,17 @@ pnpm run demo:gif
 ### 🔄 Status Transition Diagram
 
 ```mermaid
-stateDiagram-v2
-  [*] --> Idle
-  Idle --> AwaitingSignature: Generate Preview
-  AwaitingSignature --> Pending: User Signs
-  AwaitingSignature --> Rejected: User Rejects
-  Pending --> Confirming: Included in Block
-  Confirming --> Confirmed: Finalized
-  Pending --> Reverted: Execution Failed On-chain
-  Pending --> SystemError: RPC/Network Failure
-  Confirming --> SystemError: Unexpected Failure
+flowchart TB
+  Idle[Idle] --> Awaiting[Awaiting Signature]
+  Awaiting -->|User Signs| Pending[Pending]
+  Awaiting -->|User Rejects| Rejected[Rejected]
+
+  Pending --> Confirming[Confirming]
+  Confirming --> Confirmed[Confirmed]
+  Pending -->|Execution Failed| Reverted[Reverted]
+  Pending -->|RPC/Network Failure| SystemError[System Error]
+  Confirming -->|Unexpected Failure| SystemError
+
   Rejected --> Idle
   Reverted --> Idle
   SystemError --> Idle
@@ -242,13 +261,26 @@ stateDiagram-v2
 
 ```mermaid
 flowchart TB
-  UI[React UI] --> Preview[Preview Builder]
-  Preview --> Engine[simulateMCP mock engine]
-  Engine --> Data[Deterministic Preview Payload]
-  Data --> Cards[Intent / Params / Warning Cards]
-  Data --> Timeline[Status Timeline + Final State]
-  Cards --> User[User Review Decision]
-  Timeline --> User
+  subgraph L1[Frontend]
+    UI[React UI] --> Preview[Preview Panel]
+  end
+
+  subgraph L2[Simulation]
+    Engine[simulateMCP mock engine] --> Data[Deterministic Payload]
+  end
+
+  subgraph L3[Explanation]
+    Cards[Intent + Params + Warnings]
+    Timeline[Status Timeline]
+  end
+
+  subgraph L4[Decision]
+    User[User Review Decision]
+  end
+
+  Preview --> Engine
+  Data --> Cards --> User
+  Data --> Timeline --> User
 ```
 
 ### 🛠️ Developer Notes
@@ -353,14 +385,22 @@ Moss MCP Transaction Preview 是一个面向 Web3 新人的交易预览 Demo，�
 ### 🗺️ 可视化流程图
 
 ```mermaid
-flowchart LR
-  A[用户输入参数] --> B[点击 Generate Preview]
-  B --> C[Moss MCP 模拟引擎]
-  C --> D[意图 + 参数 + 风险提示]
-  D --> E[生命周期状态时间线]
-  E --> F{是否可以继续?}
-  F -->|是| G[进入钱包手动复核]
-  F -->|否| H[修改参数 / 终止]
+flowchart TB
+  subgraph R1[步骤一 - 生成预览]
+    direction LR
+    A[输入参数] --> B[点击 Generate Preview]
+    B --> C[Moss MCP 模拟引擎]
+    C --> D[已解码预览]
+  end
+
+  subgraph R2[步骤二 - 复核与决策]
+    direction LR
+    E[生命周期状态时间线] --> F{是否可以继续?}
+    F -->|是| G[进入钱包手动复核]
+    F -->|否| H[修改或终止]
+  end
+
+  D --> E
 ```
 
 ### 🎬 Demo GIF 生成流程
@@ -372,14 +412,24 @@ flowchart LR
 - `assets/moss-mcp-transaction-preview-demo.gif`（兼容副本，等同 success）
 
 ```mermaid
-flowchart TD
-  A[pnpm install] --> B[pnpm run demo:gif]
-  B --> C[使用 PORT + BASE_PATH 启动本地应用]
-  C --> D[对 APP_URL 做就绪检查]
-  D --> E[Playwright 执行真实点击与滚动]
-  E --> F[在 /tmp/demo-frames 生成 PNG 帧]
-  F --> G[通过 ffmpeg-static 生成调色板并编码 GIF]
-  G --> H[输出 success + rejected 两份 GIF]
+flowchart LR
+  subgraph P1[准备]
+    A[pnpm install] --> B[pnpm run demo:gif]
+  end
+
+  subgraph P2[录制]
+    C[启动本地应用] --> D[自动交互录制]
+    D --> E[输出 PNG 帧]
+  end
+
+  subgraph P3[编码]
+    F[调色板 + GIF 编码]
+    G[success + rejected]
+    H[demo 兼容副本]
+  end
+
+  B --> C
+  E --> F --> G --> H
 ```
 
 **执行命令**
@@ -458,16 +508,17 @@ pnpm run demo:gif
 ### 🔄 状态流转图
 
 ```mermaid
-stateDiagram-v2
-  [*] --> Idle
-  Idle --> AwaitingSignature: 生成预览
-  AwaitingSignature --> Pending: 用户签名
-  AwaitingSignature --> Rejected: 用户拒绝
-  Pending --> Confirming: 被区块收录
-  Confirming --> Confirmed: 达成最终确认
-  Pending --> Reverted: 链上执行失败并回滚
-  Pending --> SystemError: RPC/网络故障
-  Confirming --> SystemError: 过程异常
+flowchart TB
+  Idle[Idle] --> Awaiting[Awaiting Signature]
+  Awaiting -->|用户签名| Pending[Pending]
+  Awaiting -->|用户拒绝| Rejected[Rejected]
+
+  Pending --> Confirming[Confirming]
+  Confirming --> Confirmed[Confirmed]
+  Pending -->|链上执行失败| Reverted[Reverted]
+  Pending -->|RPC/网络故障| SystemError[System Error]
+  Confirming -->|过程异常| SystemError
+
   Rejected --> Idle
   Reverted --> Idle
   SystemError --> Idle
@@ -478,13 +529,26 @@ stateDiagram-v2
 
 ```mermaid
 flowchart TB
-  UI[React 前端界面] --> Preview[预览构建器]
-  Preview --> Engine[simulateMCP 模拟引擎]
-  Engine --> Data[确定性预览数据]
-  Data --> Cards[意图 / 参数 / 风险提示卡片]
-  Data --> Timeline[状态时间线 + 最终状态]
-  Cards --> User[用户复核决策]
-  Timeline --> User
+  subgraph L1[前端层]
+    UI[React 前端界面] --> Preview[预览面板]
+  end
+
+  subgraph L2[模拟层]
+    Engine[simulateMCP 模拟引擎] --> Data[确定性预览数据]
+  end
+
+  subgraph L3[解释层]
+    Cards[意图 + 参数 + 风险提示]
+    Timeline[状态时间线]
+  end
+
+  subgraph L4[决策层]
+    User[用户复核决策]
+  end
+
+  Preview --> Engine
+  Data --> Cards --> User
+  Data --> Timeline --> User
 ```
 
 ### 🛠️ 开发者说明
