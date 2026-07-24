@@ -338,14 +338,14 @@ All Mermaid diagrams use a consistent visual token strategy to balance readabili
 %%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 96, 'rankSpacing': 110, 'curve': 'basis', 'padding': 28, 'diagramPadding': 24, 'wrappingWidth': 260},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   Idle["🌙 Idle"] --> Awaiting["✍️ Awaiting<br/>Signature"]
-  Awaiting -->|Sign| Pending["📨 Pending"]
-  Awaiting -->|Reject| Rejected["🛑 Rejected"]
+  Awaiting --> Pending["📨 Pending"]
+  Awaiting --> Rejected["🛑 Rejected"]
 
   Pending --> Confirming["🔄 Confirming"]
   Confirming --> Confirmed["✅ Confirmed"]
-  Pending -->|Revert| Reverted["↩️ Reverted"]
-  Pending -->|RPC error| SystemError["⚠️ System<br/>Error"]
-  Confirming -->|Error| SystemError
+  Pending --> Reverted["↩️ Reverted"]
+  Pending --> SystemError["⚠️ System<br/>Error"]
+  Confirming --> SystemError
 
   Rejected -.->|New preview| Idle
   Reverted -.->|New preview| Idle
@@ -731,14 +731,14 @@ pnpm run demo:gif
 %%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 96, 'rankSpacing': 110, 'curve': 'basis', 'padding': 28, 'diagramPadding': 24, 'wrappingWidth': 260},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   Idle["🌙 Idle"] --> Awaiting["✍️ Awaiting<br/>Signature"]
-  Awaiting -->|签名| Pending["📨 Pending"]
-  Awaiting -->|拒绝| Rejected["🛑 Rejected"]
+  Awaiting --> Pending["📨 Pending"]
+  Awaiting --> Rejected["🛑 Rejected"]
 
   Pending --> Confirming["🔄 Confirming"]
   Confirming --> Confirmed["✅ Confirmed"]
-  Pending -->|回滚| Reverted["↩️ Reverted"]
-  Pending -->|RPC 故障| SystemError["⚠️ System<br/>Error"]
-  Confirming -->|异常| SystemError
+  Pending --> Reverted["↩️ Reverted"]
+  Pending --> SystemError["⚠️ System<br/>Error"]
+  Confirming --> SystemError
 
   Rejected -.->|新预览| Idle
   Reverted -.->|新预览| Idle
