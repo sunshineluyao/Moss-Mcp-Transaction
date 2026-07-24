@@ -1,4 +1,4 @@
-# Moss MCP Transaction Preview [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21539761.svg)](https://doi.org/10.5281/zenodo.21539761)
+# Moss MCP Transaction Preview [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21539761-blue.svg)](https://doi.org/10.5281/zenodo.21539761)
 
 <p align="center">
   <strong>🌿 Safer Web3 Preview Experience · 更安全的 Web3 预览体验</strong>
