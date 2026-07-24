@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Generates assets/moss-mcp-transaction-preview-demo.gif from a real browser walkthrough.
+# Generates dual scenario demo GIFs from a real browser walkthrough:
+# - assets/moss-mcp-transaction-preview-success.gif
+# - assets/moss-mcp-transaction-preview-rejected.gif
+# and writes a compatibility copy to assets/moss-mcp-transaction-preview-demo.gif.
 # Requires: ffmpeg, Playwright runtime, node modules installed.
 #
 # Pipeline (reproducible):
@@ -12,6 +15,9 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_PORT="${APP_PORT:-23076}"
 APP_URL="http://localhost:${APP_PORT}/"
+SUCCESS_GIF="$ROOT_DIR/assets/moss-mcp-transaction-preview-success.gif"
+REJECTED_GIF="$ROOT_DIR/assets/moss-mcp-transaction-preview-rejected.gif"
+LEGACY_GIF="$ROOT_DIR/assets/moss-mcp-transaction-preview-demo.gif"
 SERVER_PID=""
 
 require_cmd() {
@@ -62,6 +68,14 @@ if ! curl -sSf "$APP_URL" >/dev/null 2>&1; then
 fi
 
 echo "Capturing demo flow with real interaction"
-APP_URL="$APP_URL" node "$ROOT_DIR/scripts/capture-demo.mjs"
+APP_URL="$APP_URL" SCENARIO="Success" OUTPUT_GIF="$SUCCESS_GIF" node "$ROOT_DIR/scripts/capture-demo.mjs"
 
-echo "Done. GIF updated at $ROOT_DIR/assets/moss-mcp-transaction-preview-demo.gif"
+echo "Capturing rejection scenario for comparison"
+APP_URL="$APP_URL" SCENARIO="User Rejected" OUTPUT_GIF="$REJECTED_GIF" node "$ROOT_DIR/scripts/capture-demo.mjs"
+
+cp "$SUCCESS_GIF" "$LEGACY_GIF"
+
+echo "Done. GIFs updated:"
+echo "  - $SUCCESS_GIF"
+echo "  - $REJECTED_GIF"
+echo "  - $LEGACY_GIF (compatibility copy of success)"

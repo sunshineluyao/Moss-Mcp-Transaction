@@ -8,7 +8,9 @@
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
     "demo:gif": "bash scripts/make-demo-gif.sh",
-    "demo:gif:capture": "APP_URL=http://localhost:23076/ node scripts/capture-demo.mjs"
+    "demo:gif:capture": "APP_URL=http://localhost:23076/ node scripts/capture-demo.mjs",
+    "demo:gif:success": "APP_URL=http://localhost:23076/ SCENARIO=Success OUTPUT_GIF=./assets/moss-mcp-transaction-preview-success.gif node scripts/capture-demo.mjs",
+    "demo:gif:rejected": "APP_URL=http://localhost:23076/ SCENARIO='User Rejected' OUTPUT_GIF=./assets/moss-mcp-transaction-preview-rejected.gif node scripts/capture-demo.mjs"
   },
   "private": true,
   "dependencies": {

@@ -4,6 +4,10 @@
  *
  * Usage:
  *   APP_URL=http://localhost:23076/ node scripts/capture-demo.mjs
+ *
+ * Optional env:
+ *   SCENARIO="Success" | "User Rejected" | "On-chain Reverted" | "System Error"
+ *   OUTPUT_GIF=/abs/path/to/output.gif
  */
 import { chromium } from 'playwright';
 import { execSync } from 'child_process';
@@ -14,8 +18,14 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const APP_URL = process.env.APP_URL || 'http://localhost:23076/';
 const FRAMES_DIR = '/tmp/demo-frames';
-const OUTPUT_GIF = path.resolve(__dirname, '..', 'assets', 'moss-mcp-transaction-preview-demo.gif');
-const FRAME_DELAY_MS = 80; // ~12.5 fps
+const OUTPUT_GIF = process.env.OUTPUT_GIF
+  ? path.resolve(process.env.OUTPUT_GIF)
+  : path.resolve(__dirname, '..', 'assets', 'moss-mcp-transaction-preview-demo.gif');
+const SCENARIO = process.env.SCENARIO || 'Success';
+const FPS = 8;
+const FRAME_DELAY_MS = Math.round(1000 / FPS);
+const OUTPUT_WIDTH = 680;
+const PALETTE_COLORS = 72;
 const FFMPEG_STATIC_BIN = path.resolve(__dirname, '..', 'node_modules', 'ffmpeg-static', 'ffmpeg');
 const FFMPEG_BIN = process.env.FFMPEG_BIN || (fs.existsSync(FFMPEG_STATIC_BIN)
   ? FFMPEG_STATIC_BIN
@@ -90,7 +100,7 @@ async function smoothScroll(page, from, to, step = 12, hold = 1) {
   const scenarioSelect = page.getByTestId('scenario-select-trigger');
   await scenarioSelect.click();
   await sleep(220);
-  await page.getByRole('option', { name: 'Success' }).click();
+  await page.getByRole('option', { name: SCENARIO }).click();
   await shot(page, 10);
 
   // Step 4: click Generate Preview and capture post-click result
@@ -101,15 +111,15 @@ async function smoothScroll(page, from, to, step = 12, hold = 1) {
 
   await page.getByTestId('simulation-result-zone').waitFor({ timeout: 10000 });
   await page.getByTestId('preview-result-card').waitFor({ timeout: 10000 });
-  await shot(page, 24);
+  await shot(page, 30);
 
   // Step 5: reveal more result details after Generate Preview
   await smoothScroll(page, 420, 780, 10, 1);
-  await shot(page, 20);
+  await shot(page, 36);
 
   await smoothScroll(page, 780, 1080, 12, 1);
   await page.getByTestId('status-lifecycle-panel').scrollIntoViewIfNeeded();
-  await shot(page, 28);
+  await shot(page, 42);
 
   // Step 6: return to top for end frame
   await smoothScroll(page, 1080, 0, 20, 1);
@@ -118,21 +128,21 @@ async function smoothScroll(page, from, to, step = 12, hold = 1) {
   await browser.close();
 
   const durationSec = ((frameIndex * FRAME_DELAY_MS) / 1000).toFixed(1);
-  console.log(`Captured ${frameIndex} frames (~${durationSec}s).`);
+  console.log(`Captured ${frameIndex} frames (~${durationSec}s) for scenario: ${SCENARIO}.`);
 
   // Encode GIF with ffmpeg and generated palette
   const palette = '/tmp/demo-palette.png';
   console.log('Generating palette...');
   execSync(
-    `"${FFMPEG_BIN}" -y -framerate 12.5 -start_number 0 -i "${FRAMES_DIR}/frame_%05d.png" ` +
-    `-vf "scale=900:-1:flags=lanczos,palettegen=max_colors=128:stats_mode=diff" "${palette}"`,
+    `"${FFMPEG_BIN}" -y -framerate ${FPS} -start_number 0 -i "${FRAMES_DIR}/frame_%05d.png" ` +
+    `-vf "scale=${OUTPUT_WIDTH}:-1:flags=lanczos,palettegen=max_colors=${PALETTE_COLORS}:stats_mode=diff" "${palette}"`,
     { stdio: 'inherit' }
   );
 
   console.log('Encoding GIF...');
   execSync(
-    `"${FFMPEG_BIN}" -y -framerate 12.5 -start_number 0 -i "${FRAMES_DIR}/frame_%05d.png" -i "${palette}" ` +
-    `-lavfi "scale=900:-1:flags=lanczos [x]; [x][1:v] paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle" ` +
+    `"${FFMPEG_BIN}" -y -framerate ${FPS} -start_number 0 -i "${FRAMES_DIR}/frame_%05d.png" -i "${palette}" ` +
+    `-lavfi "scale=${OUTPUT_WIDTH}:-1:flags=lanczos [x]; [x][1:v] paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle" ` +
     `"${OUTPUT_GIF}"`,
     { stdio: 'inherit' }
   );

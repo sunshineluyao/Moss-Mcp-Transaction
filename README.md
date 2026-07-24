@@ -31,6 +31,11 @@
 </p>
 
 <p align="center">
+  <img src="assets/moss-mcp-transaction-preview-success.gif" alt="Success scenario walkthrough" width="48%" />
+  <img src="assets/moss-mcp-transaction-preview-rejected.gif" alt="User rejected scenario walkthrough" width="48%" />
+</p>
+
+<p align="center">
   <strong>🧩 Preview First · Explain Risks · Keep Users In Control</strong><br/>
   <strong>先预览，再解释风险，始终由用户掌控</strong>
 </p>
@@ -100,7 +105,11 @@ flowchart LR
 
 ### 🎬 Demo GIF Generation Pipeline
 
-This repository includes a reproducible script pipeline to generate `assets/moss-mcp-transaction-preview-demo.gif` from real UI interaction.
+This repository includes a reproducible script pipeline to generate dual comparison GIFs from real UI interaction:
+
+- `assets/moss-mcp-transaction-preview-success.gif`
+- `assets/moss-mcp-transaction-preview-rejected.gif`
+- `assets/moss-mcp-transaction-preview-demo.gif` (compatibility copy of success)
 
 ```mermaid
 flowchart TD
@@ -110,7 +119,7 @@ flowchart TD
   D --> E[Playwright runs real clicks + scrolls]
   E --> F[Capture PNG frames in /tmp/demo-frames]
   F --> G[Generate palette + encode GIF via ffmpeg-static]
-  G --> H[Write assets/moss-mcp-transaction-preview-demo.gif]
+  G --> H[Write success + rejected GIF outputs]
 ```
 
 **Commands**
@@ -127,6 +136,33 @@ pnpm run demo:gif
 - Click **Generate Preview**
 - Wait for preview result card to appear
 - Scroll and capture risk/warnings/status lifecycle sections
+
+### 🎞️ Scenario Comparison
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Success Path</th>
+      <th>🛑 Rejected Path</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <img src="assets/moss-mcp-transaction-preview-success.gif" alt="Success GIF" /><br/>
+        <strong>🧾 Outcome:</strong> Confirmed and completed<br/>
+        <strong>🎯 Status cues:</strong> Positive/green confirmation states<br/>
+        <strong>👀 Focus:</strong> Preview details, risk labels, lifecycle completion
+      </td>
+      <td>
+        <img src="assets/moss-mcp-transaction-preview-rejected.gif" alt="Rejected GIF" /><br/>
+        <strong>🧾 Outcome:</strong> User rejected, no on-chain submission<br/>
+        <strong>🎯 Status cues:</strong> Rejected terminal state and warning context<br/>
+        <strong>👀 Focus:</strong> Manual review boundary and safe stop flow
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ### 🔍 What Is Moss MCP?
 
@@ -305,7 +341,11 @@ flowchart LR
 
 ### 🎬 Demo GIF 生成流程
 
-仓库中已经内置了可复现脚本流程，可通过真实页面交互自动生成 `assets/moss-mcp-transaction-preview-demo.gif`。
+仓库中已经内置了可复现脚本流程，可通过真实页面交互自动生成双场景对比 GIF：
+
+- `assets/moss-mcp-transaction-preview-success.gif`
+- `assets/moss-mcp-transaction-preview-rejected.gif`
+- `assets/moss-mcp-transaction-preview-demo.gif`（兼容副本，等同 success）
 
 ```mermaid
 flowchart TD
@@ -315,7 +355,7 @@ flowchart TD
   D --> E[Playwright 执行真实点击与滚动]
   E --> F[在 /tmp/demo-frames 生成 PNG 帧]
   F --> G[通过 ffmpeg-static 生成调色板并编码 GIF]
-  G --> H[输出 assets/moss-mcp-transaction-preview-demo.gif]
+  G --> H[输出 success + rejected 两份 GIF]
 ```
 
 **执行命令**
@@ -332,6 +372,33 @@ pnpm run demo:gif
 - 点击 **Generate Preview**
 - 等待预览结果卡片出现
 - 滚动并录制 risk / warnings / status lifecycle 区域
+
+### 🎞️ 场景对比
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ 成功路径</th>
+      <th>🛑 拒签路径</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <img src="assets/moss-mcp-transaction-preview-success.gif" alt="Success GIF" /><br/>
+        <strong>🧾 结果：</strong>交易确认并完成<br/>
+        <strong>🎯 状态特征：</strong>以绿色/正向确认状态收敛<br/>
+        <strong>👀 观察重点：</strong>预览细节、风险标签、完整生命周期
+      </td>
+      <td>
+        <img src="assets/moss-mcp-transaction-preview-rejected.gif" alt="Rejected GIF" /><br/>
+        <strong>🧾 结果：</strong>用户拒签，不会上链提交<br/>
+        <strong>🎯 状态特征：</strong>出现 Rejected 终态与风险上下文<br/>
+        <strong>👀 观察重点：</strong>人工复核边界与安全终止流程
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ### 🔍 什么是 Moss MCP？
 
