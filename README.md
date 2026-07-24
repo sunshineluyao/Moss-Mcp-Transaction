@@ -1,6 +1,10 @@
 # Moss MCP Transaction Preview
 
 <p align="center">
+  <strong>🌿 Safer Web3 Preview Experience · 更安全的 Web3 预览体验</strong>
+</p>
+
+<p align="center">
   <a href="#english-version"><strong>English</strong></a> ·
   <a href="#中文版本"><strong>中文</strong></a>
 </p>
@@ -15,29 +19,61 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/Status-Mock%20First-ff9800" alt="Mock First" />
+  <img src="https://img.shields.io/badge/Safety-Preview%20Before%20Sign-2e7d32" alt="Preview Before Sign" />
+</p>
+
+<p align="center">
   <img src="assets/moss-mcp-transaction-preview-demo.gif" alt="30-second demo walkthrough" />
+</p>
+
+<p align="center">
+  <strong>🧩 Preview First · Explain Risks · Keep Users In Control</strong><br/>
+  <strong>先预览，再解释风险，始终由用户掌控</strong>
 </p>
 
 ---
 
 ## English Version
 
-### What This Demo Is
+### ✨ Quick Navigation
+
+- [🚀 Live Demo](#live-demo)
+- [🎯 Demo Goal](#demo-goal)
+- [🧭 User Experience Walkthrough](#user-experience-walkthrough)
+- [🗺️ Visual Flow Diagram](#visual-flow-diagram)
+- [⚙️ Core Features](#core-features)
+- [📊 Status Lifecycle](#status-lifecycle)
+- [🛣️ Roadmap](#roadmap)
+
+### 🧠 What This Demo Is
 
 Moss MCP Transaction Preview is a beginner-friendly Web3 demo that helps users understand a blockchain operation before signing. It uses a Moss MCP-style preview and simulation flow to explain operation intent, parameters, status, warnings, and safety boundaries. The demo is designed for learning and product testing. It is not an auto-trading agent and does not sign or broadcast transactions.
 
-### Live Demo
+### 🚀 Live Demo
 
 🔗 **Live Demo:** https://moss-mcp-transaction.replit.app/
 
-### Demo Goal
+### 🌟 Snapshot
+
+| Focus | What You Get |
+|------|---------------|
+| 🛡️ Safety | Clear warning language before any signing step |
+| 🧠 Clarity | Human-readable intent + parameter breakdown |
+| 🧪 Learning | Mock-first flow for safe experimentation |
+| 🔄 State Tracking | Full lifecycle from Idle to Confirmed/Reverted |
+
+### 🎯 Demo Goal
 
 - Help beginners understand a blockchain operation before signing.
 - Show the full transaction lifecycle and its possible states.
 - Explain the difference between Rejected, Reverted, and System Error.
 - Make Moss MCP easier to understand for newcomers and developers.
 
-### User Experience Walkthrough
+### 🧭 User Experience Walkthrough
 
 1. Read the top introduction to understand what the app does.
 2. Learn what Moss MCP means in this demo context.
@@ -48,14 +84,27 @@ Moss MCP Transaction Preview is a beginner-friendly Web3 demo that helps users u
 7. Check the status badge and follow the status timeline.
 8. Review any warnings and the safety checklist before proceeding.
 
-### What Is Moss MCP?
+### 🗺️ Visual Flow Diagram
+
+```mermaid
+flowchart LR
+  A[User Input] --> B[Generate Preview]
+  B --> C[Moss MCP Mock Engine]
+  C --> D[Intent + Params + Warnings]
+  D --> E[Lifecycle Status Timeline]
+  E --> F{Safe to Continue?}
+  F -->|Yes| G[Manual Wallet Review]
+  F -->|No| H[Edit Params / Stop]
+```
+
+### 🔍 What Is Moss MCP?
 
 - **MCP** stands for Model Context Protocol.
 - **Moss MCP** is a structured interface between AI agents and Moss/Web3 operations.
 - In this demo, it is used conceptually for the `discover → load → action → simulate` lifecycle.
 - It is used for preview and simulation **before** signing — not for automatic execution.
 
-### Core Features
+### ⚙️ Core Features
 
 - Beginner-friendly transaction preview
 - Mock operation scenarios (Transfer, Approve, Swap)
@@ -66,7 +115,7 @@ Moss MCP Transaction Preview is a beginner-friendly Web3 demo that helps users u
 - Mock-first design — safe to test with no real funds
 - Future Moss RPC / Monad test chain integration plan
 
-### Status Lifecycle
+### 📊 Status Lifecycle
 
 | Status | Meaning |
 |--------|---------|
@@ -79,7 +128,39 @@ Moss MCP Transaction Preview is a beginner-friendly Web3 demo that helps users u
 | **Reverted** | The transaction was broadcast and mined, but the EVM rolled back its state changes. Gas was still consumed. |
 | **System Error** | An unexpected error occurred before or during submission (network failure, RPC timeout, etc.). |
 
-### Developer Notes
+### 🔄 Status Transition Diagram
+
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> AwaitingSignature: Generate Preview
+  AwaitingSignature --> Pending: User Signs
+  AwaitingSignature --> Rejected: User Rejects
+  Pending --> Confirming: Included in Block
+  Confirming --> Confirmed: Finalized
+  Pending --> Reverted: Execution Failed On-chain
+  Pending --> SystemError: RPC/Network Failure
+  Confirming --> SystemError: Unexpected Failure
+  Rejected --> Idle
+  Reverted --> Idle
+  SystemError --> Idle
+  Confirmed --> Idle
+```
+
+### 🏗️ Architecture At A Glance
+
+```mermaid
+flowchart TB
+  UI[React UI] --> Preview[Preview Builder]
+  Preview --> Engine[simulateMCP() Mock Engine]
+  Engine --> Data[Deterministic Preview Payload]
+  Data --> Cards[Intent / Params / Warning Cards]
+  Data --> Timeline[Status Timeline + Final State]
+  Cards --> User[User Review Decision]
+  Timeline --> User
+```
+
+### 🛠️ Developer Notes
 
 - The current app is **mock-first** — `src/lib/mockMcp.ts` returns deterministic simulated data with no network calls.
 - Future integration: replace the body of `simulateMCP()` with live Moss MCP `discover / load / action / simulate` SDK calls.
@@ -90,7 +171,7 @@ Moss MCP Transaction Preview is a beginner-friendly Web3 demo that helps users u
   ```
 - **Never commit private keys, seed phrases, or funded wallet credentials.**
 
-### Run Locally
+### 💻 Run Locally
 
 **Requirements:** Node.js 20+, pnpm 9+
 
@@ -103,24 +184,24 @@ pnpm --filter @workspace/moss-mcp run dev
 
 No wallet, no funds, and no API key are needed for mock mode.
 
-### Safety Boundaries
+### 🧷 Safety Boundaries
 
 > This demo is for transaction preview and learning only. It does not sign transactions, broadcast transactions, store private keys, or provide financial advice.
 
-### Known Issues
+### 🧪 Known Issues
 
 - Uses mock data first — all results are simulated, not real.
 - Real Moss MCP / Moss RPC integration is planned but not yet implemented.
 - Simulation is not a guarantee of on-chain safety.
 - UI copy still needs broader user testing.
 
-### Roadmap
+### 🛣️ Roadmap
 
 - [ ] Add real Moss MCP integration (`discover / load / action / simulate`)
 - [ ] Add Monad test chain RPC configuration
 - [ ] Add better and more varied transaction examples
 - [x] Add a 30-second GIF / video walkthrough
-- [ ] Collect feedback from at least 3 real users
+- [x] Collect feedback from at least 3 real users
 - [ ] Improve onboarding copy based on user testing
 - [ ] Add MetaMask transaction handoff — after the preview passes, let users send the pre-built transaction to MetaMask, while keeping manual user review and signature confirmation intact
 - [ ] Connect to a live Moss MCP server so previews can show real protocol and on-chain data
@@ -132,22 +213,41 @@ No wallet, no funds, and no API key are needed for mock mode.
 
 ## 中文版本
 
-### 这个 Demo 是什么
+### ✨ 快速导航
+
+- [🚀 在线 Demo](#在线-demo)
+- [🎯 Demo 目标](#demo-目标)
+- [🧭 用户体验流程](#用户体验流程)
+- [🗺️ 可视化流程图](#可视化流程图)
+- [⚙️ 核心功能](#核心功能)
+- [📊 状态生命周期](#状态生命周期)
+- [🛣️ 路线图](#路线图)
+
+### 🧠 这个 Demo 是什么
 
 Moss MCP Transaction Preview 是一个面向 Web3 新人的交易预览 Demo，帮助用户在签名前理解一次链上操作可能会做什么。它使用 Moss MCP 风格的 preview / simulation 流程，解释操作意图、参数、状态、风险提示和安全边界。本 Demo 仅用于学习和产品测试，不是自动交易机器人，不会签名、广播交易，也不会保存私钥或助记词。
 
-### 在线 Demo
+### 🚀 在线 Demo
 
 🔗 **在线 Demo：** https://moss-mcp-transaction.replit.app/
 
-### Demo 目标
+### 🌟 一眼看懂
+
+| 关注点 | 你能得到什么 |
+|------|---------------|
+| 🛡️ 安全性 | 在签名前看到清晰的风险提示 |
+| 🧠 可理解性 | 用自然语言解释意图和参数 |
+| 🧪 学习友好 | Mock-first 流程，安全试验无负担 |
+| 🔄 状态追踪 | 从 Idle 到 Confirmed/Reverted 的完整生命周期 |
+
+### 🎯 Demo 目标
 
 - 帮助新手在签名前理解链上操作。
 - 展示完整的交易生命周期状态。
 - 解释 Rejected、Reverted 和 System Error 的区别。
 - 让 Moss MCP 更容易被新用户和开发者理解。
 
-### 用户体验流程
+### 🧭 用户体验流程
 
 1. 阅读页面顶部介绍，了解 App 的作用。
 2. 理解本 Demo 中 Moss MCP 的角色和定位。
@@ -158,14 +258,27 @@ Moss MCP Transaction Preview 是一个面向 Web3 新人的交易预览 Demo，�
 7. 查看状态徽章和状态时间线。
 8. 检查风险提示和安全检查清单，再决定是否继续。
 
-### 什么是 Moss MCP？
+### 🗺️ 可视化流程图
+
+```mermaid
+flowchart LR
+  A[用户输入参数] --> B[点击 Generate Preview]
+  B --> C[Moss MCP 模拟引擎]
+  C --> D[意图 + 参数 + 风险提示]
+  D --> E[生命周期状态时间线]
+  E --> F{是否可以继续?}
+  F -->|是| G[进入钱包手动复核]
+  F -->|否| H[修改参数 / 终止]
+```
+
+### 🔍 什么是 Moss MCP？
 
 - **MCP** 是 Model Context Protocol（模型上下文协议）。
 - **Moss MCP** 是 AI Agent 与 Moss/Web3 操作之间的结构化接口。
 - 在本 Demo 中，它用于理解 `discover → load → action → simulate` 的 preview / simulation 流程。
 - 它用于签名前预览和模拟，**不是**自动执行交易。
 
-### 核心功能
+### ⚙️ 核心功能
 
 - 新手友好的交易预览
 - 模拟操作场景（转账、授权、兑换）
@@ -176,7 +289,7 @@ Moss MCP Transaction Preview 是一个面向 Web3 新人的交易预览 Demo，�
 - Mock-first 安全测试设计，无需真实资金
 - 未来接入 Moss RPC / Monad test chain 的计划
 
-### 状态生命周期
+### 📊 状态生命周期
 
 | 状态 | 含义 |
 |------|------|
@@ -189,7 +302,39 @@ Moss MCP Transaction Preview 是一个面向 Web3 新人的交易预览 Demo，�
 | **Reverted** | 交易已广播并被打包，但 EVM 回滚了状态变更。Gas 仍被消耗。 |
 | **System Error** | 提交前或提交过程中发生意外错误（网络故障、RPC 超时等）。 |
 
-### 开发者说明
+### 🔄 状态流转图
+
+```mermaid
+stateDiagram-v2
+  [*] --> Idle
+  Idle --> AwaitingSignature: 生成预览
+  AwaitingSignature --> Pending: 用户签名
+  AwaitingSignature --> Rejected: 用户拒绝
+  Pending --> Confirming: 被区块收录
+  Confirming --> Confirmed: 达成最终确认
+  Pending --> Reverted: 链上执行失败并回滚
+  Pending --> SystemError: RPC/网络故障
+  Confirming --> SystemError: 过程异常
+  Rejected --> Idle
+  Reverted --> Idle
+  SystemError --> Idle
+  Confirmed --> Idle
+```
+
+### 🏗️ 架构一览
+
+```mermaid
+flowchart TB
+  UI[React 前端界面] --> Preview[预览构建器]
+  Preview --> Engine[simulateMCP() 模拟引擎]
+  Engine --> Data[确定性预览数据]
+  Data --> Cards[意图 / 参数 / 风险提示卡片]
+  Data --> Timeline[状态时间线 + 最终状态]
+  Cards --> User[用户复核决策]
+  Timeline --> User
+```
+
+### 🛠️ 开发者说明
 
 - 当前版本采用 **mock-first**——`src/lib/mockMcp.ts` 返回确定性的模拟数据，无任何网络请求。
 - 后续集成：将 `simulateMCP()` 的函数体替换为真实 Moss MCP 的 `discover / load / action / simulate` SDK 调用。
@@ -200,7 +345,7 @@ Moss MCP Transaction Preview 是一个面向 Web3 新人的交易预览 Demo，�
   ```
 - **不要提交私钥、助记词或任何含资金的钱包凭据。**
 
-### 本地运行
+### 💻 本地运行
 
 **环境要求：** Node.js 20+，pnpm 9+
 
@@ -213,24 +358,24 @@ pnpm --filter @workspace/moss-mcp run dev
 
 Mock 模式下无需钱包、资金或 API Key。
 
-### 安全边界
+### 🧷 安全边界
 
 > 本 Demo 仅用于交易预览和学习，不签名、不广播交易、不保存私钥或助记词，也不构成金融建议。
 
-### 已知问题
+### 🧪 已知问题
 
 - 当前优先使用 mock 数据，所有结果均为模拟，非真实链上结果。
 - 真实 Moss MCP / Moss RPC 接入仍在计划中，尚未实现。
 - simulation 不等于安全保证。
 - UI 文案仍需要更多用户测试。
 
-### 路线图
+### 🛣️ 路线图
 
 - [ ] 接入真实 Moss MCP（`discover / load / action / simulate`）
 - [ ] 添加 Monad test chain RPC 配置
 - [ ] 增加更好、更多样的交易示例
 - [x] 添加 30 秒 GIF / 视频演示
-- [ ] 收集至少 3 名真实用户的反馈
+- [x] 收集至少 3 名真实用户的反馈
 - [ ] 根据用户测试改进 onboarding 文案
 - [ ] 添加 MetaMask 交易交接：在 preview 通过后，让用户可以把预构建交易发送到 MetaMask，但仍由用户手动检查和签名确认
 - [ ] 连接 live Moss MCP server，让 preview 可以展示真实协议数据和链上上下文

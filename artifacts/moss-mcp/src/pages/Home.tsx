@@ -441,7 +441,7 @@ export default function Home() {
               <div className="space-y-1">
                 <Label>Operation Type</Label>
                 <Select value={form.operationType} onValueChange={(v: OperationType) => setForm({ ...form, operationType: v })}>
-                  <SelectTrigger>
+                  <SelectTrigger data-testid="operation-select-trigger">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -505,7 +505,7 @@ export default function Home() {
                 <div className="space-y-1">
                   <Label>Mock Scenario</Label>
                   <Select value={form.scenario} onValueChange={(v: ScenarioType) => setForm({ ...form, scenario: v })}>
-                    <SelectTrigger>
+                    <SelectTrigger data-testid="scenario-select-trigger">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -542,6 +542,7 @@ export default function Home() {
                 onClick={handleSimulate} 
                 className="w-full mt-2 font-semibold shadow-lg shadow-primary/20" 
                 disabled={isSimulating}
+                data-testid="generate-preview-button"
               >
                 {isSimulating ? (
                   <>
@@ -581,12 +582,12 @@ export default function Home() {
           )}
 
           {result && !isSimulating && (
-            <div className="space-y-6 animate-in slide-in-from-bottom-4 fade-in duration-500">
+            <div className="space-y-6 animate-in slide-in-from-bottom-4 fade-in duration-500" data-testid="simulation-result-zone">
 
               {/* ── HOW TO READ THIS PREVIEW ── */}
               <HowToReadPreview />
               
-              <Card className="overflow-hidden border-border shadow-2xl">
+              <Card className="overflow-hidden border-border shadow-2xl" data-testid="preview-result-card">
                 {/* Status bar top edge */}
                 <div className={`h-1 w-full ${isTerminal ? 'bg-destructive' : result.status === 'CONFIRMED' ? 'bg-emerald-500' : 'bg-primary'}`}></div>
                 
@@ -765,7 +766,7 @@ export default function Home() {
               </Card>
 
               {/* Status Timeline + Legend */}
-              <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+              <div className="bg-card border border-border rounded-xl p-6 shadow-sm" data-testid="status-lifecycle-panel">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Transaction Lifecycle</h3>
                 <StatusTimeline currentStatus={result.status} />
                 <StatusLegend />

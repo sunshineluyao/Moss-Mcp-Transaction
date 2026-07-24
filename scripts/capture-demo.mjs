@@ -1,8 +1,9 @@
 /**
- * Captures a 30-second walkthrough of the Moss MCP Transaction Preview app.
+ * Captures a walkthrough of the Moss MCP Transaction Preview app.
  * Outputs frames to /tmp/demo-frames/, then ffmpeg stitches them into a GIF.
  *
- * Usage: node scripts/capture-demo.mjs
+ * Usage:
+ *   APP_URL=http://localhost:23076/ node scripts/capture-demo.mjs
  */
 import { chromium } from 'playwright';
 import { execSync } from 'child_process';
@@ -11,10 +12,16 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const APP_URL = 'http://localhost:23076/';
+const APP_URL = process.env.APP_URL || 'http://localhost:23076/';
 const FRAMES_DIR = '/tmp/demo-frames';
 const OUTPUT_GIF = path.resolve(__dirname, '..', 'assets', 'moss-mcp-transaction-preview-demo.gif');
 const FRAME_DELAY_MS = 80; // ~12.5 fps
+const FFMPEG_STATIC_BIN = path.resolve(__dirname, '..', 'node_modules', 'ffmpeg-static', 'ffmpeg');
+const FFMPEG_BIN = process.env.FFMPEG_BIN || (fs.existsSync(FFMPEG_STATIC_BIN)
+  ? FFMPEG_STATIC_BIN
+  : fs.existsSync('/home/codespace/.cache/ms-playwright/ffmpeg-1011/ffmpeg-linux')
+    ? '/home/codespace/.cache/ms-playwright/ffmpeg-1011/ffmpeg-linux'
+    : 'ffmpeg');
 
 fs.rmSync(FRAMES_DIR, { recursive: true, force: true });
 fs.mkdirSync(FRAMES_DIR, { recursive: true });
@@ -32,9 +39,20 @@ async function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
 }
 
+async function smoothScroll(page, from, to, step = 12, hold = 1) {
+  const dir = to >= from ? 1 : -1;
+  const distance = Math.abs(to - from);
+  const ticks = Math.max(1, Math.floor(distance / step));
+
+  for (let i = 0; i <= ticks; i++) {
+    const y = from + dir * i * step;
+    await page.evaluate(scrollY => window.scrollTo({ top: scrollY, behavior: 'instant' }), y);
+    await shot(page, hold);
+  }
+}
+
 (async () => {
   const browser = await chromium.launch({
-    executablePath: '/home/runner/.cache/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-linux64/chrome-headless-shell',
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
@@ -42,108 +60,78 @@ async function sleep(ms) {
   const page = await browser.newPage();
   await page.setViewportSize({ width: 1100, height: 720 });
 
-  // ─── Step 1: Open the page ───────────────────────────────────────────────
+  // Step 1: open the page and hold hero/intro
   await page.goto(APP_URL, { waitUntil: 'networkidle' });
-  await sleep(800);
+  await page.waitForLoadState('domcontentloaded');
+  await page.getByRole('heading', { name: 'Moss MCP Transaction Preview' }).first().waitFor({ timeout: 8000 });
+  await sleep(600);
+  await shot(page, 18);
 
-  // Hold on initial load — title visible
-  await shot(page, 20); // ~1.6s
-
-  // ─── Step 2: Read intro ──────────────────────────────────────────────────
-  // Smoothly scroll down a bit to show full intro text
-  for (let y = 0; y <= 160; y += 10) {
-    await page.evaluate(s => window.scrollTo({ top: s }), y);
-    await shot(page, 2);
-  }
-  await shot(page, 15); // pause on intro
-
-  // ─── Step 3: Expand "What is Moss MCP?" ─────────────────────────────────
-  const mossMcpToggle = await page.$('text=What is Moss MCP?');
-  if (mossMcpToggle) {
+  // Step 2: read intro and open What is Moss MCP
+  await smoothScroll(page, 0, 180, 12, 1);
+  const mossMcpToggle = page.getByRole('button', { name: /What is Moss MCP\?/i });
+  if (await mossMcpToggle.isVisible()) {
     await mossMcpToggle.click();
-    await sleep(400);
-    await shot(page, 15);
+    await sleep(450);
+    await shot(page, 14);
   }
 
-  // ─── Step 4: Scroll to Simulation Parameters form ───────────────────────
-  for (let y = 160; y <= 380; y += 10) {
-    await page.evaluate(s => window.scrollTo({ top: s }), y);
-    await shot(page, 2);
-  }
-  await shot(page, 15); // pause on form
+  // Step 3: focus simulation parameters and configure values
+  await smoothScroll(page, 180, 420, 10, 1);
+  const operationSelect = page.getByTestId('operation-select-trigger');
+  await operationSelect.click();
+  await sleep(250);
+  await page.getByRole('option', { name: 'ERC20 Approve' }).click();
+  await shot(page, 10);
 
-  // ─── Step 5: Choose operation type (click dropdown) ─────────────────────
-  // Click the Operation Type select trigger
-  const opSelect = await page.$('[data-testid="operation-select"], [role="combobox"]');
-  if (opSelect) {
-    await opSelect.click();
-    await sleep(300);
-    await shot(page, 10);
-    // Choose "Token Approval"
-    const approvalOption = await page.$('text=Token Approval');
-    if (approvalOption) {
-      await approvalOption.click();
-      await sleep(300);
-    } else {
-      // Close dropdown
-      await page.keyboard.press('Escape');
-    }
-    await shot(page, 15);
-  }
+  await page.locator('#amount').fill('250');
+  await shot(page, 8);
 
-  // ─── Step 6: Hover over Generate Preview button ──────────────────────────
-  const generateBtn = await page.$('text=Generate Preview');
-  if (generateBtn) {
-    await generateBtn.hover();
-    await shot(page, 10);
-  }
+  const scenarioSelect = page.getByTestId('scenario-select-trigger');
+  await scenarioSelect.click();
+  await sleep(220);
+  await page.getByRole('option', { name: 'Success' }).click();
+  await shot(page, 10);
 
-  // ─── Step 7: Click Generate Preview ─────────────────────────────────────
-  if (generateBtn) {
-    await generateBtn.click();
-    await sleep(1200);
-    await shot(page, 20); // ~1.6s on result appearing
-  }
+  // Step 4: click Generate Preview and capture post-click result
+  const generateBtn = page.getByTestId('generate-preview-button');
+  await generateBtn.hover();
+  await shot(page, 8);
+  await generateBtn.click();
 
-  // ─── Step 8: Read the result — scroll right panel into view ─────────────
-  // Scroll to show full preview card
-  for (let y = 380; y <= 550; y += 10) {
-    await page.evaluate(s => window.scrollTo({ top: s }), y);
-    await shot(page, 2);
-  }
-  await shot(page, 20); // pause on result card
+  await page.getByTestId('simulation-result-zone').waitFor({ timeout: 10000 });
+  await page.getByTestId('preview-result-card').waitFor({ timeout: 10000 });
+  await shot(page, 24);
 
-  // ─── Step 9: Scroll to show status badge / timeline ─────────────────────
-  for (let y = 550; y <= 900; y += 15) {
-    await page.evaluate(s => window.scrollTo({ top: s }), y);
-    await shot(page, 2);
-  }
-  await shot(page, 25); // hold on status badge
+  // Step 5: reveal more result details after Generate Preview
+  await smoothScroll(page, 420, 780, 10, 1);
+  await shot(page, 20);
 
-  // ─── Step 10: Scroll back to top ─────────────────────────────────────────
-  for (let y = 900; y >= 0; y -= 30) {
-    await page.evaluate(s => window.scrollTo({ top: s }), y);
-    await shot(page, 1);
-  }
-  await shot(page, 15); // final hold
+  await smoothScroll(page, 780, 1080, 12, 1);
+  await page.getByTestId('status-lifecycle-panel').scrollIntoViewIfNeeded();
+  await shot(page, 28);
+
+  // Step 6: return to top for end frame
+  await smoothScroll(page, 1080, 0, 20, 1);
+  await shot(page, 18);
 
   await browser.close();
 
-  console.log(`Captured ${frameIndex} frames.`);
+  const durationSec = ((frameIndex * FRAME_DELAY_MS) / 1000).toFixed(1);
+  console.log(`Captured ${frameIndex} frames (~${durationSec}s).`);
 
-  // ─── Encode GIF with ffmpeg ───────────────────────────────────────────────
-  // Generate palette for quality GIF
+  // Encode GIF with ffmpeg and generated palette
   const palette = '/tmp/demo-palette.png';
   console.log('Generating palette...');
   execSync(
-    `ffmpeg -y -framerate 12.5 -i "${FRAMES_DIR}/frame_%05d.png" ` +
+    `"${FFMPEG_BIN}" -y -framerate 12.5 -start_number 0 -i "${FRAMES_DIR}/frame_%05d.png" ` +
     `-vf "scale=900:-1:flags=lanczos,palettegen=max_colors=128:stats_mode=diff" "${palette}"`,
     { stdio: 'inherit' }
   );
 
   console.log('Encoding GIF...');
   execSync(
-    `ffmpeg -y -framerate 12.5 -i "${FRAMES_DIR}/frame_%05d.png" -i "${palette}" ` +
+    `"${FFMPEG_BIN}" -y -framerate 12.5 -start_number 0 -i "${FRAMES_DIR}/frame_%05d.png" -i "${palette}" ` +
     `-lavfi "scale=900:-1:flags=lanczos [x]; [x][1:v] paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle" ` +
     `"${OUTPUT_GIF}"`,
     { stdio: 'inherit' }
