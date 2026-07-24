@@ -151,11 +151,11 @@ Use this section as a quick reference before clicking **Generate Preview**.
 ### 🗺️ Visual Flow Diagram
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 48, 'rankSpacing': 64, 'curve': 'basis'},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#475569','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff'}}}%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 72, 'rankSpacing': 92, 'curve': 'basis', 'padding': 18},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   subgraph R1[Step 1 - Build]
     direction LR
-    A["① 🎛 Configure<br/><small>operation · addresses · amount</small>"] --> B["② ⚡ Generate preview"]
+    A["① 🎛 Configure<br/><small>operation · addresses · amount</small>"] --> B["② ⚡ Generate<br/><small>transaction preview</small>"]
     B --> C["③ 🧠 Simulate locally<br/><small>deterministic · no broadcast</small>"]
     C --> D["④ 🧾 Inspect preview<br/><small>intent · parameters · warnings</small>"]
   end
@@ -163,8 +163,8 @@ flowchart TB
   subgraph R2[Step 2 - Decide]
     direction LR
     E["⑤ 📊 Review outcome<br/><small>risk · lifecycle · safety checks</small>"] --> F{"⑥ 🛡 Comfortable<br/>continuing?"}
-    F -->|Yes — review again| G["✅ Manual wallet review<br/><small>user remains in control</small>"]
-    F -->|No / unsure| H["🛑 Edit inputs or stop<br/><small>nothing was submitted</small>"]
+    F -->|Yes — review again| G["✅ Manual wallet<br/>review<br/><small>user remains in control</small>"]
+    F -->|No / unsure| H["🛑 Edit inputs<br/>or stop<br/><small>nothing was submitted</small>"]
   end
 
   D --> E
@@ -180,7 +180,7 @@ flowchart TB
   class H stop;
   style R1 fill:#f0fdfa,stroke:#99f6e4,stroke-width:1px
   style R2 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
-  linkStyle default stroke:#475569,stroke-width:2px;
+  linkStyle default stroke:#64748b,stroke-width:2px;
 ```
 
 ### 🎬 Demo GIF Generation Pipeline
@@ -192,7 +192,7 @@ This repository includes a reproducible script pipeline to generate dual compari
 - `assets/moss-mcp-transaction-preview-demo.gif` (compatibility copy of success)
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 48, 'rankSpacing': 64, 'curve': 'basis'},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#475569','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff'}}}%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 72, 'rankSpacing': 92, 'curve': 'basis', 'padding': 18},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart LR
   subgraph P1[Prepare]
     A["📦 pnpm install"] --> B["🎬 pnpm run<br/>demo:gif"]
@@ -204,9 +204,9 @@ flowchart LR
   end
 
   subgraph P3[Encode]
-    F["🎨 Palette +<br/>GIF encode"]
-    G["✅ success +<br/>🛑 rejected"]
-    H["📎 demo<br/>compatibility copy"]
+    F["🎨 Build palette<br/>+ encode GIF"]
+    G["✅ Success build<br/>+ 🛑 rejected build"]
+    H["📎 Demo compatibility<br/>copy"]
   end
 
   B -->|launches| C
@@ -222,7 +222,7 @@ flowchart LR
   style P1 fill:#eff6ff,stroke:#bfdbfe,stroke-width:1px
   style P2 fill:#f0fdfa,stroke:#99f6e4,stroke-width:1px
   style P3 fill:#fff7ed,stroke:#fed7aa,stroke-width:1px
-  linkStyle default stroke:#475569,stroke-width:2px;
+  linkStyle default stroke:#64748b,stroke-width:2px;
 ```
 
 **Commands**
@@ -331,7 +331,7 @@ All Mermaid diagrams use a consistent visual token strategy to balance readabili
 ### 🔄 Status Transition Diagram
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 48, 'rankSpacing': 64, 'curve': 'basis'},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#475569','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff'}}}%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 72, 'rankSpacing': 92, 'curve': 'basis', 'padding': 18},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   Idle["🌙 Idle"] --> Awaiting["✍️ Awaiting<br/>Signature"]
   Awaiting -->|User Signs| Pending["📨 Pending"]
@@ -340,13 +340,13 @@ flowchart TB
   Pending --> Confirming["🔄 Confirming"]
   Confirming --> Confirmed["✅ Confirmed"]
   Pending -->|Execution Failed| Reverted["↩️ Reverted"]
-  Pending -->|RPC/Network Failure| SystemError["⚠️ System<br/>Error"]
-  Confirming -->|Unexpected Failure| SystemError
+  Pending -->|RPC / network<br/>failure| SystemError["⚠️ System<br/>Error"]
+  Confirming -->|unexpected<br/>failure| SystemError
 
-  Rejected -.->|Start a new preview| Idle
-  Reverted -.->|Start a new preview| Idle
+  Rejected -.->|start a new<br/>preview| Idle
+  Reverted -.->|start a new<br/>preview| Idle
   SystemError -.->|Retry| Idle
-  Confirmed -.->|Start a new preview| Idle
+  Confirmed -.->|start a new<br/>preview| Idle
 
   classDef neutral fill:#f1f5f9,stroke:#64748b,stroke-width:1.8px,color:#0f172a;
   classDef success fill:#ecfdf5,stroke:#15803d,stroke-width:1.8px,color:#14532d;
@@ -358,13 +358,13 @@ flowchart TB
   class Rejected,Reverted danger;
   class SystemError warn;
   linkStyle 8,9,10,11 stroke:#94a3b8,stroke-width:1.5px,stroke-dasharray:5 4;
-  linkStyle default stroke-width:2px;
+  linkStyle default stroke:#64748b,stroke-width:2px;
 ```
 
 ### 🏗️ Architecture at a Glance
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 48, 'rankSpacing': 64, 'curve': 'basis'},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#475569','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff'}}}%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 72, 'rankSpacing': 92, 'curve': 'basis', 'padding': 18},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   subgraph L1[Frontend]
     UI["🖥 React UI"] --> Preview["🧾 Preview<br/>Panel"]
@@ -375,17 +375,17 @@ flowchart TB
   end
 
   subgraph L3[Explanation]
-    Cards["🧩 Intent + Params<br/>+ Warnings"]
+    Cards["🧩 Intent, parameters<br/>+ warnings"]
     Timeline["📊 Status<br/>Timeline"]
   end
 
   subgraph L4[Decision]
-    User["👤 User Review<br/>Decision"]
+    User["👤 User review<br/>decision"]
   end
 
   Preview --> Engine
-  Data -->|explains the call| Cards -->|informs| User
-  Data -->|maps the outcome| Timeline -->|informs| User
+  Data -->|explains<br/>the call| Cards -->|informs<br/>decision| User
+  Data -->|maps<br/>the outcome| Timeline -->|informs<br/>decision| User
 
   classDef frontend fill:#eff6ff,stroke:#2563eb,stroke-width:1.8px,color:#1e3a8a;
   classDef sim fill:#ecfeff,stroke:#0f766e,stroke-width:1.8px,color:#134e4a;
@@ -400,7 +400,7 @@ flowchart TB
   style L2 fill:#f0fdfa,stroke:#99f6e4,stroke-width:1px
   style L3 fill:#fff7ed,stroke:#fed7aa,stroke-width:1px
   style L4 fill:#ecfdf5,stroke:#bbf7d0,stroke-width:1px
-  linkStyle default stroke:#475569,stroke-width:2px;
+  linkStyle default stroke:#64748b,stroke-width:2px;
 ```
 
 ### 🛠️ Developer Notes
@@ -540,11 +540,11 @@ Moss MCP Transaction Preview 是一个面向 Web3 新人的交易预览 Demo，�
 ### 🗺️ 可视化流程图
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 48, 'rankSpacing': 64, 'curve': 'basis'},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#475569','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff'}}}%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 72, 'rankSpacing': 92, 'curve': 'basis', 'padding': 18},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   subgraph R1[步骤一 - 生成预览]
     direction LR
-    A["① 🎛 配置参数<br/><small>操作 · 地址 · 数量</small>"] --> B["② ⚡ 生成预览"]
+    A["① 🎛 配置参数<br/><small>操作 · 地址 · 数量</small>"] --> B["② ⚡ 生成<br/><small>交易预览</small>"]
     B --> C["③ 🧠 本地模拟<br/><small>结果确定 · 不广播</small>"]
     C --> D["④ 🧾 检查预览<br/><small>意图 · 参数 · 风险</small>"]
   end
@@ -552,8 +552,8 @@ flowchart TB
   subgraph R2[步骤二 - 复核与决策]
     direction LR
     E["⑤ 📊 复核结果<br/><small>风险 · 状态 · 安全检查</small>"] --> F{"⑥ 🛡 是否确认<br/>继续？"}
-    F -->|是 — 再次复核| G["✅ 钱包手动复核<br/><small>始终由用户控制</small>"]
-    F -->|否 / 不确定| H["🛑 修改或终止<br/><small>尚未提交任何交易</small>"]
+    F -->|是 — 再次复核| G["✅ 钱包<br/>手动复核<br/><small>始终由用户控制</small>"]
+    F -->|否 / 不确定| H["🛑 修改<br/>或终止<br/><small>尚未提交任何交易</small>"]
   end
 
   D --> E
@@ -569,7 +569,7 @@ flowchart TB
   class H stop;
   style R1 fill:#f0fdfa,stroke:#99f6e4,stroke-width:1px
   style R2 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1px
-  linkStyle default stroke:#475569,stroke-width:2px;
+  linkStyle default stroke:#64748b,stroke-width:2px;
 ```
 
 ### 🎬 Demo GIF 生成流程
@@ -581,7 +581,7 @@ flowchart TB
 - `assets/moss-mcp-transaction-preview-demo.gif`（兼容副本，等同 success）
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 48, 'rankSpacing': 64, 'curve': 'basis'},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#475569','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff'}}}%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 72, 'rankSpacing': 92, 'curve': 'basis', 'padding': 18},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart LR
   subgraph P1[准备]
     A["📦 pnpm install"] --> B["🎬 pnpm run<br/>demo:gif"]
@@ -593,8 +593,8 @@ flowchart LR
   end
 
   subgraph P3[编码]
-    F["🎨 调色板 +<br/>GIF 编码"]
-    G["✅ success +<br/>🛑 rejected"]
+    F["🎨 生成调色板<br/>+ GIF 编码"]
+    G["✅ success 版本<br/>+ 🛑 rejected 版本"]
     H["📎 demo<br/>兼容副本"]
   end
 
@@ -611,7 +611,7 @@ flowchart LR
   style P1 fill:#eff6ff,stroke:#bfdbfe,stroke-width:1px
   style P2 fill:#f0fdfa,stroke:#99f6e4,stroke-width:1px
   style P3 fill:#fff7ed,stroke:#fed7aa,stroke-width:1px
-  linkStyle default stroke:#475569,stroke-width:2px;
+  linkStyle default stroke:#64748b,stroke-width:2px;
 ```
 
 **执行命令**
@@ -720,7 +720,7 @@ pnpm run demo:gif
 ### 🔄 状态流转图
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 48, 'rankSpacing': 64, 'curve': 'basis'},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#475569','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff'}}}%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 72, 'rankSpacing': 92, 'curve': 'basis', 'padding': 18},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   Idle["🌙 Idle"] --> Awaiting["✍️ Awaiting<br/>Signature"]
   Awaiting -->|用户签名| Pending["📨 Pending"]
@@ -729,13 +729,13 @@ flowchart TB
   Pending --> Confirming["🔄 Confirming"]
   Confirming --> Confirmed["✅ Confirmed"]
   Pending -->|链上执行失败| Reverted["↩️ Reverted"]
-  Pending -->|RPC/网络故障| SystemError["⚠️ System<br/>Error"]
-  Confirming -->|过程异常| SystemError
+  Pending -->|RPC / 网络<br/>故障| SystemError["⚠️ System<br/>Error"]
+  Confirming -->|过程<br/>异常| SystemError
 
-  Rejected -.->|发起新预览| Idle
-  Reverted -.->|发起新预览| Idle
+  Rejected -.->|发起<br/>新预览| Idle
+  Reverted -.->|发起<br/>新预览| Idle
   SystemError -.->|重试| Idle
-  Confirmed -.->|发起新预览| Idle
+  Confirmed -.->|发起<br/>新预览| Idle
 
   classDef neutral fill:#f1f5f9,stroke:#64748b,stroke-width:1.8px,color:#0f172a;
   classDef success fill:#ecfdf5,stroke:#15803d,stroke-width:1.8px,color:#14532d;
@@ -747,13 +747,13 @@ flowchart TB
   class Rejected,Reverted danger;
   class SystemError warn;
   linkStyle 8,9,10,11 stroke:#94a3b8,stroke-width:1.5px,stroke-dasharray:5 4;
-  linkStyle default stroke-width:2px;
+  linkStyle default stroke:#64748b,stroke-width:2px;
 ```
 
 ### 🏗️ 架构总览
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 48, 'rankSpacing': 64, 'curve': 'basis'},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#475569','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff'}}}%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 72, 'rankSpacing': 92, 'curve': 'basis', 'padding': 18},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   subgraph L1[前端层]
     UI["🖥 React<br/>前端界面"] --> Preview["🧾 预览<br/>面板"]
@@ -764,17 +764,17 @@ flowchart TB
   end
 
   subgraph L3[解释层]
-    Cards["🧩 意图 + 参数<br/>+ 风险提示"]
+    Cards["🧩 意图、参数<br/>+ 风险提示"]
     Timeline["📊 状态<br/>时间线"]
   end
 
   subgraph L4[决策层]
-    User["👤 用户<br/>复核决策"]
+    User["👤 用户复核<br/>决策"]
   end
 
   Preview --> Engine
-  Data -->|解释调用内容| Cards -->|辅助判断| User
-  Data -->|映射执行结果| Timeline -->|辅助判断| User
+  Data -->|解释<br/>调用内容| Cards -->|辅助<br/>判断| User
+  Data -->|映射<br/>执行结果| Timeline -->|辅助<br/>判断| User
 
   classDef frontend fill:#eff6ff,stroke:#2563eb,stroke-width:1.8px,color:#1e3a8a;
   classDef sim fill:#ecfeff,stroke:#0f766e,stroke-width:1.8px,color:#134e4a;
@@ -789,7 +789,7 @@ flowchart TB
   style L2 fill:#f0fdfa,stroke:#99f6e4,stroke-width:1px
   style L3 fill:#fff7ed,stroke:#fed7aa,stroke-width:1px
   style L4 fill:#ecfdf5,stroke:#bbf7d0,stroke-width:1px
-  linkStyle default stroke:#475569,stroke-width:2px;
+  linkStyle default stroke:#64748b,stroke-width:2px;
 ```
 
 ### 🛠️ 开发者说明
