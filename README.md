@@ -335,7 +335,7 @@ All Mermaid diagrams use a consistent visual token strategy to balance readabili
 ### 🔄 Status Transition Diagram
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 96, 'rankSpacing': 110, 'curve': 'basis', 'padding': 28, 'diagramPadding': 24, 'wrappingWidth': 260},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 132, 'rankSpacing': 132, 'curve': 'basis', 'padding': 40, 'diagramPadding': 32, 'wrappingWidth': 320},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'14px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   Idle["Idle"] --> Awaiting["Awaiting Signature"]
   Awaiting --> Pending["Pending"]
@@ -344,7 +344,7 @@ flowchart TB
   Pending --> Confirming["Confirming"]
   Confirming --> Confirmed["Confirmed"]
   Pending --> Reverted["Reverted"]
-  Pending --> SystemError["System Error"]
+  Pending --> SystemError["System<br/>Error"]
   Confirming --> SystemError
 
   Rejected -.->|New preview| Idle
@@ -368,10 +368,10 @@ flowchart TB
 ### 🏗️ Architecture at a Glance
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 96, 'rankSpacing': 110, 'curve': 'basis', 'padding': 28, 'diagramPadding': 24, 'wrappingWidth': 260},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 132, 'rankSpacing': 132, 'curve': 'basis', 'padding': 40, 'diagramPadding': 32, 'wrappingWidth': 320},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'14px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   subgraph L1[Frontend]
-    UI["🖥 React UI"] --> Preview["🧾 Preview<br/>Panel"]
+    UI["React<br/>UI"] --> Preview["Preview<br/>Panel"]
   end
 
   subgraph L2[Simulation]
@@ -728,7 +728,7 @@ pnpm run demo:gif
 ### 🔄 状态流转图
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 96, 'rankSpacing': 110, 'curve': 'basis', 'padding': 28, 'diagramPadding': 24, 'wrappingWidth': 260},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 132, 'rankSpacing': 132, 'curve': 'basis', 'padding': 40, 'diagramPadding': 32, 'wrappingWidth': 320},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'14px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   Idle["Idle"] --> Awaiting["Awaiting Signature"]
   Awaiting --> Pending["Pending"]
@@ -737,7 +737,7 @@ flowchart TB
   Pending --> Confirming["Confirming"]
   Confirming --> Confirmed["Confirmed"]
   Pending --> Reverted["Reverted"]
-  Pending --> SystemError["System Error"]
+  Pending --> SystemError["System<br/>Error"]
   Confirming --> SystemError
 
   Rejected -.->|新预览| Idle
@@ -761,10 +761,10 @@ flowchart TB
 ### 🏗️ 架构总览
 
 ```mermaid
-%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 96, 'rankSpacing': 110, 'curve': 'basis', 'padding': 28, 'diagramPadding': 24, 'wrappingWidth': 260},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
+%%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 132, 'rankSpacing': 132, 'curve': 'basis', 'padding': 40, 'diagramPadding': 32, 'wrappingWidth': 320},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'14px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
   subgraph L1[前端层]
-    UI["🖥 React<br/>前端界面"] --> Preview["🧾 预览<br/>面板"]
+    UI["React<br/>前端界面"] --> Preview["预览<br/>面板"]
   end
 
   subgraph L2[模拟层]

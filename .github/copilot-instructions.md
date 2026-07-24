@@ -18,6 +18,7 @@ These rules apply when generating or editing Mermaid diagrams, especially in REA
    - increase `nodeSpacing` slightly
    - increase `rankSpacing` slightly
 11. For status diagrams, prefer plain single-line node labels (no emoji, no `<br/>`) for: `Pending`, `System Error`, `Awaiting Signature`.
+12. If GitHub still clips text, force short line breaks inside nodes (for example `System<br/>Error`, `React<br/>UI`) and increase `diagramPadding`.
 
 ## Canonical Terminology (Use Exactly)
 
