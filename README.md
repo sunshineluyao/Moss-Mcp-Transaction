@@ -163,8 +163,8 @@ flowchart TB
   subgraph R2[Step 2 - Decide]
     direction LR
     E["⑤ 📊 Review<br/>Risk<br/>Lifecycle<br/>Safety checks"] --> F{"⑥ 🛡 Continue?"}
-    F -->|Yes| G["✅ Wallet review<br/>Manual approval<br/>User controlled"]
-    F -->|No| H["🛑 Edit or stop<br/>No transaction<br/>submitted"]
+    F --> G["✅ Yes<br/>Wallet review<br/>Manual approval<br/>User controlled"]
+    F --> H["🛑 No<br/>Edit or stop<br/>No transaction<br/>submitted"]
   end
 
   D --> E
@@ -337,14 +337,14 @@ All Mermaid diagrams use a consistent visual token strategy to balance readabili
 ```mermaid
 %%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 96, 'rankSpacing': 110, 'curve': 'basis', 'padding': 28, 'diagramPadding': 24, 'wrappingWidth': 260},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
-  Idle["🌙 Idle"] --> Awaiting["✍️ Awaiting<br/>Signature"]
-  Awaiting --> Pending["📨 Pending"]
-  Awaiting --> Rejected["🛑 Rejected"]
+  Idle["Idle"] --> Awaiting["Awaiting Signature"]
+  Awaiting --> Pending["Pending"]
+  Awaiting --> Rejected["Rejected"]
 
-  Pending --> Confirming["🔄 Confirming"]
-  Confirming --> Confirmed["✅ Confirmed"]
-  Pending --> Reverted["↩️ Reverted"]
-  Pending --> SystemError["⚠️ System<br/>Error"]
+  Pending --> Confirming["Confirming"]
+  Confirming --> Confirmed["Confirmed"]
+  Pending --> Reverted["Reverted"]
+  Pending --> SystemError["System Error"]
   Confirming --> SystemError
 
   Rejected -.->|New preview| Idle
@@ -556,8 +556,8 @@ flowchart TB
   subgraph R2[步骤二 - 复核与决策]
     direction LR
     E["⑤ 📊 复核结果<br/>风险<br/>状态<br/>安全检查"] --> F{"⑥ 🛡 继续？"}
-    F -->|继续| G["✅ 钱包复核<br/>手动确认<br/>用户控制"]
-    F -->|终止| H["🛑 修改或终止<br/>没有提交<br/>任何交易"]
+    F --> G["✅ 继续<br/>钱包复核<br/>手动确认<br/>用户控制"]
+    F --> H["🛑 终止<br/>修改或终止<br/>没有提交<br/>任何交易"]
   end
 
   D --> E
@@ -730,14 +730,14 @@ pnpm run demo:gif
 ```mermaid
 %%{init: {'theme':'base','flowchart': {'htmlLabels': true, 'nodeSpacing': 96, 'rankSpacing': 110, 'curve': 'basis', 'padding': 28, 'diagramPadding': 24, 'wrappingWidth': 260},'themeVariables': {'fontFamily':'Inter, Segoe UI, sans-serif','fontSize':'15px','primaryTextColor':'#0f172a','lineColor':'#64748b','clusterBkg':'#f8fafc','clusterBorder':'#cbd5e1','edgeLabelBackground':'#ffffff','primaryBorderColor':'#2563eb','primaryColor':'#eff6ff'}}}%%
 flowchart TB
-  Idle["🌙 Idle"] --> Awaiting["✍️ Awaiting<br/>Signature"]
-  Awaiting --> Pending["📨 Pending"]
-  Awaiting --> Rejected["🛑 Rejected"]
+  Idle["Idle"] --> Awaiting["Awaiting Signature"]
+  Awaiting --> Pending["Pending"]
+  Awaiting --> Rejected["Rejected"]
 
-  Pending --> Confirming["🔄 Confirming"]
-  Confirming --> Confirmed["✅ Confirmed"]
-  Pending --> Reverted["↩️ Reverted"]
-  Pending --> SystemError["⚠️ System<br/>Error"]
+  Pending --> Confirming["Confirming"]
+  Confirming --> Confirmed["Confirmed"]
+  Pending --> Reverted["Reverted"]
+  Pending --> SystemError["System Error"]
   Confirming --> SystemError
 
   Rejected -.->|新预览| Idle

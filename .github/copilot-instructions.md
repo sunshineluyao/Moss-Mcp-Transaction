@@ -17,6 +17,7 @@ These rules apply when generating or editing Mermaid diagrams, especially in REA
 10. Only after label shortening, adjust spacing values:
    - increase `nodeSpacing` slightly
    - increase `rankSpacing` slightly
+11. For status diagrams, prefer plain single-line node labels (no emoji, no `<br/>`) for: `Pending`, `System Error`, `Awaiting Signature`.
 
 ## Canonical Terminology (Use Exactly)
 
