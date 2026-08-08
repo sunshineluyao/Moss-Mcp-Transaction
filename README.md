@@ -1,301 +1,320 @@
-# Moss MCP Transaction Preview [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21539761-blue.svg)](https://doi.org/10.5281/zenodo.21539761)
+# Moss MCP Transaction Preflight | Moss MCP 交易安全预检
 
-**Understand an unsigned MON transfer on Monad Testnet before it reaches your wallet.**
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21539761-blue.svg)](https://doi.org/10.5281/zenodo.21539761)
+[![Monad Playground](https://img.shields.io/badge/Event-Monad%20Playground-00C2FF?style=flat-square)](#)
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)](https://react.dev/)
-[![Monad Testnet](https://img.shields.io/badge/Monad_Testnet-Chain_10143-7c3aed)](https://monad.xyz/)
-[![A2A v1](https://img.shields.io/badge/A2A-v1.0-blue)](https://a2a.dev/)
-[![MCP](https://img.shields.io/badge/MCP-stdio-amber)](https://modelcontextprotocol.io/)
-[![Preview only](https://img.shields.io/badge/Preview_only-No_signing-2e7d32)](/)
+**Agentic Pre-Sign Protection on Monad | Monad 上的智能体签名前安全层**
 
-🔗 **Live demo:** https://moss-mcp-transaction.replit.app/
+**Preview. Verify. Sign with confidence. | 先预览，再验证，安心签名。**
 
----
-
-## Problem and target user
-
-Web3 newcomers often sign transactions without understanding what will happen. This project gives a developer, auditor, or curious user a way to inspect a native MON transfer — amount, gas, live balance, and nine safety rules — before any wallet interaction. It is not an auto-trading agent and does not sign or broadcast.
+<p align="center">
+  <a href="#en"><img alt="Switch to English" src="https://img.shields.io/badge/English-Read%20EN-1f6feb?style=for-the-badge"></a>
+  <a href="#zh"><img alt="切换到中文" src="https://img.shields.io/badge/中文-阅读中文-ea4aaa?style=for-the-badge"></a>
+  <a href="https://moss-mcp-transaction.replit.app/"><img alt="Live Demo" src="https://img.shields.io/badge/Live_Demo-Open-2ea043?style=for-the-badge"></a>
+  <a href="https://github.com/sunshineluyao/Moss-Mcp-Transaction"><img alt="GitHub Repository" src="https://img.shields.io/badge/GitHub-Repository-24292f?style=for-the-badge&logo=github"></a>
+</p>
 
 ---
 
-## Two modes
+<a id="en"></a>
+## English
 
-| Mode | Data source | Use case |
-|------|------------|---------|
-| **Mock Simulation** | Local mock engine, no network | Learn transaction structure, explore ERC-20 Transfer / Approve / Swap lifecycles, see Rejected / Reverted / System Error scenarios |
-| **Live Monad Testnet Preview** | Live Monad Testnet RPC + A2A + MCP | Validate a real unsigned MON transfer against on-chain state before signing |
+### Table of Contents
 
-Switch between modes using the tab bar at the top of the app.
+| EN | 中文 |
+|---|---|
+| [Basic fields](#en-basic-fields) | [基本信息](#zh-basic-fields) |
+| [Short description](#en-short-description) | [项目简介](#zh-short-description) |
+| [1. Problem](#en-1-problem) | [1. 用户痛点](#zh-1-problem) |
+| [2. Solution](#en-2-solution) | [2. 解决方案](#zh-2-solution) |
+| [3. How it works](#en-3-how-it-works) | [3. 工作流程](#zh-3-how-it-works) |
+| [4. Why this is different](#en-4-why-different) | [4. 项目创新](#zh-4-why-different) |
+| [5. Moss x Monad relationship](#en-5-moss-monad) | [5. Moss x Monad 的关系](#zh-5-moss-monad) |
+| [6. Real implementation and evidence](#en-6-evidence) | [6. 真实实现与证据](#zh-6-evidence) |
+| [7. Safety boundary](#en-7-safety-boundary) | [7. 安全边界](#zh-7-safety-boundary) |
+| [8. Target users](#en-8-target-users) | [8. 目标用户](#zh-8-target-users) |
+| [9. Roadmap](#en-9-roadmap) | [9. 后续计划](#zh-9-roadmap) |
+| [10. Links](#en-10-links) | [10. 链接](#zh-10-links) |
 
----
+<a id="en-basic-fields"></a>
+### Basic fields
 
-## One core user action
+| Field | Value |
+|---|---|
+| Project title | Moss MCP Transaction Preflight |
+| Project subtitle | Agentic Pre-Sign Protection on Monad |
+| Tagline | Preview. Verify. Sign with confidence. |
+| Front-end demo | https://moss-mcp-transaction.replit.app/ |
+| GitHub repository | https://github.com/sunshineluyao/Moss-Mcp-Transaction |
+| Associated event | Monad Playground Hackathon |
 
-Enter a **sender address**, **recipient address**, and **amount in MON** (decimal string). Click **Preview on Monad Testnet**. Receive a structured artifact showing whether the transfer is `READY_FOR_WALLET_REVIEW` or `BLOCKED`, backed by live Monad Testnet RPC data.
+<a id="en-short-description"></a>
+### Short description
 
----
+Moss MCP Transaction Preview is an agentic preflight safety layer for native MON transfers on Monad Testnet. It records the user's intent, applies nine fail-closed Agent Skill rules, orchestrates the request through A2A, calls four MCP tools against live chain state, and returns an explainable `READY_FOR_WALLET_REVIEW` or `BLOCKED` artifact before wallet confirmation.
 
-## Architecture
+<a id="en-1-problem"></a>
+### 1. Problem
 
-```mermaid
-flowchart TB
-  UI["React UI\n(moss-mcp)"] -->|POST /agent-gateway/api/preview| API["Agent Gateway\nExpress + A2A"]
-  API --> A2A["A2A JSON-RPC\n/a2a endpoint"]
-  SKILL["SKILL.md\n9 safety rules"] -.->|loaded at startup| A2A
-  A2A --> MCP["MCP stdio server\n4 tools"]
-  MCP --> RPC["Monad Testnet RPC\nhttps://testnet-rpc.monad.xyz\nchain 10143"]
-```
+Web3 users are often asked to sign opaque transaction prompts without clearly understanding the network, recipient, amount, gas, or likely failure conditions. AI agents can make this worse if they move too quickly from intent to execution. New users need an explainable checkpoint that preserves human control.
 
----
+<a id="en-2-solution"></a>
+### 2. Solution
 
-## Truth table
+Moss MCP Transaction Preview converts a native MON transfer request into a structured preflight artifact before wallet confirmation. The agent records the sender, recipient, and decimal-string amount; applies nine safety rules; checks Monad Testnet state through a custom MCP adapter; and returns one of two explicit decisions:
 
-| Scenario | Chain ID check | Balance sufficient | Valid addresses | Decision |
-|----------|---------------|-------------------|-----------------|----------|
-| Clean transfer, sufficient balance | ✓ 10143 | ✓ | ✓ | `READY_FOR_WALLET_REVIEW` |
-| Wrong chain (RPC returns ≠ 10143) | ✗ | any | any | `BLOCKED` |
-| Insufficient balance (amount + gas > balance) | ✓ | ✗ | ✓ | `BLOCKED` |
-| Invalid sender address | ✓ | any | ✗ sender | `BLOCKED` |
-| Invalid recipient address | ✓ | any | ✗ recipient | `BLOCKED` |
-| Zero address as recipient | ✓ | any | ✗ (zero) | `BLOCKED` |
-| Non-positive amount ("0") | ✓ | any | ✓ | `BLOCKED` |
-| RPC timeout | timeout | — | ✓ | `BLOCKED` |
-| Mismatched unsignedTx fields | ✓ | ✓ | ✓ | `BLOCKED` |
-| Mainnet chain ID (1) via wrong RPC | ✗ 1≠10143 | — | ✓ | `BLOCKED` |
+- `READY_FOR_WALLET_REVIEW`: all preflight checks passed; the unsigned transaction may be shown to the user's wallet for review.
+- `BLOCKED`: at least one check failed; the flow stops and explains why.
 
----
+<a id="en-3-how-it-works"></a>
+### 3. How it works
 
-## 60-second demo
+<table>
+  <tr>
+    <td align="center">
+      <img src="assets/how-it-works-interface.png" alt="How it works interface" width="100%" />
+      <br />
+      <sub><strong>How It Works UI</strong> - Visual overview of the preflight screen, pipeline, and evidence cards.</sub>
+    </td>
+  </tr>
+</table>
 
-1. Open https://moss-mcp-transaction.replit.app/
-2. Paste a Monad Testnet sender address (any valid `0x…` address with a testnet balance).
-3. Paste a recipient address.
-4. Enter an amount, e.g. `0.1`.
-5. Click **Preview on Monad Testnet**.
-6. Observe: live block number, chain ID (10143 verified), balance, gas estimate, nine safety rules, and decision.
+1. **User intent** - Enter or connect a sender address, then provide the recipient and MON amount. No private key is requested.
+2. **Agent Skill** - A version-controlled `SKILL.md` enforces nine rules: `RECORD_INTENT`, `TESTNET_ONLY`, `DECIMAL_STRINGS`, `NO_PRIVATE_KEYS`, `NO_SIGNING`, `NO_BROADCAST`, `SIMULATION_REQUIRED`, `STOP_ON_WARNING`, and `PRESENT_BEFORE_SIGNING`. Its SHA-256 hash is embedded in every artifact.
+3. **A2A** - The Agent Gateway packages the request as an A2A task and returns traceable task, context, and artifact identifiers.
+4. **MCP** - A custom stdio MCP server runs `preview_discover -> preview_load -> preview_action -> preview_simulate`.
+5. **Monad Testnet** - The server checks chain ID 10143, address validity, balance, gas estimation, gas price, latest block, and contract-recipient status when available.
+6. **Explainable decision** - The UI presents the unsigned transaction, evidence, warnings, safety flags, and final `READY_FOR_WALLET_REVIEW` or `BLOCKED` decision before any wallet action.
 
----
+<a id="en-4-why-different"></a>
+### 4. Why this is different
 
-## Screenshots
+- **Fail-closed, not "AI decides."** Any warning blocks the flow; the agent cannot silently continue.
+- **Rules are verifiable.** The exact Agent Skill is version-controlled and content-hashed into each result.
+- **Interoperable by design.** A2A handles agent communication, while MCP isolates blockchain tools from agent logic.
+- **Human control is preserved.** The preview pipeline never handles private keys. In the latest source, an optional MetaMask continuation is available only after a `READY` result and explicit confirmation inside the wallet.
 
-### Mock Simulation — Success path
+<a id="en-5-moss-monad"></a>
+### 5. Moss x Monad relationship
 
-![Mock simulation success path](assets/moss-mcp-transaction-preview-success.gif)
+Official Moss is a Monad DeFi safety layer whose MCP server targets Monad mainnet. This project does **not** claim to run the official Moss execution engine. It is a custom Monad Testnet adapter inspired by Moss's `discover -> load -> action -> simulate` pattern, risk labels, and unsigned-transaction-first safety model.
 
-### Mock Simulation — Rejected / Reverted paths
+<a id="en-6-evidence"></a>
+### 6. Real implementation and evidence
 
-![Mock simulation rejected path](assets/moss-mcp-transaction-preview-rejected.gif)
+- React interface with separate mock-learning and live Monad Testnet modes.
+- Express Agent Gateway using A2A v1 task/artifact structures.
+- Custom MCP stdio server with four narrowly scoped tools.
+- Live Monad Testnet RPC adapter using chain ID 10143.
+- Version-controlled Agent Skill with nine enforced rules and SHA-256 provenance.
+- Captured live run in `evidence/demo-run.json`: all four MCP tools executed and the request was safely `BLOCKED` when gas estimation reported insufficient balance; no transaction was submitted.
+- Reproducible Manim animations and source files for architecture, transaction lifecycle, protocol concepts, and the Moss-Monad relationship.
+- A clean local checkout at commit `4bc1707` passed **91 automated tests** (80 gateway/MCP/A2A/RPC/policy tests + 11 wallet-handoff tests), both TypeScript type checks, the gateway build, and the production front-end build on 2026-08-08.
 
-### Full walkthrough
+<a id="en-7-safety-boundary"></a>
+### 7. Safety boundary
 
-![Full demo walkthrough](assets/moss-mcp-transaction-preview-demo.gif)
+- The preview agent never requests or stores private keys or seed phrases.
+- The preview agent itself does not sign or broadcast.
+- Any missing simulation evidence or warning produces `BLOCKED`.
+- RPC preflight is a snapshot, not a guarantee of future execution success.
+- Educational/testnet use only; no financial advice.
 
----
+<a id="en-8-target-users"></a>
+### 8. Target users
 
-## Evidence endpoints
+Web3 newcomers who need plain-language transaction explanations; Monad dApp developers who need a reusable preflight layer; and agent/security builders evaluating safe human-in-the-loop execution.
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/agent-gateway/healthz` | GET | Health check |
-| `/agent-gateway/.well-known/agent-card.json` | GET | A2A Agent Card (cross-origin) |
-| `/agent-gateway/api/preview` | POST | Run a transfer preview |
-| `/agent-gateway/api/network` | GET | Live chain ID + latest block |
-| `/agent-gateway/api/skill` | GET | Loaded skill metadata |
+<a id="en-9-roadmap"></a>
+### 9. Roadmap
 
----
+Next steps include reliable production routing for the public Agent Gateway, externally verified Agent Stack registration, ERC-20 transfer previews, shareable preview reports, and a fully consistent wallet handoff that preserves the preview policy boundary.
 
-## Key concepts
+<a id="en-10-links"></a>
+### 10. Links
 
-### A2A — Agent-to-Agent Protocol
-
-A2A is an open protocol (by Google) that defines how AI agents communicate. This app's Agent Gateway publishes an Agent Card at `/agent-gateway/.well-known/agent-card.json` advertising its `preview_monad_testnet_transfer` skill. The React UI calls the gateway's REST endpoint (`/agent-gateway/api/preview`); the gateway then uses the A2A SDK internally to process the task and returns a structured artifact. Any external agent (or Agent Stack deployment) can discover and call this gateway using the same standard.
-
-Reference: <https://a2a.dev/>
-
-### MCP — Model Context Protocol
-
-MCP (by Anthropic) defines how agents call external tools. The gateway spawns a custom MCP server as a subprocess (stdio transport) and calls four tools in order: `preview_discover` → `preview_load` → `preview_action` → `preview_simulate`. Each tool is narrowly scoped: discover lists available actions, load returns the action schema, action builds the unsigned transaction, simulate fetches live chain data. MCP keeps the blockchain interface cleanly separated from agent logic.
-
-Reference: <https://modelcontextprotocol.io/>
-
-### Agent Skills
-
-An Agent Skill is a version-controlled markdown file (`SKILL.md`) that defines what an agent knows and what rules it must enforce. This app's skill (`skills/monad-safe-transfer-preview/SKILL.md`) encodes nine rules: RECORD_INTENT, TESTNET_ONLY, DECIMAL_STRINGS, NO_PRIVATE_KEYS, NO_SIGNING, NO_BROADCAST, SIMULATION_REQUIRED, STOP_ON_WARNING, PRESENT_BEFORE_SIGNING. The file is SHA-256 hashed at startup; its hash is embedded in every preview artifact so reviewers can verify exactly which rule set was applied.
-
-Reference: [`skills/monad-safe-transfer-preview/SKILL.md`](skills/monad-safe-transfer-preview/SKILL.md)
-
-### Agent Stack
-
-Agent Stack (by BeeAI) is a framework and CLI for discovering, running, and orchestrating A2A-compatible agents. Because this app publishes a valid Agent Card, any Agent Stack deployment can register it: `agentstack add https://moss-mcp-transaction.replit.app/agent-gateway`. The "unmanaged agent" pattern means the app runs on Replit's infrastructure and Agent Stack simply calls it externally — no Agent Stack runtime is embedded in the app itself.
-
-Reference: <https://agentstack.beeai.dev/>
-
-### Moss × Monad
-
-Moss is a DeFi safety layer built on Monad. Its official MCP server targets Monad mainnet (chain ID 143) and exposes the same discover → load → action → simulate pattern this app implements. This app adapts Moss's safety model for Monad Testnet (chain ID 10143) using a custom MCP adapter — the Agent Skill's nine rules are directly inspired by Moss's risk-label and unsigned-tx-only design. Official Moss execution is not used; this project is a Testnet adapter that demonstrates the same design principles.
-
-Reference: <https://docs.moss.ag>
-
----
-
-## Technology layer
-
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Monad Testnet** | Chain ID 10143, `https://testnet-rpc.monad.xyz` | Live RPC for balance, gas, block data |
-| **Agent Skill** | `skills/monad-safe-transfer-preview/SKILL.md` | 9 safety rules, SHA-256 verified |
-| **A2A** | `@a2a-js/sdk` v1.0.1 | Structured task/artifact protocol |
-| **MCP** | `@modelcontextprotocol/sdk` 1.30.0, stdio | 4 tools: discover, load, action, simulate |
-| **Agent Stack** | Express + `PreviewAgentExecutor` | Orchestration and rate limiting |
-| **Moss reference** | `https://docs.moss.ag` | Safety model inspiration (Moss is mainnet-only; this project adapts the model for Monad Testnet) |
+- Demo: https://moss-mcp-transaction.replit.app/
+- GitHub: https://github.com/sunshineluyao/Moss-Mcp-Transaction
+- Reproducibility DOI: https://doi.org/10.5281/zenodo.21539761
+- Moss reference: https://docs.moss.ag
 
 ---
 
-## Safety boundary
+<a id="zh"></a>
+## 中文
 
-- No private keys, no signing, no broadcasting.
-- The unsigned transaction object is returned for display only.
-- RPC preflight is not a guarantee of future execution success.
-- The tool is for educational and development use only.
-- All nine safety rules are enforced server-side and logged in the artifact.
+### 目录
 
----
+| EN | 中文 |
+|---|---|
+| [Basic fields](#en-basic-fields) | [基本信息](#zh-basic-fields) |
+| [Short description](#en-short-description) | [项目简介](#zh-short-description) |
+| [1. Problem](#en-1-problem) | [1. 用户痛点](#zh-1-problem) |
+| [2. Solution](#en-2-solution) | [2. 解决方案](#zh-2-solution) |
+| [3. How it works](#en-3-how-it-works) | [3. 工作流程](#zh-3-how-it-works) |
+| [4. Why this is different](#en-4-why-different) | [4. 项目创新](#zh-4-why-different) |
+| [5. Moss x Monad relationship](#en-5-moss-monad) | [5. Moss x Monad 的关系](#zh-5-moss-monad) |
+| [6. Real implementation and evidence](#en-6-evidence) | [6. 真实实现与证据](#zh-6-evidence) |
+| [7. Safety boundary](#en-7-safety-boundary) | [7. 安全边界](#zh-7-safety-boundary) |
+| [8. Target users](#en-8-target-users) | [8. 目标用户](#zh-8-target-users) |
+| [9. Roadmap](#en-9-roadmap) | [9. 后续计划](#zh-9-roadmap) |
+| [10. Links](#en-10-links) | [10. 链接](#zh-10-links) |
 
-## Local setup
+<a id="zh-basic-fields"></a>
+### 基本信息
 
-**Requirements:** Node.js 22+, pnpm 9+
+| 字段 | 内容 |
+|---|---|
+| 项目标题 | Moss MCP 交易安全预检 |
+| 项目副标题 | Monad 上的智能体签名前安全层 |
+| 一句话口号 | 先预览，再验证，安心签名。 |
+| 前端演示地址 | https://moss-mcp-transaction.replit.app/ |
+| GitHub 仓库 | https://github.com/sunshineluyao/Moss-Mcp-Transaction |
+| 关联活动 | Monad Playground 黑客松 |
 
-```bash
-git clone https://github.com/your-org/moss-mcp-transaction-preview
-cd moss-mcp-transaction-preview
-pnpm install
+<a id="zh-short-description"></a>
+### 项目简介
 
-# Start all services
-pnpm --filter @workspace/agent-gateway run dev   # Agent Gateway (A2A + MCP + RPC)
-pnpm --filter @workspace/moss-mcp run dev        # React UI
-```
+Moss MCP Transaction Preview 是面向 Monad 测试网原生 MON 转账的 Agent 交易安全预检层。它记录用户意图，执行 9 条 fail-closed Agent Skill 规则，通过 A2A 编排任务，并由 4 个 MCP 工具读取链上状态，在钱包确认前返回可解释的 `READY_FOR_WALLET_REVIEW` 或 `BLOCKED` 结果。
 
-The React UI is served at `http://localhost:<PORT>` (PORT set by your environment).
-The agent-gateway is at `http://localhost:3100` by default.
+<a id="zh-1-problem"></a>
+### 1. 用户痛点
 
----
+Web3 用户经常在没有看清网络、收款地址、金额、Gas 与潜在失败原因时就被要求签名。如果 AI Agent 从意图直接跳到执行，风险会进一步放大。新用户需要一个可解释、可核查、保留人工控制权的签名前检查点。
 
-## Environment variables
+<a id="zh-2-solution"></a>
+### 2. 解决方案
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `3100` (gateway), assigned by Replit for UI | Service port |
-| `BASE_PATH` | `/` | Vite base path for the React app |
-| `MONAD_TESTNET_RPC_URL` | `https://testnet-rpc.monad.xyz` | Monad Testnet RPC endpoint |
-| `PUBLIC_BASE_URL` | auto-detected | Override for Agent Card public URL |
-| `NODE_ENV` | `production` | Controls log format and error detail |
+Moss MCP Transaction Preview 会在钱包确认前，把原生 MON 转账请求转化为结构化预检报告。Agent 记录发送方、接收方与十进制字符串金额，执行 9 条安全规则，通过自定义 MCP 适配器检查 Monad 测试网状态，并返回两种明确结论：
 
-**Never commit private keys, seed phrases, or funded wallet credentials.**
+- `READY_FOR_WALLET_REVIEW`：全部预检通过，可将未签名交易交给用户钱包继续审核。
+- `BLOCKED`：任一检查失败，流程立即停止并解释原因。
 
----
+<a id="zh-3-how-it-works"></a>
+### 3. 工作流程
 
-## Test commands
+<table>
+  <tr>
+    <td align="center">
+      <img src="assets/how-it-works-interface.png" alt="工作流程界面截图" width="100%" />
+      <br />
+      <sub><strong>How It Works 页面</strong> - 展示预检流程、证据卡片与最终结论区域。</sub>
+    </td>
+  </tr>
+</table>
 
-```bash
-# Build the agent-gateway (required for integration tests)
-pnpm --filter @workspace/agent-gateway run build
+1. **用户意图** - 输入或连接发送地址，填写接收地址和 MON 金额，不请求私钥。
+2. **规则层** - 版本化 `SKILL.md` 执行 9 条规则：`RECORD_INTENT`、`TESTNET_ONLY`、`DECIMAL_STRINGS`、`NO_PRIVATE_KEYS`、`NO_SIGNING`、`NO_BROADCAST`、`SIMULATION_REQUIRED`、`STOP_ON_WARNING`、`PRESENT_BEFORE_SIGNING`。每份产物都会附带其 SHA-256 哈希。
+3. **A2A 编排** - Agent Gateway 将请求封装为 A2A 任务，并返回可追踪的 task/context/artifact 标识。
+4. **MCP 工具调用** - 自定义 stdio MCP 服务按顺序执行 `preview_discover -> preview_load -> preview_action -> preview_simulate`。
+5. **Monad 测试网检查** - 检查 chain ID 10143、地址有效性、余额、Gas 估算、Gas Price、最新区块，以及可用情况下的合约接收方状态。
+6. **可解释结论** - 在任何钱包动作前，UI 展示未签名交易、证据、告警、安全标志和最终 `READY_FOR_WALLET_REVIEW` 或 `BLOCKED` 结论。
 
-# Run all tests (unit + integration, no live network)
-pnpm test
+<a id="zh-4-why-different"></a>
+### 4. 项目创新
 
-# Run the live Monad Testnet smoke test (requires network)
-pnpm test:live
+- **不是“AI 替你决定”，而是 fail-closed。** 任一警告都会阻断流程，Agent 不得静默继续。
+- **规则可验证。** 每个结果都包含所应用 Skill 的内容哈希，可追溯具体规则版本。
+- **原生互操作。** A2A 负责 Agent 通信，MCP 将区块链工具与 Agent 逻辑解耦。
+- **保留人工控制。** 预检链路不接触私钥；最新源码中的可选 MetaMask 后续步骤，仅会在 `READY` 后由用户在钱包内明确确认。
 
-# TypeScript type checking across the workspace
-pnpm typecheck
+<a id="zh-5-moss-monad"></a>
+### 5. Moss x Monad 的关系
 
-# Build all artifacts
-pnpm build
-```
+官方 Moss 是面向 Monad 主网的 DeFi 安全层。本项目**不声称使用官方 Moss 执行引擎**；它是一个自定义 Monad 测试网适配器，借鉴了 Moss 的 `discover -> load -> action -> simulate` 生命周期、风险标签与“未签名交易优先”的安全设计。
 
----
+<a id="zh-6-evidence"></a>
+### 6. 真实实现与证据
 
-## User feedback and scope reduction
+- React 界面同时提供 mock 学习模式与 Monad 测试网实时模式。
+- Express Agent Gateway 使用 A2A v1 的任务/产物结构。
+- 自定义 MCP stdio 服务，包含四个职责单一的工具。
+- 通过 chain ID 10143 连接 Monad Testnet RPC。
+- 版本化 Agent Skill，9 条规则强制执行，并附带 SHA-256 溯源。
+- `evidence/demo-run.json` 记录了一次真实运行：四个 MCP 工具全部执行，当 Gas 估算显示余额不足时，系统安全返回 `BLOCKED`，且未提交任何交易。
+- 提供可复现的 Manim 动画及源文件：架构、交易生命周期、协议概念、Moss-Monad 关系。
+- 在 2026-08-08，基于提交 `4bc1707` 的干净本地代码通过 **91 项自动化测试**（80 项 gateway/MCP/A2A/RPC/policy + 11 项 wallet-handoff），并通过 TypeScript 双重类型检查、gateway 构建与前端生产构建。
 
-After early user testing, the scope was reduced to one gold path: native MON transfers on Monad Testnet. ERC-20 transfers, approvals, and swap previews were removed from the UI and backend. The mock-first simulation engine was replaced with live A2A + MCP + RPC calls.
+<a id="zh-7-safety-boundary"></a>
+### 7. 安全边界
 
-Key feedback:
-- "I don't understand what 'scenario' means — just show me what happens for my address."
-- "The eight-stage lifecycle is confusing. I just want to know if it's safe."
-- "Why are there two languages on the same page?"
+- 预检 Agent 不请求或保存私钥、助记词。
+- 预检 Agent 本身不签名、不广播。
+- 缺少模拟证据或出现任一警告时，必须返回 `BLOCKED`。
+- RPC 预检只是当前状态快照，不保证未来执行结果。
+- 仅用于教育与测试网演示，不构成金融建议。
 
-These drove the current single-language, single-action design.
+<a id="zh-8-target-users"></a>
+### 8. 目标用户
 
----
+需要通俗交易解释的 Web3 新用户、希望复用预检层的 Monad dApp 开发者，以及研究安全人机协作执行的 Agent 与安全开发者。
 
-## Known limitations
+<a id="zh-9-roadmap"></a>
+### 9. 后续计划
 
-- Monad Testnet RPC can be slow or intermittently unavailable (10s timeout applies).
-- Balance check is a snapshot; the network may change between preflight and actual signing.
-- The unsigned transaction uses a placeholder gas estimate; actual gas may differ.
-- No persistent storage of preview results (in-memory only, lost on restart).
-- Agent Stack registration is not externally verified (see `evidence/agentstack-verification.md`).
+下一步包括稳定的公共 Agent Gateway 路由、经外部验证的 Agent Stack 注册、ERC-20 转账预检、可分享预检报告，以及与预检规则边界完全一致的钱包交接流程。
 
----
+<a id="zh-10-links"></a>
+### 10. 链接
 
-## Future roadmap
-
-- [ ] MetaMask deep-link: send the pre-built unsigned tx to MetaMask for review and signing
-- [ ] ERC-20 transfer preview (non-native tokens on Monad Testnet)
-- [ ] Balance warning when simulated amount approaches actual balance
-- [ ] Permalink sharing of simulation results
-- [ ] Mobile-optimized companion view
-- [ ] PDF export of simulation report
-- [ ] External Agent Stack registration and verification
-
----
-
-## Demo animations
-
-Scientific animations created with [Manim Community Edition](https://www.manim.community/) for competition submission. Python source scripts are in [`animations/`](animations/) and are re-renderable by judges.
-
-### Architecture Flow — React UI → A2A → MCP → Monad RPC
-
-![Architecture Flow animation](assets/ArchitectureFlow.gif)
-
-### Transaction Lifecycle — Four MCP tools, nine safety rules, final decision
-
-![Transaction Lifecycle animation](assets/TransactionLifecycle.gif)
-
-### Concepts Overview — A2A, MCP, Agent Skills, Agent Stack
-
-![Concepts Overview animation](assets/ConceptsOverview.gif)
-
-### Moss × Monad — Official mainnet vs. Testnet adapter
-
-![Moss Monad Relation animation](assets/MossMonadRelation.gif)
-
-**Re-render locally** (requires Nix or a system with Cairo + Pango + FFmpeg):
-```bash
-# Nix (recommended — no pip needed)
-nix-shell -p python3Packages.manim --run "bash animations/render_all.sh"
-
-# Or with pip
-pip install manim && bash animations/render_all.sh
-```
-
-See [`animations/README.md`](animations/README.md) for full prerequisites, render commands, and palette details.
+- Demo: https://moss-mcp-transaction.replit.app/
+- GitHub: https://github.com/sunshineluyao/Moss-Mcp-Transaction
+- 可复现 DOI: https://doi.org/10.5281/zenodo.21539761
+- Moss 参考文档: https://docs.moss.ag
 
 ---
 
-## References
+## Visual Evidence | 可视化证据
 
-- [Moss documentation](https://docs.moss.ag) — safety model inspiration
-- [Monad Testnet](https://monad.xyz/) — L1 blockchain this preview targets
-- [A2A Protocol](https://a2a.dev/) — agent-to-agent structured task protocol
-- [Model Context Protocol](https://modelcontextprotocol.io/) — MCP tool interface
-- [Viem](https://viem.sh/) — TypeScript Ethereum library used for RPC calls
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="assets/moss-mcp-transaction-preview-success.gif" alt="Mock simulation success path" width="100%" />
+      <br />
+      <sub><strong>Success Path</strong> | 成功路径</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="assets/moss-mcp-transaction-preview-rejected.gif" alt="Mock simulation rejected path" width="100%" />
+      <br />
+      <sub><strong>Rejected / Reverted</strong> | 拒绝与回滚</sub>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center">
+      <img src="assets/moss-mcp-transaction-preview-demo.gif" alt="Full demo walkthrough" width="100%" />
+      <br />
+      <sub><strong>Full Walkthrough</strong> | 完整流程演示</sub>
+    </td>
+  </tr>
+</table>
 
----
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="assets/ArchitectureFlow.gif" alt="Architecture Flow animation" width="100%" />
+      <br />
+      <sub><strong>Architecture Flow</strong> | 架构流程</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="assets/TransactionLifecycle.gif" alt="Transaction Lifecycle animation" width="100%" />
+      <br />
+      <sub><strong>Transaction Lifecycle</strong> | 交易生命周期</sub>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="50%">
+      <img src="assets/ConceptsOverview.gif" alt="Concepts Overview animation" width="100%" />
+      <br />
+      <sub><strong>Concepts Overview</strong> | 核心概念</sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="assets/MossMonadRelation.gif" alt="Moss Monad Relation animation" width="100%" />
+      <br />
+      <sub><strong>Moss x Monad</strong> | 关系示意</sub>
+    </td>
+  </tr>
+</table>
 
-## License and disclaimer
+## License | 许可证
 
 MIT License.
-
-**Educational preview only. No financial advice. No signing or broadcast. RPC preflight is not a future-execution guarantee. Use test addresses only.**
