@@ -1,0 +1,2 @@
+- [Agent Gateway build pattern](agent-gateway-build.md) — packages:external in esbuild prevents CJS dynamic-require failures; MCP server path uses process.cwd(); public URL derived from REPLIT_DEV_DOMAIN.
+- [A2A SDK v1.0.1 type shapes](a2a-sdk-v1-types.md) — Part uses content.$case/value, SendMessageRequest needs tenant/metadata fields, AgentProvider.organization is required string.
