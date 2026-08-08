@@ -1,23 +1,26 @@
 #!/usr/bin/env bash
-# Generates dual scenario demo GIFs from a real browser walkthrough:
-# - assets/moss-mcp-transaction-preview-success.gif
-# - assets/moss-mcp-transaction-preview-rejected.gif
-# and writes a compatibility copy to assets/moss-mcp-transaction-preview-demo.gif.
-# Requires: ffmpeg, Playwright runtime, node modules installed.
+# Generates a demo GIF of the Moss MCP Transaction Preview.
 #
-# Pipeline (reproducible):
-# 1) Start local moss-mcp app with required env vars (PORT + BASE_PATH).
-# 2) Wait until health check to APP_URL succeeds.
-# 3) Run scripts/capture-demo.mjs to perform real UI interactions and capture frames.
-# 4) Encode frames into final GIF at assets/moss-mcp-transaction-preview-demo.gif.
+# NOTICE: The old dual-scenario pipeline (Success / User Rejected) no longer
+# applies — the UI now shows a single gold path (MON transfer preview on Monad
+# Testnet). A truthful GIF requires a live Monad Testnet RPC connection and a
+# test address with testnet balance.
+#
+# If the live RPC is unavailable, the script will capture an error state, which
+# is honest but not suitable for README use. An honest TODO is left in the README
+# until a reliable demo address can be set up.
+#
+# Usage:
+#   SENDER=0x... RECIPIENT=0x... AMOUNT=0.1 bash scripts/make-demo-gif.sh
+#
+# Stale GIFs (showing Confirmed/Rejected lifecycle) have been removed from the README.
+# The assets/ directory may still contain them; they are NOT referenced anywhere.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_PORT="${APP_PORT:-23076}"
 APP_URL="http://localhost:${APP_PORT}/"
-SUCCESS_GIF="$ROOT_DIR/assets/moss-mcp-transaction-preview-success.gif"
-REJECTED_GIF="$ROOT_DIR/assets/moss-mcp-transaction-preview-rejected.gif"
-LEGACY_GIF="$ROOT_DIR/assets/moss-mcp-transaction-preview-demo.gif"
+OUTPUT_GIF="$ROOT_DIR/assets/moss-monad-testnet-preview.gif"
 SERVER_PID=""
 
 require_cmd() {
@@ -39,17 +42,12 @@ require_cmd pnpm
 require_cmd node
 require_cmd curl
 
-echo "Starting local app server on ${APP_URL}"
+echo "Starting local moss-mcp app on ${APP_URL}"
 cd "$ROOT_DIR"
 
-if [[ ! -d "$ROOT_DIR/node_modules/playwright" ]]; then
+if [[ ! -d "$ROOT_DIR/node_modules/playwright" ]] && [[ ! -d "$ROOT_DIR/node_modules/.pnpm" ]]; then
   echo "playwright is not installed. Run: pnpm install"
   exit 1
-fi
-
-if [[ ! -x "$ROOT_DIR/node_modules/ffmpeg-static/ffmpeg" ]]; then
-  echo "ffmpeg-static binary missing. Installing via package script..."
-  node "$ROOT_DIR/node_modules/ffmpeg-static/install.js"
 fi
 
 PORT="$APP_PORT" BASE_PATH="/" pnpm --filter @workspace/moss-mcp run dev >/tmp/moss-mcp-demo-server.log 2>&1 &
@@ -67,15 +65,12 @@ if ! curl -sSf "$APP_URL" >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "Capturing demo flow with real interaction"
-APP_URL="$APP_URL" SCENARIO="Success" OUTPUT_GIF="$SUCCESS_GIF" node "$ROOT_DIR/scripts/capture-demo.mjs"
+echo "Capturing demo flow (single gold path: MON transfer preview)"
+APP_URL="$APP_URL" OUTPUT_GIF="$OUTPUT_GIF" \
+  SENDER="${SENDER:-}" RECIPIENT="${RECIPIENT:-}" AMOUNT="${AMOUNT:-0.1}" \
+  node "$ROOT_DIR/scripts/capture-demo.mjs"
 
-echo "Capturing rejection scenario for comparison"
-APP_URL="$APP_URL" SCENARIO="User Rejected" OUTPUT_GIF="$REJECTED_GIF" node "$ROOT_DIR/scripts/capture-demo.mjs"
-
-cp "$SUCCESS_GIF" "$LEGACY_GIF"
-
-echo "Done. GIFs updated:"
-echo "  - $SUCCESS_GIF"
-echo "  - $REJECTED_GIF"
-echo "  - $LEGACY_GIF (compatibility copy of success)"
+echo "Done. GIF written to: $OUTPUT_GIF"
+echo ""
+echo "NOTE: Update README.md to reference this GIF only if it shows a truthful READY_FOR_WALLET_REVIEW result."
+echo "      Do not commit a GIF that shows the obsolete Confirmed/Rejected lifecycle."

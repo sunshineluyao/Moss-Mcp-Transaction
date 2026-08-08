@@ -1,0 +1,102 @@
+{
+  "_note": "Real live run captured 2026-08-08T09:14:57Z against Monad Testnet (chain ID 10143). Sender is the public Hardhat dev account #0 — no private key value. Decision is BLOCKED because eth_estimateGas returned 'insufficient balance' from the live testnet RPC (this address holds no MON on testnet). All four MCP tools ran; SIMULATION_REQUIRED=false because networkEvidence is null (RPC blocked gas estimation before network evidence could be gathered). STOP_ON_WARNING=true because the run produced one warning.",
+  "a2aTaskId": "03260844-751e-4ec7-b8f1-7ac36143a5e5",
+  "a2aContextId": "09a7e308-216b-4013-ba31-bbb160e91373",
+  "a2aArtifactId": "50bb3a06-5d23-448c-992d-78e7ffe6abf9",
+  "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "recipient": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  "amount": "0.01",
+  "unsignedTx": {
+    "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "to": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    "value": "10000000000000000",
+    "data": "0x",
+    "gasLimit": "21000",
+    "chainId": 10143
+  },
+  "networkEvidence": null,
+  "decision": "BLOCKED",
+  "warnings": [
+    "RPC error (RPC_FAILURE): Gas estimation failed: An internal error was received.\n\nURL: https://testnet-rpc.monad.xyz\nRequest body: {\"method\":\"eth_estimateGas\",\"params\":[{\"from\":\"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266\",\"to\":\"0x70997970C51812dc3A010C7d01b50e0d17dc79C8\",\"value\":\"0x2386f26fc10000\"}]}\n \nEstimate Gas Arguments:\n  from:   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266\n  to:     0x70997970C51812dc3A010C7d01b50e0d17dc79C8\n  value:  0.01 ETH\n\nDetails: insufficient balance\nVersion: viem@2.55.11"
+  ],
+  "safetyFlags": {
+    "RECORD_INTENT": true,
+    "TESTNET_ONLY": true,
+    "DECIMAL_STRINGS": true,
+    "NO_PRIVATE_KEYS": true,
+    "NO_SIGNING": true,
+    "NO_BROADCAST": true,
+    "SIMULATION_REQUIRED": false,
+    "STOP_ON_WARNING": true,
+    "PRESENT_BEFORE_SIGNING": true
+  },
+  "skill": {
+    "name": "Monad Testnet Safe Transfer Preview",
+    "description": "Preview a native MON transfer on Monad Testnet before it reaches a wallet. Fetches live on-chain data (balance, gas estimate, network state) and evaluates nine safety rules. Returns READY_FOR_WALLET_REVIEW only when all checks pass; any warning yields BLOCKED. No signing, no broadcasting.",
+    "sourceUrl": "https://docs.moss.ag",
+    "path": "skills/monad-safe-transfer-preview/SKILL.md",
+    "contentHash": "cc01c8f9c98af7b215c4fe6cbb7a436fdb763745316858af5f7f82af4102f42b",
+    "appliedRuleIds": [
+      "RECORD_INTENT",
+      "TESTNET_ONLY",
+      "DECIMAL_STRINGS",
+      "NO_PRIVATE_KEYS",
+      "NO_SIGNING",
+      "NO_BROADCAST",
+      "SIMULATION_REQUIRED",
+      "STOP_ON_WARNING",
+      "PRESENT_BEFORE_SIGNING"
+    ]
+  },
+  "mcpTrace": [
+    {
+      "serverName": "monad-testnet-preview",
+      "serverVersion": "1.0.0",
+      "transport": "stdio",
+      "tool": "preview_discover",
+      "startedAt": "2026-08-08T09:14:57.673Z",
+      "completedAt": "2026-08-08T09:14:57.678Z",
+      "durationMs": 5,
+      "success": true,
+      "inputSummary": "tool=preview_discover",
+      "dataSource": "local-validation"
+    },
+    {
+      "serverName": "monad-testnet-preview",
+      "serverVersion": "1.0.0",
+      "transport": "stdio",
+      "tool": "preview_load",
+      "startedAt": "2026-08-08T09:14:57.678Z",
+      "completedAt": "2026-08-08T09:14:57.679Z",
+      "durationMs": 1,
+      "success": true,
+      "inputSummary": "tool=preview_load actionId=transfer_mon",
+      "dataSource": "local-validation"
+    },
+    {
+      "serverName": "monad-testnet-preview",
+      "serverVersion": "1.0.0",
+      "transport": "stdio",
+      "tool": "preview_action",
+      "startedAt": "2026-08-08T09:14:57.679Z",
+      "completedAt": "2026-08-08T09:14:57.683Z",
+      "durationMs": 4,
+      "success": true,
+      "inputSummary": "tool=preview_action sender=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 recipient=0x70997970C51812dc3A010C7d01b50e0d17dc79C8 amount=0.01",
+      "dataSource": "local-validation"
+    },
+    {
+      "serverName": "monad-testnet-preview",
+      "serverVersion": "1.0.0",
+      "transport": "stdio",
+      "tool": "preview_simulate",
+      "startedAt": "2026-08-08T09:14:57.683Z",
+      "completedAt": "2026-08-08T09:14:57.995Z",
+      "durationMs": 312,
+      "success": true,
+      "inputSummary": "tool=preview_simulate sender=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 recipient=0x70997970C51812dc3A010C7d01b50e0d17dc79C8 amount=0.01 unsignedTx={...}",
+      "dataSource": "Monad Testnet RPC (https://testnet-rpc.monad.xyz)"
+    }
+  ],
+  "createdAt": "2026-08-08T09:14:57.251Z"
+}

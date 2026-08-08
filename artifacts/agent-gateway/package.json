@@ -7,7 +7,9 @@
     "dev": "export NODE_ENV=development && pnpm run build && pnpm run start",
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --config vitest.config.ts",
+    "test:live": "vitest run --config vitest.live.config.ts"
   },
   "dependencies": {
     "@a2a-js/sdk": "1.0.1",
@@ -22,6 +24,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "catalog:",
-    "esbuild": "0.27.3"
+    "esbuild": "0.27.3",
+    "vitest": "^3.2.4"
   }
 }

@@ -52,17 +52,33 @@ function parseTextContent(
   }
 }
 
-const ALL_TRUE_FLAGS: SafetyFlags = {
-  RECORD_INTENT: true,
-  TESTNET_ONLY: true,
-  DECIMAL_STRINGS: true,
-  NO_PRIVATE_KEYS: true,
-  NO_SIGNING: true,
-  NO_BROADCAST: true,
-  SIMULATION_REQUIRED: true,
-  STOP_ON_WARNING: true,
-  PRESENT_BEFORE_SIGNING: true,
-};
+/**
+ * Compute safety flags from actual execution outcomes.
+ *
+ * Flags represent what the agent DID during this particular run:
+ * - Static-policy flags (RECORD_INTENT, TESTNET_ONLY, etc.) are always true —
+ *   the agent always applies these regardless of the outcome.
+ * - SIMULATION_REQUIRED is true only when the simulate step reached the RPC
+ *   (i.e. networkEvidence is not null), preventing misrepresentation on
+ *   early-BLOCKED paths.
+ * - STOP_ON_WARNING is true when the run was blocked by one or more warnings.
+ */
+function computeSafetyFlags(
+  networkEvidence: NetworkEvidence | null,
+  warnings: string[]
+): SafetyFlags {
+  return {
+    RECORD_INTENT: true,         // Intent is always recorded before any MCP call
+    TESTNET_ONLY: true,          // Agent only targets Monad Testnet (chain 10143)
+    DECIMAL_STRINGS: true,       // Amount is always validated as a decimal string
+    NO_PRIVATE_KEYS: true,       // No private key ever enters the agent
+    NO_SIGNING: true,            // Transaction is never signed
+    NO_BROADCAST: true,          // Transaction is never broadcast
+    SIMULATION_REQUIRED: networkEvidence !== null, // true only when simulate step ran
+    STOP_ON_WARNING: warnings.length > 0,          // true when we stopped due to warnings
+    PRESENT_BEFORE_SIGNING: true, // Results always presented (signing never happens)
+  };
+}
 
 // ── Agent executor ────────────────────────────────────────────────────────────
 
@@ -319,7 +335,7 @@ export class PreviewAgentExecutor implements AgentExecutor {
         networkEvidence,
         decision,
         warnings,
-        safetyFlags: ALL_TRUE_FLAGS,
+        safetyFlags: computeSafetyFlags(networkEvidence, warnings),
         skill,
         mcpTrace,
         createdAt,
@@ -408,7 +424,8 @@ function buildBlockedArtifact(params: {
     networkEvidence: null,
     decision: "BLOCKED",
     warnings: params.warnings,
-    safetyFlags: ALL_TRUE_FLAGS,
+    // Blocked before simulate step → SIMULATION_REQUIRED=false; STOP_ON_WARNING=true
+    safetyFlags: computeSafetyFlags(null, params.warnings),
     skill: params.skill,
     mcpTrace: params.mcpTrace,
     createdAt: params.createdAt,

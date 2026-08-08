@@ -72,6 +72,13 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    proxy: {
+      '/agent-gateway': {
+        target: 'http://localhost:3100',
+        rewrite: (path) => path.replace(/^\/agent-gateway/, ''),
+        changeOrigin: true,
+      },
+    },
   },
   preview: {
     port,
