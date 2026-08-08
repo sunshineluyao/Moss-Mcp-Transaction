@@ -251,6 +251,16 @@ async function createApp() {
   // express-rate-limit can identify real client IPs correctly.
   app.set("trust proxy", 1);
 
+  // In production, Replit's path-based proxy forwards the full path
+  // (e.g. /agent-gateway/api/preview) without stripping the prefix.
+  // Strip it here so all route handlers work identically in dev and prod.
+  app.use((req, _res, next) => {
+    if (req.url.startsWith("/agent-gateway")) {
+      req.url = req.url.slice("/agent-gateway".length) || "/";
+    }
+    next();
+  });
+
   // ── Middleware ──────────────────────────────────────────────────────────────
   app.use(express.json({ limit: "1mb" }));
 

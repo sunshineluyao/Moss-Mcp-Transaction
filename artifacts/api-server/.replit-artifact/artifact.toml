@@ -55,4 +55,4 @@ PORT = "8090"
 NODE_ENV = "production"
 
 [services.production.health.startup]
-path = "/healthz"
+path = "/agent-gateway/healthz"
