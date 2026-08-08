@@ -1,0 +1,775 @@
+You are updating my existing Replit project and linked GitHub repository:
+
+* Repository: https://github.com/sunshineluyao/Moss-Mcp-Transaction
+* Current app: https://moss-mcp-transaction.replit.app/
+* Existing frontend: React + TypeScript + Vite in `artifacts/moss-mcp/`
+* Package manager: pnpm workspace
+* Deployment: Replit Autoscale, one public application port
+* Deadline: today
+
+Do not merely propose a plan. Inspect the existing project first, then implement, test, visually inspect, and document the complete MVP described below.
+
+# Final MVP Goal
+
+Transform the current mock-first transaction lifecycle demo into one truthful, narrow, live end-to-end experience:
+
+> A user enters a native MON transfer intent. An A2A agent applies a Moss-derived safety skill, invokes a real custom MCP server, checks the unsigned transfer against live Monad Testnet state, and returns an explainable review artifact. Nothing is signed or broadcast.
+
+The final visible architecture is:
+
+```text
+React UI
+  → thin preview API
+  → official A2A client
+  → Monad Preview A2A Agent
+  → official MCP client over stdio
+  → custom Monad Testnet Preview MCP server
+  → live Monad Testnet RPC
+```
+
+The application must demonstrate all five requested layers:
+
+1. Monad Testnet
+2. Agent Skills
+3. A2A
+4. Agent Stack compatibility
+5. MCP
+
+# Read These Sources Before Editing
+
+Use current upstream documentation, not invented APIs:
+
+1. Moss:
+
+   * https://github.com/nishuzumi/moss
+   * https://github.com/nishuzumi/moss/blob/main/docs/agent-skill.md
+   * https://github.com/nishuzumi/moss/blob/main/docs/mcp-tools.md
+
+2. Agent Skills:
+
+   * https://github.com/anthropics/skills
+   * https://mcpservers.org/agent-skills
+
+3. A2A:
+
+   * Current official JS SDK: https://github.com/a2aproject/a2a-js
+   * Architectural walkthrough: https://github.com/holtskinner/A2AWalkthrough
+
+4. Agent Stack:
+
+   * https://github.com/i-am-bee/agentstack
+   * https://agentstack.beeai.dev/stable/deploy-agents/a2a-agents
+
+5. MCP:
+
+   * https://github.com/modelcontextprotocol/typescript-sdk
+   * https://modelcontextprotocol.io/
+   * Discovery directory only: https://mcpservers.org/
+
+6. Monad Testnet:
+
+   * https://docs.monad.xyz/guides/add-monad-to-wallet/testnet
+
+Use the A2AWalkthrough for architectural inspiration only. It pins the older Python `a2a-sdk==0.3.16`; this TypeScript project should use the current official `@a2a-js/sdk` v1 API.
+
+Pin known compatible versions instead of unbounded `latest` dependencies:
+
+```text
+@a2a-js/sdk: 1.0.1
+@modelcontextprotocol/sdk: 1.30.0
+viem: 2.55.11
+```
+
+Respect the repository’s `minimumReleaseAge` supply-chain protection. Do not disable it.
+
+# Non-Negotiable Technical Truthfulness
+
+Official Moss currently targets Monad mainnet chain ID `143`. This application targets Monad Testnet chain ID `10143`.
+
+Therefore:
+
+* Do not claim that official Moss executes the Testnet preview.
+* Describe the implementation as:
+
+  * “Moss-derived safety rules”
+  * “custom Monad Testnet Preview MCP adapter”
+  * “not official Moss Testnet execution”
+* Do not import or display invented APIs such as:
+
+  * `MossClient`
+  * `@moss/mcp-server`
+  * a browser-based Moss RPC endpoint
+* Do not claim risk scores, confidence levels, receipt verification, ordered state-change coverage, or ABI decoding unless the implementation genuinely produces them.
+* `mcpservers.org` is a discovery directory, not the protocol specification or an executable dependency.
+* A filesystem `SKILL.md` and an A2A `AgentSkill` are different concepts. Explain and demonstrate both.
+
+# Scope Freeze
+
+Support exactly one user action:
+
+> Preview a native MON transfer on Monad Testnet before signing.
+
+Required inputs:
+
+* Sender address
+* Recipient address
+* Amount in MON as a decimal string
+
+Remove from the primary experience:
+
+* Transfer/Approve/Swap operation selector
+* Fake scenario selector
+* ERC-20 token address
+* DEX swapping
+* Wallet connection
+* Signing
+* Broadcasting
+* Transaction confirmation
+* Multiple chains or protocols
+* LLM/API-key requirements
+* Autonomous trading
+
+The agent may be deterministic. No LLM is required for this MVP.
+
+# 1. Build the Live Monad Testnet Layer
+
+Use server-side RPC access. Never let the browser accept an arbitrary RPC URL.
+
+Environment:
+
+```env
+MONAD_TESTNET_RPC_URL=https://testnet-rpc.monad.xyz
+PUBLIC_BASE_URL=https://moss-mcp-transaction.replit.app
+```
+
+If `PUBLIC_BASE_URL` is absent in development, derive a safe local URL. In Replit, derive the public HTTPS domain where possible.
+
+Required network constants:
+
+```text
+Network: Monad Testnet
+Chain ID: 10143
+Chain ID hex: 0x279f
+Currency: MON
+Explorer: https://testnet.monadscan.com
+```
+
+For every valid preview, obtain live evidence using `viem` or equivalent server-side JSON-RPC calls:
+
+* Chain ID
+* Latest block number
+* Latest block timestamp
+* Sender balance
+* Gas estimate for the proposed native transfer
+* Current gas price or another documented fee estimate
+* Optional recipient code check to distinguish EOA and contract addresses
+
+Construct an unsigned transaction only:
+
+```json
+{
+  "chainId": 10143,
+  "from": "0x...",
+  "to": "0x...",
+  "value": "decimal wei string",
+  "data": "0x",
+  "gas": "decimal string"
+}
+```
+
+Never add signing, private-key handling, wallet credentials, or `eth_sendRawTransaction`.
+
+Use a finite RPC timeout. Treat RPC errors and chain-ID mismatches as blocking results, not silent fallbacks.
+
+# 2. Add a Real Repository Agent Skill
+
+Create:
+
+```text
+skills/monad-safe-transfer-preview/SKILL.md
+```
+
+Use valid Agent Skills frontmatter:
+
+```yaml
+---
+name: monad-safe-transfer-preview
+description: Applies Moss-derived safety rules when previewing an unsigned native MON transfer on Monad Testnet. Use for validating intent, addresses, amounts, network evidence, warnings, and the no-sign/no-broadcast boundary.
+---
+```
+
+The instructions must include these enforceable rule IDs:
+
+* `RECORD_INTENT`
+* `TESTNET_ONLY`
+* `DECIMAL_STRINGS`
+* `NO_PRIVATE_KEYS`
+* `NO_SIGNING`
+* `NO_BROADCAST`
+* `SIMULATION_REQUIRED`
+* `STOP_ON_WARNING`
+* `PRESENT_BEFORE_SIGNING`
+
+Paraphrase Moss’s safety model and cite the Moss source. Do not copy large passages verbatim.
+
+Load the skill metadata at server startup. Return its name, description, path, source URL, content hash, and applied rule IDs in the preview artifact.
+
+The deterministic code must enforce the same rules. Add a test confirming that every required rule ID appears in the skill and in the runtime policy table.
+
+The UI must contain a collapsible “Agent Skill Applied” panel showing:
+
+* Skill name
+* Why it was triggered
+* Applied safety rules
+* Source links
+* Status: loaded and enforced
+
+# 3. Implement a Genuine Custom MCP Server
+
+Create a new Node/TypeScript workspace package, preferably:
+
+```text
+artifacts/agent-gateway/
+├── package.json
+├── tsconfig.json
+└── src/
+    ├── index.ts
+    ├── shared/schema.ts
+    ├── skills/loadSkill.ts
+    ├── rpc/monadTestnet.ts
+    ├── mcp/server.ts
+    ├── mcp/client.ts
+    └── a2a/previewAgent.ts
+```
+
+The existing `artifacts/*` workspace pattern should include this package without weakening current workspace settings.
+
+Use the official `@modelcontextprotocol/sdk`. Run the custom MCP server over stdio and invoke it through a genuine MCP client. Do not bypass MCP by directly importing and calling the tool functions from the A2A executor.
+
+MCP server identity:
+
+```text
+name: monad-testnet-preview
+version: 1.0.0
+transport: stdio
+```
+
+Expose four narrowly scoped tools:
+
+1. `preview_discover`
+
+   * Returns the one available action: native MON transfer preview.
+
+2. `preview_load`
+
+   * Returns the input contract, intent description, risk boundaries, network restriction, and safety rules.
+
+3. `preview_action`
+
+   * Validates addresses and decimal amount.
+   * Constructs the unsigned transaction.
+   * Does not query for or handle any secret.
+
+4. `preview_simulate`
+
+   * Requires the exact output from `preview_action`.
+   * Queries live Monad Testnet state.
+   * Returns network evidence, gas estimate, balance checks, warnings, and the final decision.
+
+This sequence is inspired by Moss’s `discover → load → action → simulate`, but every UI and README reference must clearly identify it as the custom Testnet adapter.
+
+The A2A agent must call the tools through the MCP client in that exact order. Record a real trace containing:
+
+* MCP server name/version
+* Transport
+* Tool name
+* Start/end time or duration
+* Success/failure
+* Sanitized input summary
+* Data source
+
+Do not fabricate a successful trace if a tool was not called.
+
+# 4. Add a Genuine A2A Agent and Client
+
+Use `@a2a-js/sdk` v1.0 APIs and the official TypeScript sample patterns.
+
+Expose:
+
+```text
+GET /.well-known/agent-card.json
+```
+
+The Agent Card should advertise:
+
+```text
+Agent name: Monad Testnet Safe Preview Agent
+Agent version: 1.0.0
+A2A protocol: 1.0
+Skill ID: preview_monad_testnet_transfer
+Input mode: text and/or structured data
+Output mode: structured artifact plus human-readable text
+Streaming: false for this MVP
+Push notifications: false
+```
+
+The advertised A2A `AgentSkill` should explain that the agent previews one unsigned native MON transfer on Testnet. Do not describe it as an autonomous transaction executor.
+
+Implement the normal A2A task lifecycle:
+
+```text
+submitted → working → artifact produced → completed
+```
+
+Use `failed` when an unexpected internal error prevents producing a safe artifact. A blocked transaction preview may still be a successfully completed A2A task whose artifact decision is `BLOCKED`.
+
+The browser should call a thin same-origin route such as:
+
+```text
+POST /api/preview
+```
+
+That route must use the official A2A client to invoke the A2A agent endpoint. It must not call the MCP implementation directly.
+
+Return and display:
+
+* A2A task ID
+* Context ID
+* Artifact ID
+* Task state
+* Advertised AgentSkill
+* Structured preview artifact
+
+Keep the public A2A endpoint accessible for external Agent Stack discovery.
+
+# 5. Make It Agent Stack Compatible
+
+Use Agent Stack’s documented “unmanaged A2A agent” path. Do not embed the entire Agent Stack runtime into the Replit web application.
+
+After deployment, the endpoint should be registerable with:
+
+```bash
+agentstack add https://moss-mcp-transaction.replit.app
+agentstack list
+```
+
+Use the actual discovered agent name or ID for subsequent `agentstack info` and `agentstack run` commands. Do not invent it in the README.
+
+Add:
+
+```text
+evidence/agentstack-verification.md
+```
+
+This file must contain:
+
+* Public application URL
+* Agent Card URL
+* Exact registration commands
+* Verification date
+* Actual sanitized CLI output if verification succeeds
+* A clear `not externally verified yet` status if the CLI cannot be run
+
+In the app, show one of these truthful statuses:
+
+* `Agent Stack verified`
+* `Agent Stack-compatible A2A endpoint available; external registration not yet verified`
+
+Never show “verified” merely because an Agent Card exists.
+
+If Agent Stack fails against A2A v1, investigate its current supported version. Enable the official A2A SDK’s v0.3 compatibility layer only if required and document why. Do not downgrade the main implementation blindly.
+
+# 6. Redesign the Existing UI Around One Gold Path
+
+Preserve the current polished dark Web3 visual identity where useful, but simplify the content.
+
+Suggested header:
+
+```text
+Moss MCP Transaction Preview
+Monad Testnet Safe Agent Stack
+
+Understand an unsigned MON transfer before signing.
+```
+
+Top status chips:
+
+* Monad Testnet
+* Chain 10143
+* Live RPC
+* A2A v1
+* MCP stdio
+* Unsigned only
+
+Primary flow:
+
+1. User enters sender, recipient, and amount.
+2. User clicks `Preview on Monad Testnet`.
+3. Show a six-stage pipeline:
+
+   * Intent Recorded
+   * Skill Applied
+   * A2A Task Created
+   * MCP Tools Called
+   * Testnet Checked
+   * Ready or Blocked
+4. Show the result artifact.
+5. Offer only:
+
+   * `Copy unsigned transaction`
+   * `Edit request`
+   * `Stop`
+
+Do not display:
+
+* Proceed to Wallet
+* Pending
+* Confirming
+* Confirmed
+* On-chain Reverted
+* Transaction sent
+* Finalized
+* High/medium/low confidence
+* Fake success scenarios
+
+Result panel sections:
+
+* Human-readable intent
+* Live network evidence
+* Unsigned transaction
+* Balance and gas estimate
+* Safety rules applied
+* Warnings
+* Final decision
+* A2A metadata
+* MCP trace
+* Provenance and implementation boundary
+
+Use these decisions:
+
+```text
+READY_FOR_WALLET_REVIEW
+BLOCKED
+```
+
+`READY_FOR_WALLET_REVIEW` means only that input validation and RPC preflight checks passed. It is not a safety guarantee and does not mean the transaction was submitted.
+
+Every warning must produce `BLOCKED`.
+
+Block on at least:
+
+* Invalid address
+* Sender equals zero address
+* Non-positive or malformed amount
+* Chain ID mismatch
+* RPC timeout or failure
+* Insufficient balance for value plus estimated fee
+* Gas estimation failure
+* MCP tool failure
+* Missing required simulation evidence
+
+# 7. Use This Artifact Contract
+
+Return JSON-safe decimal strings for chain quantities:
+
+```json
+{
+  "schemaVersion": "1.0",
+  "dataSource": "live-monad-testnet-rpc",
+  "network": {
+    "name": "Monad Testnet",
+    "chainId": 10143,
+    "latestBlock": "123456",
+    "blockTimestamp": "2026-08-08T00:00:00.000Z",
+    "observedAt": "2026-08-08T00:00:01.000Z"
+  },
+  "intent": {
+    "action": "native-transfer-preview",
+    "asset": "MON",
+    "amount": "0.01",
+    "sender": "0x...",
+    "recipient": "0x..."
+  },
+  "unsignedTransaction": {
+    "chainId": 10143,
+    "from": "0x...",
+    "to": "0x...",
+    "valueWei": "10000000000000000",
+    "data": "0x",
+    "gas": "21000"
+  },
+  "preflight": {
+    "senderBalanceWei": "...",
+    "gasPriceWei": "...",
+    "estimatedFeeWei": "...",
+    "estimatedGas": "21000",
+    "level": "rpc-preflight"
+  },
+  "skill": {
+    "name": "monad-safe-transfer-preview",
+    "contentHash": "...",
+    "appliedRuleIds": []
+  },
+  "a2a": {
+    "agentName": "Monad Testnet Safe Preview Agent",
+    "taskId": "...",
+    "contextId": "...",
+    "artifactId": "...",
+    "taskState": "completed"
+  },
+  "mcp": {
+    "server": "monad-testnet-preview",
+    "transport": "stdio",
+    "toolsCalled": [],
+    "trace": []
+  },
+  "warnings": [],
+  "decision": "READY_FOR_WALLET_REVIEW",
+  "safety": {
+    "unsigned": true,
+    "signed": false,
+    "broadcast": false
+  },
+  "provenance": {
+    "mossRole": "safety-rules-reference",
+    "testnetAdapter": "custom",
+    "officialMossExecution": false
+  }
+}
+```
+
+Do not hard-code the example timestamps or block number.
+
+# 8. Production and Security Requirements
+
+* One Replit public port must serve:
+
+  * React production assets
+  * `/api/*`
+  * A2A endpoint
+  * Agent Card
+  * `/healthz`
+* Preserve the existing public app URL.
+* Validate all inputs with Zod.
+* Keep amount values as decimal strings.
+* Never log complete secrets; no secrets should exist in this MVP.
+* Never request private keys or seed phrases.
+* Prevent arbitrary RPC URLs and SSRF.
+* Add reasonable request timeouts and rate limiting.
+* Restrict CORS to same-origin where applicable.
+* Return safe error messages without stack traces in production.
+* Add a visible disclaimer:
+
+  * educational preview only
+  * no financial advice
+  * no signing or broadcast
+  * RPC preflight is not a future-execution guarantee
+
+# 9. Update Tests and Evidence
+
+Add or update:
+
+* Input-validation unit tests
+* MON-to-wei conversion tests
+* Decision-policy tests
+* Skill/runtime rule correspondence test
+* MCP list-tools and ordered-call integration test
+* A2A Agent Card test
+* A2A task/artifact integration test
+* Deterministic RPC integration tests using a local fake RPC
+* Optional live smoke test against Monad Testnet
+
+Provide commands such as:
+
+```bash
+pnpm install
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm test:live
+```
+
+The live smoke test must assert that the RPC reports chain ID `10143`. It must fail clearly rather than using fixtures silently.
+
+Add evidence endpoints or files where useful:
+
+```text
+GET /healthz
+GET /api/network
+GET /api/skill
+GET /.well-known/agent-card.json
+evidence/demo-run.json
+evidence/agentstack-verification.md
+```
+
+Generate `evidence/demo-run.json` only from an actual successful live run. Include timestamp and live block number. Never commit a sender address the user has asked to keep private.
+
+# 10. Repair the GIF and Automation Pipeline
+
+The existing GIFs and scripts depend on the obsolete mock scenario selector and “Confirmed/Rejected” lifecycle.
+
+Update or retire:
+
+* `scripts/capture-demo.mjs`
+* `scripts/make-demo-gif.sh`
+* root GIF scripts
+* `.github/workflows/update-demo-gifs.yml`
+* README references to old GIFs
+
+Preferred final media:
+
+```text
+assets/moss-monad-testnet-preview.gif
+```
+
+The new GIF should show:
+
+1. Valid Testnet transfer intent
+2. Live chain ID and block
+3. Skill applied
+4. A2A task metadata
+5. MCP trace
+6. `READY_FOR_WALLET_REVIEW`
+7. Unsigned / never broadcast boundary
+
+If a funded demo sender is required, read it from `DEMO_SENDER_ADDRESS`. Do not hard-code or commit a private address without permission.
+
+If a new truthful GIF cannot be generated today, remove stale GIFs from the README instead of showing the obsolete Confirmed path. Do not fabricate live evidence.
+
+# 11. Rewrite the Root README.md
+
+Preserve:
+
+* Project name
+* DOI badge and DOI link
+* Live Demo URL
+* License
+* Relevant existing acknowledgements
+* Useful visual identity
+
+Replace the oversized and inaccurate mock-first README with a concise submission-quality README in this order:
+
+1. Title, tagline, badges, DOI, Live Demo
+2. Problem and target user
+3. One core user action
+4. Current architecture diagram
+5. What is live, derived, custom, mocked, and excluded
+6. 60-second demo instructions
+7. Evidence endpoints
+8. Technology-layer table:
+
+   * Monad Testnet
+   * Agent Skill
+   * A2A
+   * MCP
+   * Agent Stack
+   * Moss reference
+9. Safety boundary
+10. Local setup
+11. Environment variables
+12. Tests and verification commands
+13. Three-user feedback and resulting scope reduction
+14. Known limitations
+15. Future roadmap
+16. References and acknowledgements
+17. License and disclaimer
+
+Include a prominent truth table:
+
+| Layer                                     | Final status                                         |
+| ----------------------------------------- | ---------------------------------------------------- |
+| Monad Testnet RPC                         | Live                                                 |
+| Native MON unsigned-transfer construction | Live                                                 |
+| RPC gas/balance preflight                 | Live                                                 |
+| Custom MCP server/client                  | Live                                                 |
+| A2A Agent Card and task artifact          | Live                                                 |
+| Repository Agent Skill                    | Loaded and deterministically enforced                |
+| Agent Stack                               | Verified only if actual registration evidence exists |
+| Official Moss Testnet execution           | Not used; official Moss is mainnet-only              |
+| Wallet signing/broadcast                  | Not implemented                                      |
+| DEX swap                                  | Out of scope                                         |
+
+Remove every inaccurate claim involving:
+
+* `@moss/mcp-server`
+* `MossClient`
+* “one function-body change”
+* Moss risk scoring
+* Moss returning confidence levels
+* Moss as a browser RPC endpoint
+* transaction confirmation
+* fake Transfer/Approve/Swap scenarios
+* current GIFs showing Confirmed
+* an eight-stage on-chain lifecycle
+
+Also update `artifacts/moss-mcp/README.md` so it does not conflict with the root README. It may become a short frontend-development note linking back to the root documentation.
+
+Add a Mermaid architecture diagram that renders correctly on GitHub:
+
+```mermaid
+flowchart TB
+    UI["React UI"] --> API["Preview API"]
+    API --> A2A["A2A Client + Agent"]
+    SKILL["Moss-derived SKILL.md"] -.-> A2A
+    A2A --> MCP["Custom Testnet MCP"]
+    MCP --> RPC["Monad Testnet RPC"]
+```
+
+Do not use Mermaid directives or HTML labels that may break GitHub rendering.
+
+# 12. Visual QA
+
+After implementation:
+
+* Run the app.
+* Test desktop and mobile layouts.
+* Verify there are no console errors.
+* Confirm long addresses wrap or truncate safely with copy controls.
+* Confirm loading, ready, blocked, and RPC-failure states are readable.
+* Confirm no old “Confirmed” lifecycle remains anywhere.
+* Confirm all external links work.
+* Confirm the Agent Card uses the deployed HTTPS URL, not localhost.
+* Confirm the app remains understandable to a first-time Web3 user.
+
+# Definition of Done
+
+Do not declare completion until all applicable checks pass:
+
+* [ ] The app builds and starts on Replit.
+* [ ] `eth_chainId` returns `10143`.
+* [ ] A real latest block appears in the UI.
+* [ ] Sender balance and gas estimate come from live Testnet RPC.
+* [ ] The transaction remains unsigned and unbroadcast.
+* [ ] `SKILL.md` exists, loads, and its rules are enforced.
+* [ ] The A2A Agent Card is public and valid.
+* [ ] One A2A task returns a structured artifact.
+* [ ] The A2A task has real task/context/artifact IDs.
+* [ ] The A2A executor calls all four MCP tools through the MCP client.
+* [ ] The UI shows the genuine MCP trace.
+* [ ] Agent Stack registration is verified or honestly labeled unverified.
+* [ ] Any warning yields `BLOCKED`.
+* [ ] No private key, signer, wallet, or broadcast path exists.
+* [ ] Root `README.md` matches the implementation.
+* [ ] Old mock scenarios and misleading confirmation claims are removed.
+* [ ] Typecheck, tests, and production build pass.
+* [ ] The final deployed app has no visible runtime errors.
+
+# Final Response Required From You
+
+After making the changes, report:
+
+1. Files created, modified, and intentionally left unchanged.
+2. Exact commands executed.
+3. Typecheck, test, build, and live-smoke results.
+4. Public app URL.
+5. Agent Card URL.
+6. Whether Agent Stack was actually verified.
+7. One real Testnet block number from the final run.
+8. Any remaining limitation or failed check.
+9. Suggested Git commit message:
+
+```text
+feat: add Monad Testnet A2A and MCP safe-preview stack
+```
+
+Do not claim success for a check you did not run. Do not fabricate screenshots, logs, block numbers, Agent Stack registration, or live MCP/A2A evidence.
