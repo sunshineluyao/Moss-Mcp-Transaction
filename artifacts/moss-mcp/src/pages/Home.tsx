@@ -52,6 +52,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import HowItWorks from "@/components/HowItWorks";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const MOSS_MCP_GITHUB = "https://github.com/nishuzumi/moss/tree/main/packages/mcp-server";
@@ -979,7 +980,7 @@ function PreviewResult({ artifact }: { artifact: PreviewArtifact }) {
 // MODE OVERVIEW CARDS
 // ─────────────────────────────────────────────────────────────────────────────
 
-type Tab = "mock" | "live";
+type Tab = "mock" | "live" | "how";
 
 function ModeOverview({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
   return (
@@ -1928,6 +1929,17 @@ export default function Home() {
             Monad Testnet Preview
             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-teal-500/15 text-teal-400 border border-teal-500/30 ml-0.5">LIVE</span>
           </button>
+          <button
+            onClick={() => setTab("how")}
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors flex items-center gap-1.5 ${
+              tab === "how"
+                ? "border-violet-400 text-violet-400"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Info className="w-3.5 h-3.5" />
+            How It Works
+          </button>
         </div>
       </header>
 
@@ -1937,7 +1949,9 @@ export default function Home() {
           <h2 className="text-2xl font-bold tracking-tight">
             {tab === "mock"
               ? "Moss MCP Transaction Preview"
-              : "Understand an unsigned MON transfer before signing."}
+              : tab === "live"
+                ? "Understand an unsigned MON transfer before signing."
+                : "How Moss MCP works, in four short animations."}
           </h2>
           {tab === "mock" && (
             <>
@@ -1951,8 +1965,15 @@ export default function Home() {
           )}
         </div>
 
+        {tab === "how" && (
+          <p className="text-sm text-muted-foreground leading-relaxed mt-1 max-w-2xl">
+            These animations explain the protocol stack behind this demo — the architecture, the
+            transaction lifecycle, the core concepts, and how Moss MCP connects to Monad. No sound needed.
+          </p>
+        )}
+
         {/* Mode overview cards */}
-        <ModeOverview tab={tab} setTab={setTab} />
+        {tab !== "how" && <ModeOverview tab={tab} setTab={setTab} />}
 
         {/* Safety notice */}
         <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-lg px-4 py-3">
@@ -1963,7 +1984,7 @@ export default function Home() {
 
       {/* Tab content */}
       <main className="max-w-6xl mx-auto px-4 md:px-6 mt-8">
-        {tab === "mock"  ? <MockSimulationTab /> : <LivePreviewTab />}
+        {tab === "mock" ? <MockSimulationTab /> : tab === "live" ? <LivePreviewTab /> : <HowItWorks />}
       </main>
 
       {/* Disclaimer banner */}
