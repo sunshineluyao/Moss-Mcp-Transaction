@@ -1878,8 +1878,27 @@ function LivePreviewTab() {
 // ROOT PAGE
 // ─────────────────────────────────────────────────────────────────────────────
 
+function tabFromUrl(): Tab {
+  const param = new URLSearchParams(window.location.search).get("tab");
+  return param === "live" || param === "how" || param === "mock" ? param : "mock";
+}
+
 export default function Home() {
-  const [tab, setTab] = useState<Tab>("mock");
+  const [tab, setTabState] = useState<Tab>(tabFromUrl);
+
+  const setTab = useCallback((next: Tab) => {
+    setTabState(next);
+    const url = new URL(window.location.href);
+    if (next === "mock") url.searchParams.delete("tab");
+    else url.searchParams.set("tab", next);
+    window.history.pushState({}, "", url);
+  }, []);
+
+  useEffect(() => {
+    const onPopState = () => setTabState(tabFromUrl());
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background w-full text-foreground pb-24 selection:bg-primary/30">
