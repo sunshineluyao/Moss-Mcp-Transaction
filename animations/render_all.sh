@@ -16,6 +16,13 @@ MEDIA_DIR="$SCRIPT_DIR/.manim_media"
 QUALITY="${MANIM_QUALITY:--ql}"   # default: low quality (480p15) for speed
 mkdir -p "$OUTPUT_DIR"
 
+# Replit NixOS: Python 3.13's pyexpat.so requires expat 2.6+ (XML_SetAllocTrackerActivationThreshold).
+# Point LD_LIBRARY_PATH at the correct nix store libexpat so manim's SVG parser works.
+EXPAT_LIB="/nix/store/sr4cnxyzx24ylxygfk7d81hy4791l8gm-expat-2.7.3/lib"
+if [[ -d "$EXPAT_LIB" ]]; then
+  export LD_LIBRARY_PATH="$EXPAT_LIB${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+fi
+
 # Derive expected resolution subdir from quality flag
 case "$QUALITY" in
   -ql) RES="480p15" ;;

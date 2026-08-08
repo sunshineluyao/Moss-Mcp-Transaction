@@ -1,5 +1,6 @@
 {pkgs}: {
   deps = [
+    pkgs.pkg-config
     pkgs.at-spi2-core
     pkgs.alsa-lib
     pkgs.cups
