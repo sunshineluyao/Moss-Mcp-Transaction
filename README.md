@@ -1,6 +1,7 @@
 # Moss MCP Transaction Preflight | Moss MCP 交易安全预检
 
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21539761-blue.svg)](https://doi.org/10.5281/zenodo.21539761)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21539761-blue.svg)](https://doi.org/10.5281/zenodo.21852764)
 [![Monad Playground](https://img.shields.io/badge/Event-Monad%20Playground-00C2FF?style=flat-square)](#)
 
 **Agentic Pre-Sign Protection on Monad | Monad 上的智能体签名前安全层**
