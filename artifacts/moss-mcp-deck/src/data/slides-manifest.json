@@ -1,0 +1,82 @@
+[
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567801",
+    "position": 1,
+    "filepath": "src/pages/slides/Slide1Title.tsx",
+    "title": "Moss MCP Transaction Preview",
+    "description": "Bilingual title slide — EN/ZH competition submission cover",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567802",
+    "position": 2,
+    "filepath": "src/pages/slides/Slide2Problem.tsx",
+    "title": "The Problem · 问题",
+    "description": "Blind signing, irreversible loss, raw hex data",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567803",
+    "position": 3,
+    "filepath": "src/pages/slides/Slide3TwoModes.tsx",
+    "title": "Two Modes, One Goal · 两种模式，一个目标",
+    "description": "Mock Simulation vs Live Monad Testnet Preview",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567804",
+    "position": 4,
+    "filepath": "src/pages/slides/Slide4Architecture.tsx",
+    "title": "Architecture · 技术架构",
+    "description": "React UI → Agent Gateway → A2A → MCP → Monad RPC pipeline",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567805",
+    "position": 5,
+    "filepath": "src/pages/slides/Slide5Protocols.tsx",
+    "title": "A2A + MCP Protocol Layer · 协议层",
+    "description": "A2A by Google and MCP by Anthropic — 4 tool sequence",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567806",
+    "position": 6,
+    "filepath": "src/pages/slides/Slide6AgentSkills.tsx",
+    "title": "Agent Skills — The Safety Brain · 安全规则引擎",
+    "description": "SKILL.md — 9 rules — SHA-256 hash in every artifact",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567807",
+    "position": 7,
+    "filepath": "src/pages/slides/Slide7MossMonad.tsx",
+    "title": "Moss × Monad Safety Model · 安全模型",
+    "description": "Official Moss mainnet vs this Testnet adapter side-by-side",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567808",
+    "position": 8,
+    "filepath": "src/pages/slides/Slide8PreviewAction.tsx",
+    "title": "Preview in Action · 实时预览效果",
+    "description": "Input → Live evidence → READY_FOR_WALLET_REVIEW or BLOCKED",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567809",
+    "position": 9,
+    "filepath": "src/pages/slides/Slide9Safety.tsx",
+    "title": "Safety Boundary · 安全边界",
+    "description": "NEVER vs ALWAYS — what this tool guarantees",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567810",
+    "position": 10,
+    "filepath": "src/pages/slides/Slide10TryIt.tsx",
+    "title": "Try It Now · 立即体验",
+    "description": "Live demo URL, Agent Card, GitHub, DOI",
+    "speakerNotes": ""
+  }
+]

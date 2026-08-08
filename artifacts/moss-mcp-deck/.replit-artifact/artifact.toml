@@ -1,0 +1,28 @@
+kind = "slides"
+previewPath = "/moss-mcp-deck/"
+title = "Moss MCP Bilingual Deck"
+description = "Bilingual EN/ZH competition pitch deck for Moss MCP Transaction Preview"
+version = "1.0.0"
+id = "artifacts/moss-mcp-deck"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/moss-mcp-deck/" ]
+localPort = 24997
+
+[services.development]
+run = "pnpm --filter @workspace/moss-mcp-deck run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/moss-mcp-deck", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/moss-mcp-deck/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24997"
+BASE_PATH = "/moss-mcp-deck/"
