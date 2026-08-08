@@ -38,12 +38,17 @@ export default function Slide10TryIt() {
         <div style={{ width: "8vw", height: "4px", backgroundColor: "#8B1A2B", marginBottom: "5vh" }} />
 
         {/* Links grid */}
-        <div style={{ display: "flex", gap: "2vw" }}>
+        <div style={{ display: "flex", gap: "1.5vw", flexWrap: "wrap", justifyContent: "center", maxWidth: "88vw" }}>
 
           <div style={{ backgroundColor: "rgba(61,90,241,0.1)", border: "1px solid rgba(61,90,241,0.4)", padding: "2.5vh 2vw", textAlign: "left", minWidth: "20vw" }}>
             <div style={{ fontSize: "0.75vw", letterSpacing: "0.2em", color: "#3D5AF1", marginBottom: "1vh" }}>LIVE DEMO · 在线演示</div>
             <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "1.1vw", fontWeight: 600, color: "#FFFFFF" }}>moss-mcp-transaction.replit.app</div>
           </div>
+
+          <a href="/?tab=how" target="_blank" rel="noopener noreferrer" style={{ backgroundColor: "rgba(139,26,43,0.15)", border: "1px solid #8B1A2B", padding: "2.5vh 2vw", textAlign: "left", minWidth: "18vw", textDecoration: "none", cursor: "pointer", display: "block" }}>
+            <div style={{ fontSize: "0.75vw", letterSpacing: "0.2em", color: "#E85D75", marginBottom: "1vh" }}>WATCH THE VIDEOS · 观看视频 ↗</div>
+            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: "1.1vw", fontWeight: 600, color: "#FFFFFF" }}>How It Works · 工作原理</div>
+          </a>
 
           <div style={{ backgroundColor: "rgba(21,21,28,0.9)", border: "1px solid #4A4A5A", padding: "2.5vh 2vw", textAlign: "left", minWidth: "20vw" }}>
             <div style={{ fontSize: "0.75vw", letterSpacing: "0.2em", color: "#8A8A9E", marginBottom: "1vh" }}>AGENT CARD</div>
