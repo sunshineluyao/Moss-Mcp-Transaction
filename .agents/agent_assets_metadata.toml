@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "xti141K8oFLFWrVfyeyjx"
+uri = "file://.local/outputs/Moss-MCP-Bilingual-Deck.pptx"
+type = "slides"
+title = "Moss MCP Bilingual Deck.pptx"
