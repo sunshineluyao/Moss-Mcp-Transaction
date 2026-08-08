@@ -247,6 +247,10 @@ async function createApp() {
 
   const app = express();
 
+  // Trust the Replit / reverse-proxy X-Forwarded-For header so
+  // express-rate-limit can identify real client IPs correctly.
+  app.set("trust proxy", 1);
+
   // ── Middleware ──────────────────────────────────────────────────────────────
   app.use(express.json({ limit: "1mb" }));
 
