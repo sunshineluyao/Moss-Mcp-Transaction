@@ -235,6 +235,27 @@ These drove the current single-language, single-action design.
 
 ---
 
+## Demo animations
+
+Publication-quality MP4 animations created with [Manim Community Edition](https://www.manim.community/) are in the [`animations/`](animations/) directory. Each script is self-contained and re-renderable by competition judges.
+
+| Animation | Scene | What it shows |
+|-----------|-------|---------------|
+| [`architecture.py`](animations/architecture.py) | `ArchitectureFlow` | Live preview data flow: React UI → Agent Gateway → A2A → MCP stdio → Monad Testnet RPC |
+| [`transaction_lifecycle.py`](animations/transaction_lifecycle.py) | `TransactionLifecycle` | Single transfer preview: four MCP tools, live data, nine safety rules, final decision badge |
+| [`concepts.py`](animations/concepts.py) | `ConceptsOverview` | Four-quadrant protocol stack: A2A, MCP, Agent Skills, Agent Stack |
+| [`moss_monad.py`](animations/moss_monad.py) | `MossMonadRelation` | Side-by-side: official Moss (mainnet, chain 143) vs. this Testnet adapter (chain 10143) |
+
+**Render all animations locally:**
+```bash
+pip install manim      # requires Cairo, Pango, FFmpeg
+bash animations/render_all.sh
+```
+
+See [`animations/README.md`](animations/README.md) for full prerequisites, render commands, and palette details.
+
+---
+
 ## References
 
 - [Moss documentation](https://docs.moss.ag) — safety model inspiration
