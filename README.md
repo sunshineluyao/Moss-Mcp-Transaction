@@ -253,14 +253,23 @@ These drove the current single-language, single-action design.
 
 ## Demo animations
 
-Scientific animations created with [Manim Community Edition](https://www.manim.community/) for competition submission. Pre-rendered MP4s (480p) are in [`animations/output/`](animations/output/); Python source scripts are in [`animations/`](animations/) and are re-renderable by judges.
+Scientific animations created with [Manim Community Edition](https://www.manim.community/) for competition submission. Python source scripts are in [`animations/`](animations/) and are re-renderable by judges.
 
-| Download | Scene | What it shows |
-|----------|-------|---------------|
-| [▶ ArchitectureFlow.mp4](animations/output/ArchitectureFlow.mp4) | `ArchitectureFlow` | Live preview data flow: React UI → Agent Gateway → A2A → MCP stdio → Monad Testnet RPC |
-| [▶ TransactionLifecycle.mp4](animations/output/TransactionLifecycle.mp4) | `TransactionLifecycle` | Single transfer: four MCP tools, live data, nine safety rules, final decision badge |
-| [▶ ConceptsOverview.mp4](animations/output/ConceptsOverview.mp4) | `ConceptsOverview` | Four-quadrant protocol stack: A2A, MCP, Agent Skills, Agent Stack |
-| [▶ MossMonadRelation.mp4](animations/output/MossMonadRelation.mp4) | `MossMonadRelation` | Side-by-side: official Moss (mainnet, chain 143) vs. this Testnet adapter (chain 10143) |
+### Architecture Flow — React UI → A2A → MCP → Monad RPC
+
+![Architecture Flow animation](assets/ArchitectureFlow.gif)
+
+### Transaction Lifecycle — Four MCP tools, nine safety rules, final decision
+
+![Transaction Lifecycle animation](assets/TransactionLifecycle.gif)
+
+### Concepts Overview — A2A, MCP, Agent Skills, Agent Stack
+
+![Concepts Overview animation](assets/ConceptsOverview.gif)
+
+### Moss × Monad — Official mainnet vs. Testnet adapter
+
+![Moss Monad Relation animation](assets/MossMonadRelation.gif)
 
 **Re-render locally** (requires Nix or a system with Cairo + Pango + FFmpeg):
 ```bash
