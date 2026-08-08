@@ -19,6 +19,17 @@ Web3 newcomers often sign transactions without understanding what will happen. T
 
 ---
 
+## Two modes
+
+| Mode | Data source | Use case |
+|------|------------|---------|
+| **Mock Simulation** | Local mock engine, no network | Learn transaction structure, explore ERC-20 Transfer / Approve / Swap lifecycles, see Rejected / Reverted / System Error scenarios |
+| **Live Monad Testnet Preview** | Live Monad Testnet RPC + A2A + MCP | Validate a real unsigned MON transfer against on-chain state before signing |
+
+Switch between modes using the tab bar at the top of the app.
+
+---
+
 ## One core user action
 
 Enter a **sender address**, **recipient address**, and **amount in MON** (decimal string). Click **Preview on Monad Testnet**. Receive a structured artifact showing whether the transfer is `READY_FOR_WALLET_REVIEW` or `BLOCKED`, backed by live Monad Testnet RPC data.
@@ -75,6 +86,40 @@ flowchart TB
 | `/agent-gateway/api/preview` | POST | Run a transfer preview |
 | `/agent-gateway/api/network` | GET | Live chain ID + latest block |
 | `/agent-gateway/api/skill` | GET | Loaded skill metadata |
+
+---
+
+## Key concepts
+
+### A2A — Agent-to-Agent Protocol
+
+A2A is an open protocol (by Google) that defines how AI agents communicate. This app's Agent Gateway publishes an Agent Card at `/agent-gateway/.well-known/agent-card.json` advertising its `preview_monad_testnet_transfer` skill. The React UI calls the gateway's REST endpoint (`/agent-gateway/api/preview`); the gateway then uses the A2A SDK internally to process the task and returns a structured artifact. Any external agent (or Agent Stack deployment) can discover and call this gateway using the same standard.
+
+Reference: <https://a2a.dev/>
+
+### MCP — Model Context Protocol
+
+MCP (by Anthropic) defines how agents call external tools. The gateway spawns a custom MCP server as a subprocess (stdio transport) and calls four tools in order: `preview_discover` → `preview_load` → `preview_action` → `preview_simulate`. Each tool is narrowly scoped: discover lists available actions, load returns the action schema, action builds the unsigned transaction, simulate fetches live chain data. MCP keeps the blockchain interface cleanly separated from agent logic.
+
+Reference: <https://modelcontextprotocol.io/>
+
+### Agent Skills
+
+An Agent Skill is a version-controlled markdown file (`SKILL.md`) that defines what an agent knows and what rules it must enforce. This app's skill (`skills/monad-safe-transfer-preview/SKILL.md`) encodes nine rules: RECORD_INTENT, TESTNET_ONLY, DECIMAL_STRINGS, NO_PRIVATE_KEYS, NO_SIGNING, NO_BROADCAST, SIMULATION_REQUIRED, STOP_ON_WARNING, PRESENT_BEFORE_SIGNING. The file is SHA-256 hashed at startup; its hash is embedded in every preview artifact so reviewers can verify exactly which rule set was applied.
+
+Reference: [`skills/monad-safe-transfer-preview/SKILL.md`](skills/monad-safe-transfer-preview/SKILL.md)
+
+### Agent Stack
+
+Agent Stack (by BeeAI) is a framework and CLI for discovering, running, and orchestrating A2A-compatible agents. Because this app publishes a valid Agent Card, any Agent Stack deployment can register it: `agentstack add https://moss-mcp-transaction.replit.app/agent-gateway`. The "unmanaged agent" pattern means the app runs on Replit's infrastructure and Agent Stack simply calls it externally — no Agent Stack runtime is embedded in the app itself.
+
+Reference: <https://agentstack.beeai.dev/>
+
+### Moss × Monad
+
+Moss is a DeFi safety layer built on Monad. Its official MCP server targets Monad mainnet (chain ID 143) and exposes the same discover → load → action → simulate pattern this app implements. This app adapts Moss's safety model for Monad Testnet (chain ID 10143) using a custom MCP adapter — the Agent Skill's nine rules are directly inspired by Moss's risk-label and unsigned-tx-only design. Official Moss execution is not used; this project is a Testnet adapter that demonstrates the same design principles.
+
+Reference: <https://docs.moss.ag>
 
 ---
 

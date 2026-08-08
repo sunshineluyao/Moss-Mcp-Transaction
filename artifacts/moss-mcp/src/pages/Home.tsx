@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   ShieldCheck,
   AlertTriangle,
@@ -25,6 +25,10 @@ import {
   RotateCcw,
   Square,
   Droplets,
+  Wallet,
+  Plug,
+  PlugZap,
+  AlertCircle,
 } from "lucide-react";
 
 // ── Mock simulation (original) ────────────────────────────────────────────────
@@ -34,6 +38,10 @@ import { MCPSimulationResult, SimulationFormParams, OperationType, ScenarioType 
 // ── Live Monad preview (new) ──────────────────────────────────────────────────
 import { usePreview } from "@/lib/api";
 import type { PreviewArtifact, McpTraceEntry } from "@/types/preview";
+
+// ── Wallet (EIP-1193) ─────────────────────────────────────────────────────────
+import { useWallet } from "@/lib/useWallet";
+import { ensureMonadTestnet, MONAD_TESTNET_CHAIN_PARAMS, type Eip1193Provider } from "@/lib/sendPanel";
 
 // ── Shared UI components ──────────────────────────────────────────────────────
 import { Button } from "@/components/ui/button";
@@ -843,6 +851,9 @@ function PreviewResult({ artifact }: { artifact: PreviewArtifact }) {
         <span className="text-xs text-muted-foreground font-mono">{artifact.a2aTaskId.slice(0, 8)}…</span>
       </div>
 
+      {/* Agent flow explainer */}
+      <AgentFlowExplainer artifact={artifact} />
+
       {/* Intent */}
       <div className="rounded-lg border border-border/50 bg-card/30 p-3 space-y-1">
         <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Human-readable intent</p>
@@ -964,6 +975,683 @@ function PreviewResult({ artifact }: { artifact: PreviewArtifact }) {
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// MODE OVERVIEW CARDS
+// ─────────────────────────────────────────────────────────────────────────────
+
+type Tab = "mock" | "live";
+
+function ModeOverview({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Mock card */}
+      <button
+        onClick={() => setTab("mock")}
+        className={`text-left rounded-xl border-2 p-5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
+          tab === "mock"
+            ? "border-primary bg-primary/5 shadow-md shadow-primary/10"
+            : "border-border/40 bg-card/30 hover:border-border hover:bg-card/50"
+        }`}
+      >
+        <div className="flex items-start gap-3 mb-2">
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${tab === "mock" ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+            <Bot className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className={`font-semibold text-sm leading-tight ${tab === "mock" ? "text-foreground" : "text-muted-foreground"}`}>
+              Mock Simulation
+            </h3>
+            <span className="text-[10px] font-mono text-muted-foreground/70">No network required</span>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Choose an ERC-20 operation, pick a scenario (Success / Rejected / Reverted / System Error), generate a decoded preview with risk labels and a lifecycle timeline.{" "}
+          <span className="text-muted-foreground/60">Great for learning how transactions are structured.</span>
+        </p>
+      </button>
+
+      {/* Live card */}
+      <button
+        onClick={() => setTab("live")}
+        className={`text-left rounded-xl border-2 p-5 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/60 ${
+          tab === "live"
+            ? "border-teal-400 bg-teal-500/5 shadow-md shadow-teal-500/10"
+            : "border-border/40 bg-card/30 hover:border-border hover:bg-card/50"
+        }`}
+      >
+        <div className="flex items-start gap-3 mb-2">
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${tab === "live" ? "bg-teal-500/20 text-teal-400" : "bg-muted text-muted-foreground"}`}>
+            <Zap className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className={`font-semibold text-sm leading-tight ${tab === "live" ? "text-teal-400" : "text-muted-foreground"}`}>
+              Live Monad Testnet Preview
+            </h3>
+            <span className="text-[10px] font-mono text-muted-foreground/70">Real on-chain data</span>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Enter a sender address, recipient, and amount in MON. The agent applies nine safety rules, fetches live balance and gas from Monad Testnet (chain 10143), and returns{" "}
+          <span className="font-mono text-[10px]">READY_FOR_WALLET_REVIEW</span> or <span className="font-mono text-[10px]">BLOCKED</span>.{" "}
+          <span className="text-muted-foreground/60">Backed by A2A, MCP, and a verifiable Agent Skill.</span>
+        </p>
+      </button>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TECH CONCEPTS PANEL
+// ─────────────────────────────────────────────────────────────────────────────
+
+type Lang = "en" | "zh";
+
+interface ConceptDef {
+  id: string;
+  title: string;
+  en: React.ReactNode;
+  zh: React.ReactNode;
+}
+
+const CONCEPTS: ConceptDef[] = [
+  {
+    id: "a2a",
+    title: "A2A — Agent-to-Agent Protocol",
+    en: (
+      <>
+        A2A is an open protocol (by Google) that defines how AI agents communicate. This app's Agent Gateway publishes an Agent Card at{" "}
+        <code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">/agent-gateway/.well-known/agent-card.json</code>{" "}
+        advertising its <code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">preview_monad_testnet_transfer</code> skill. The React UI calls the gateway's REST endpoint (<code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">/agent-gateway/api/preview</code>); the gateway then uses the A2A SDK internally to process the task and returns a structured artifact. Any external agent (or Agent Stack deployment) can discover and call this gateway using the same standard.
+      </>
+    ),
+    zh: (
+      <>
+        A2A 是 Google 提出的开放协议，定义 AI Agent 之间的通信规范。本 App 的 Agent Gateway 在{" "}
+        <code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">/agent-gateway/.well-known/agent-card.json</code>{" "}
+        发布 Agent Card，声明其 <code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">preview_monad_testnet_transfer</code> 技能。React UI 调用网关的 REST 接口（<code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">/agent-gateway/api/preview</code>），网关再在内部使用 A2A SDK 处理任务并返回结构化 artifact。任何外部 Agent（或 Agent Stack 部署）都可通过该标准发现并调用本网关。
+      </>
+    ),
+  },
+  {
+    id: "mcp",
+    title: "MCP — Model Context Protocol",
+    en: (
+      <>
+        MCP (by Anthropic) defines how agents call external tools. The gateway spawns a custom MCP server as a subprocess (stdio transport) and calls four tools in order:{" "}
+        <code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">preview_discover</code> →{" "}
+        <code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">preview_load</code> →{" "}
+        <code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">preview_action</code> →{" "}
+        <code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">preview_simulate</code>. Each tool is narrowly scoped: discover lists available actions, load returns the action schema, action builds the unsigned transaction, simulate fetches live chain data. MCP keeps the blockchain interface cleanly separated from agent logic.
+      </>
+    ),
+    zh: (
+      <>
+        MCP（由 Anthropic 开发）定义了 Agent 如何调用外部工具。网关以子进程方式（stdio 传输）启动自定义 MCP 服务器，并按顺序调用四个工具：{" "}
+        <code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">preview_discover</code> →{" "}
+        <code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">preview_load</code> →{" "}
+        <code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">preview_action</code> →{" "}
+        <code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">preview_simulate</code>。每个工具职责单一：discover 列出可用操作，load 返回操作 schema，action 构建未签名交易，simulate 获取链上实时数据。MCP 将区块链接口与 Agent 逻辑清晰解耦。
+      </>
+    ),
+  },
+  {
+    id: "skills",
+    title: "Agent Skills",
+    en: (
+      <>
+        An Agent Skill is a version-controlled markdown file (<code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">SKILL.md</code>) that defines what an agent knows and what rules it must enforce. This app's skill (<code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">skills/monad-safe-transfer-preview/SKILL.md</code>) encodes nine rules: RECORD_INTENT, TESTNET_ONLY, DECIMAL_STRINGS, NO_PRIVATE_KEYS, NO_SIGNING, NO_BROADCAST, SIMULATION_REQUIRED, STOP_ON_WARNING, PRESENT_BEFORE_SIGNING. The file is SHA-256 hashed at startup; its hash is embedded in every preview artifact so reviewers can verify exactly which rule set was applied.
+      </>
+    ),
+    zh: (
+      <>
+        Agent Skill 是经过版本控制的 Markdown 文件（<code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">SKILL.md</code>），定义了 Agent 掌握的知识和必须执行的规则。本 App 的 Skill（<code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">skills/monad-safe-transfer-preview/SKILL.md</code>）编码了九条规则：RECORD_INTENT、TESTNET_ONLY、DECIMAL_STRINGS、NO_PRIVATE_KEYS、NO_SIGNING、NO_BROADCAST、SIMULATION_REQUIRED、STOP_ON_WARNING、PRESENT_BEFORE_SIGNING。该文件在启动时计算 SHA-256 哈希值，并嵌入每个预览 artifact，以便审阅者验证所应用的规则集。
+      </>
+    ),
+  },
+  {
+    id: "agentstack",
+    title: "Agent Stack",
+    en: (
+      <>
+        Agent Stack (by BeeAI) is a framework and CLI for discovering, running, and orchestrating A2A-compatible agents. Because this app publishes a valid Agent Card, any Agent Stack deployment can register it:{" "}
+        <code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">agentstack add https://moss-mcp-transaction.replit.app/agent-gateway</code>. The "unmanaged agent" pattern means the app runs on Replit's infrastructure and Agent Stack simply calls it externally — no Agent Stack runtime is embedded in the app itself.
+      </>
+    ),
+    zh: (
+      <>
+        Agent Stack（由 BeeAI 开发）是用于发现、运行和编排 A2A 兼容 Agent 的框架和 CLI。由于本 App 发布了有效的 Agent Card，任何 Agent Stack 部署均可注册它：{" "}
+        <code className="text-[10px] bg-background/60 px-1 py-0.5 rounded">agentstack add https://moss-mcp-transaction.replit.app/agent-gateway</code>。"非托管 Agent"模式意味着 App 运行在 Replit 基础设施上，Agent Stack 只是外部调用它——App 内部不嵌入 Agent Stack 运行时。
+      </>
+    ),
+  },
+  {
+    id: "moss",
+    title: "Moss × Monad",
+    en: (
+      <>
+        Moss is a DeFi safety layer built on Monad. Its official MCP server targets Monad mainnet (chain ID 143) and exposes the same discover → load → action → simulate pattern this app implements. This app adapts Moss's safety model for Monad Testnet (chain ID 10143) using a custom MCP adapter — the Agent Skill's nine rules are directly inspired by Moss's risk-label and unsigned-tx-only design. Official Moss execution is not used; this project is a Testnet adapter that demonstrates the same design principles.
+      </>
+    ),
+    zh: (
+      <>
+        Moss 是构建在 Monad 上的 DeFi 安全层。其官方 MCP 服务器面向 Monad 主网（Chain ID 143），暴露了与本 App 相同的 discover → load → action → simulate 模式。本 App 使用自定义 MCP 适配器将 Moss 的安全模型适配至 Monad 测试网（Chain ID 10143）——Agent Skill 的九条规则直接受 Moss 风险标签和"仅输出未签名交易"设计的启发。本项目不使用官方 Moss 执行引擎；它是一个演示相同设计原则的测试网适配器。
+      </>
+    ),
+  },
+];
+
+function ConceptCard({ concept, lang }: { concept: ConceptDef; lang: Lang }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={`border rounded-lg overflow-hidden transition-colors ${open ? "border-border bg-card/40" : "border-border/40 bg-card/20"}`}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left gap-3 hover:bg-card/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      >
+        <span className="text-xs font-semibold text-foreground">{concept.title}</span>
+        {open ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />}
+      </button>
+      {open && (
+        <div className="px-4 pb-4 text-xs text-muted-foreground leading-relaxed border-t border-border/30 pt-3">
+          {lang === "en" ? concept.en : concept.zh}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TechConceptsSection() {
+  const [open, setOpen] = useState(false);
+  const [lang, setLang] = useState<Lang>("en");
+
+  return (
+    <div className={`rounded-xl border transition-colors ${open ? "border-border/60 bg-card/20" : "border-border/30 bg-card/10"}`}>
+      {/* Header row */}
+      <div className="flex items-center justify-between px-4 py-3 gap-3">
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="flex items-center gap-2 flex-1 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        >
+          <Cpu className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+          <span className="text-xs font-semibold text-foreground">How it works</span>
+          <span className="text-xs text-muted-foreground">·</span>
+          <span className="text-xs font-semibold text-muted-foreground">工作原理</span>
+          {open
+            ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground ml-1" />
+            : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground ml-1" />}
+        </button>
+
+        {/* Language toggle */}
+        <div className="flex items-center rounded-md border border-border/50 overflow-hidden text-[11px] font-semibold shrink-0">
+          <button
+            onClick={() => setLang("en")}
+            className={`px-2.5 py-1 transition-colors ${lang === "en" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            EN
+          </button>
+          <div className="w-px h-4 bg-border/50" />
+          <button
+            onClick={() => setLang("zh")}
+            className={`px-2.5 py-1 transition-colors ${lang === "zh" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            中文
+          </button>
+        </div>
+      </div>
+
+      {/* Concept cards */}
+      {open && (
+        <div className="px-4 pb-4 space-y-2 border-t border-border/30">
+          <div className="pt-3 space-y-2">
+            {CONCEPTS.map((c) => (
+              <ConceptCard key={c.id} concept={c} lang={lang} />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WALLET BAR
+// ─────────────────────────────────────────────────────────────────────────────
+
+const MONAD_TESTNET_CHAIN_ID = 10143;
+
+function WalletBar({ onAddressChange }: { onAddressChange: (addr: string) => void }) {
+  const wallet = useWallet();
+
+  useEffect(() => {
+    if (wallet.address) onAddressChange(wallet.address);
+  }, [wallet.address, onAddressChange]);
+
+  const wrongNetwork = wallet.isConnected && wallet.chainId !== MONAD_TESTNET_CHAIN_ID;
+
+  if (!wallet.isAvailable) {
+    return (
+      <div className="flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3">
+        <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+        <div className="text-xs text-amber-400 leading-relaxed">
+          <span className="font-semibold">No wallet detected.</span> Install{" "}
+          <a href="https://metamask.io" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">MetaMask</a>{" "}
+          or another EIP-1193 browser wallet, then reload the page. You can still enter a sender address manually below.
+        </div>
+      </div>
+    );
+  }
+
+  if (!wallet.isConnected) {
+    return (
+      <div className="rounded-xl border border-border/50 bg-card/40 px-4 py-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <Wallet className="w-4 h-4 text-muted-foreground" />
+          <span className="text-xs font-semibold text-foreground">Connect your wallet</span>
+          <span className="text-[10px] text-muted-foreground">— auto-fills the sender address</span>
+        </div>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Clicking <strong className="text-foreground">Connect Wallet</strong> asks your wallet to share your address. No signing or transaction is requested at this step.
+          The address is used only to fetch your live balance from Monad Testnet.
+        </p>
+        <div className="flex items-center gap-3">
+          <Button size="sm" onClick={wallet.connect} disabled={wallet.isConnecting} className="gap-2">
+            {wallet.isConnecting
+              ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Connecting…</>
+              : <><PlugZap className="w-3.5 h-3.5" /> Connect Wallet</>}
+          </Button>
+          {wallet.error && (
+            <p className="text-xs text-destructive">{wallet.error}</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`rounded-xl border px-4 py-3 space-y-2 ${wrongNetwork ? "border-amber-500/40 bg-amber-500/5" : "border-teal-500/30 bg-teal-500/5"}`}>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
+          <span className="text-xs font-semibold text-teal-400">Wallet connected</span>
+          <span className="font-mono text-[10px] text-muted-foreground bg-background/60 px-2 py-0.5 rounded border border-border/40">
+            {wallet.address!.slice(0, 6)}…{wallet.address!.slice(-4)}
+          </span>
+          {wallet.chainId && (
+            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${wrongNetwork ? "text-amber-400 border-amber-500/40 bg-amber-500/10" : "text-sky-400 border-sky-500/40 bg-sky-500/10"}`}>
+              Chain {wallet.chainId}
+            </span>
+          )}
+        </div>
+        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground" onClick={wallet.disconnect}>
+          <Plug className="w-3 h-3 mr-1" /> Disconnect
+        </Button>
+      </div>
+      {wrongNetwork && (
+        <p className="text-xs text-amber-400 leading-relaxed">
+          ⚠ Your wallet is on chain {wallet.chainId}, not Monad Testnet (10143). Switch networks in your wallet to match the preview target, or enter a testnet address manually in the sender field below.
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STEP GUIDE
+// ─────────────────────────────────────────────────────────────────────────────
+
+function StepGuide({ walletConnected, formReady, previewDone }: { walletConnected: boolean; formReady: boolean; previewDone: boolean }) {
+  const steps = [
+    {
+      n: 1,
+      label: "Connect wallet",
+      detail: "Your address auto-fills as the sender. No signing at this step.",
+      done: walletConnected,
+    },
+    {
+      n: 2,
+      label: "Enter recipient & amount",
+      detail: "Paste any valid 0x… address and a decimal MON amount.",
+      done: formReady,
+    },
+    {
+      n: 3,
+      label: "Run preview",
+      detail: "The agent checks live balance, gas, and nine safety rules — no broadcast.",
+      done: previewDone,
+    },
+  ];
+
+  return (
+    <div className="flex flex-col sm:flex-row gap-2">
+      {steps.map((step, i) => {
+        const active = !step.done && (i === 0 || steps[i - 1].done);
+        return (
+          <div
+            key={step.n}
+            className={`flex-1 flex items-start gap-3 rounded-lg border px-3 py-2.5 transition-colors ${
+              step.done
+                ? "border-teal-500/30 bg-teal-500/5"
+                : active
+                ? "border-primary/40 bg-primary/5"
+                : "border-border/30 bg-card/20 opacity-50"
+            }`}
+          >
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-[10px] font-bold ${
+              step.done ? "bg-teal-500/20 text-teal-400" : active ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
+            }`}>
+              {step.done ? <Check className="w-3 h-3" /> : step.n}
+            </div>
+            <div>
+              <p className={`text-xs font-semibold ${step.done ? "text-teal-400" : active ? "text-foreground" : "text-muted-foreground"}`}>
+                {step.label}
+              </p>
+              <p className="text-[10px] text-muted-foreground leading-snug mt-0.5">{step.detail}</p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WRAP EXPLAINER — shown near recipient when it is the WMON contract
+// ─────────────────────────────────────────────────────────────────────────────
+
+function WrapExplainer() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={`rounded-lg border transition-colors ${open ? "border-sky-500/30 bg-sky-500/5" : "border-sky-500/20 bg-sky-500/5"}`}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between px-3 py-2 gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/40"
+      >
+        <div className="flex items-center gap-2">
+          <Info className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+          <span className="text-[11px] font-semibold text-sky-300">What does sending MON to WMON do?</span>
+        </div>
+        {open ? <ChevronUp className="w-3.5 h-3.5 text-sky-400 shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 text-sky-400 shrink-0" />}
+      </button>
+      {open && (
+        <div className="px-3 pb-3 border-t border-sky-500/20 pt-2.5 space-y-2.5">
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            Native MON is Monad's gas token — like ETH on Ethereum. It is <em>not</em> an ERC-20, so most DeFi protocols (DEXes, lending pools, vaults) cannot accept it directly.
+            Wrapping converts it into <strong className="text-sky-300">WMON</strong>, an ERC-20 token worth exactly 1 MON.
+          </p>
+          <div className="space-y-1.5">
+            {[
+              { n: 1, t: "You send MON to the WMON contract." },
+              { n: 2, t: "The contract holds your MON and mints the same amount of WMON — directly to your wallet." },
+              { n: 3, t: "1 MON = 1 WMON always. No value is lost." },
+              { n: 4, t: "To unwrap: transfer WMON back to the contract → you receive your MON back." },
+            ].map(({ n, t }) => (
+              <div key={n} className="flex items-start gap-2 text-[11px]">
+                <span className="text-sky-400 font-bold shrink-0 mt-0.5">{n}.</span>
+                <span className="text-muted-foreground">{t}</span>
+              </div>
+            ))}
+          </div>
+          <div className="rounded-md bg-background/50 border border-border/30 px-2.5 py-2 space-y-1">
+            <p className="text-[11px] font-semibold text-foreground">Your WMON stays in your wallet — you own it.</p>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              It appears as a separate token balance. Use it on any DEX, lending protocol, or liquidity pool that requires ERC-20 tokens on Monad.
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AGENT FLOW EXPLAINER — "why did this need Skill, A2A, and MCP?"
+// shown inside the result panel, populated from live artifact data
+// ─────────────────────────────────────────────────────────────────────────────
+
+function AgentFlowExplainer({ artifact }: { artifact: PreviewArtifact }) {
+  const [open, setOpen] = useState(false);
+  const steps = [
+    {
+      icon: CircleDot,
+      color: "text-muted-foreground border-border/50 bg-card/40",
+      label: "Your Intent",
+      why: "You describe the transfer in plain terms (sender, recipient, amount). No ABI encoding, no raw hex — the agent pipeline handles the translation to a valid on-chain transaction.",
+    },
+    {
+      icon: Bot,
+      color: "text-violet-400 border-violet-500/30 bg-violet-500/5",
+      label: "Skill Enforced",
+      why: `The Skill file (SHA-256: ${artifact.skill.contentHash.slice(0, 8)}…) is loaded at gateway startup and locks in ${artifact.skill.appliedRuleIds.length} rules: ${artifact.skill.appliedRuleIds.slice(0, 3).join(", ")}… Without the Skill, there is no guarantee the app will not sign or broadcast. Because the file is hash-verified, any reviewer can prove which ruleset was applied to this specific result.`,
+    },
+    {
+      icon: Network,
+      color: "text-emerald-400 border-emerald-500/30 bg-emerald-500/5",
+      label: "A2A Task Created",
+      why: `A2A (Agent-to-Agent Protocol) packages your request as a structured task (ID: ${artifact.a2aTaskId.slice(0, 8)}…) and returns a verifiable artifact. This means the gateway is callable by any other AI agent or Agent Stack deployment using the same standard — not just this UI. The task ID and artifact ID embedded in this result are A2A primitives you can trace.`,
+    },
+    {
+      icon: Cpu,
+      color: "text-amber-400 border-amber-500/30 bg-amber-500/5",
+      label: "MCP Tools Called",
+      why: `The gateway ran ${artifact.mcpTrace.length} MCP tool calls (${artifact.mcpTrace.map((t) => t.tool).join(" → ")}) against the Monad Testnet RPC. Each tool is narrowly scoped — blockchain logic lives in the MCP server, not the agent. You can swap the RPC provider or add tools without rewriting agent logic.`,
+    },
+    {
+      icon: ShieldCheck,
+      color: "text-teal-400 border-teal-500/30 bg-teal-500/5",
+      label: "Safe Preview",
+      why: "The final output is an unsigned transaction + a safety verdict. Nothing was signed or broadcast. The Skill's PRESENT_BEFORE_SIGNING rule guarantees you always see this review step before any wallet interaction.",
+    },
+  ];
+
+  return (
+    <div className={`rounded-lg border overflow-hidden transition-colors ${open ? "border-border/50 bg-card/10" : "border-border/30"}`}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 gap-2 hover:bg-white/5 transition-colors focus:outline-none"
+      >
+        <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+          <Info className="w-3.5 h-3.5" /> Why did this need a Skill, A2A, and MCP?
+        </span>
+        {open ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
+      </button>
+      {open && (
+        <div className="px-4 pb-4 border-t border-border/30 pt-3 space-y-3">
+          {steps.map((step, i) => {
+            const Icon = step.icon;
+            return (
+              <div key={i} className="flex items-start gap-3">
+                <div className={`w-7 h-7 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${step.color}`}>
+                  <Icon className="w-3.5 h-3.5" />
+                </div>
+                <div className="min-w-0">
+                  <p className={`text-[11px] font-semibold mb-0.5 ${step.color.split(" ")[0]}`}>{step.label}</p>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">{step.why}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SEND PANEL — sign & send after READY_FOR_WALLET_REVIEW
+// ─────────────────────────────────────────────────────────────────────────────
+
+function toHex(val: string): string {
+  if (val.startsWith("0x")) return val;
+  try { return "0x" + BigInt(val).toString(16); } catch { return val; }
+}
+
+type SendStatus = "idle" | "switching" | "sending" | "done" | "error";
+
+function SendPanel({ artifact, walletAddress }: { artifact: PreviewArtifact; walletAddress: string }) {
+  const [status, setStatus] = useState<SendStatus>("idle");
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const [sendError, setSendError] = useState<string | null>(null);
+
+  if (artifact.decision !== "READY_FOR_WALLET_REVIEW" || !artifact.unsignedTx) return null;
+
+  const tx = artifact.unsignedTx;
+  const hasWallet = typeof window !== "undefined" && !!window.ethereum;
+  const walletMismatch = walletAddress && walletAddress.toLowerCase() !== tx.from.toLowerCase();
+  const isWrapTx = artifact.recipient.toLowerCase() === WMON_CONTRACT.toLowerCase();
+
+  const handleSend = async () => {
+    if (!window.ethereum) return;
+    setSendError(null);
+    setStatus("switching");
+
+    // ── Step 1: ensure Monad Testnet (switch + chain verification) ────────────
+    // ensureMonadTestnet is fail-closed: any switch failure (incl. user rejection
+    // code 4001 and internal error -32603) returns ok:false without proceeding.
+    const networkResult = await ensureMonadTestnet(window.ethereum as Eip1193Provider);
+    if (!networkResult.ok) {
+      setStatus("error");
+      setSendError(networkResult.error);
+      return;
+    }
+
+    // ── Step 2: verify active account matches the preview sender ──────────────
+    setStatus("sending");
+    let activeAccounts: string[];
+    try {
+      activeAccounts = (await window.ethereum.request({ method: "eth_accounts" })) as string[];
+    } catch {
+      setStatus("error");
+      setSendError("Could not read the active account from your wallet.");
+      return;
+    }
+    const activeAccount = activeAccounts[0] ?? "";
+    if (activeAccount.toLowerCase() !== tx.from.toLowerCase()) {
+      setStatus("error");
+      setSendError(
+        `Active wallet account (${activeAccount.slice(0, 6)}…${activeAccount.slice(-4)}) does not match the preview sender (${tx.from.slice(0, 6)}…${tx.from.slice(-4)}). Switch to the correct account in your wallet and try again.`,
+      );
+      return;
+    }
+
+    // ── Step 3: send transaction ──────────────────────────────────────────────
+    try {
+      const hash = await window.ethereum.request({
+        method: "eth_sendTransaction",
+        params: [{
+          from: tx.from,
+          to: tx.to,
+          value: toHex(tx.value),
+          gas: toHex(tx.gasLimit),
+          data: tx.data || "0x",
+        }],
+      }) as string;
+      setTxHash(hash);
+      setStatus("done");
+    } catch (sendErr: unknown) {
+      const msg = (sendErr as Error).message ?? "Transaction rejected by wallet.";
+      setStatus("error");
+      setSendError(msg.length > 140 ? msg.slice(0, 140) + "…" : msg);
+    }
+  };
+
+  // ── Success state ──
+  if (status === "done" && txHash) {
+    return (
+      <div className="rounded-xl border border-teal-500/40 bg-teal-500/5 p-5 space-y-3 animate-in fade-in duration-500">
+        <div className="flex items-center gap-2 text-teal-400 font-semibold">
+          <CheckCircle2 className="w-5 h-5" />
+          {isWrapTx ? "Wrap submitted — MON → WMON on Monad Testnet" : "Transaction submitted to Monad Testnet"}
+        </div>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Your wallet signed and broadcast the transaction. It is now propagating through the network.
+          {isWrapTx && <> Once confirmed, <strong className="text-foreground">{artifact.amount} WMON</strong> will appear in your wallet.</>}
+          {" "}Confirmation typically takes a few seconds on Monad Testnet.
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <a
+            href={`${MONAD_EXPLORER}/tx/${txHash}`}
+            target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-semibold transition-colors border border-teal-500/30"
+          >
+            <ExternalLink className="w-3.5 h-3.5" /> View on Monad Explorer
+          </a>
+          <div className="flex items-center gap-1.5 bg-background/50 border border-border/40 rounded-lg px-2.5 py-1.5 min-w-0">
+            <span className="text-[10px] text-muted-foreground shrink-0">Tx:</span>
+            <code className="font-mono text-[10px] text-foreground/80 truncate max-w-[160px]">{txHash}</code>
+            <CopyBtn text={txHash} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Pre-send state ──
+  return (
+    <div className="rounded-xl border border-teal-500/30 bg-teal-500/5 p-5 space-y-4 animate-in fade-in duration-500">
+      <div className="flex items-center gap-2">
+        <PlugZap className="w-4 h-4 text-teal-400 shrink-0" />
+        <span className="text-sm font-semibold text-teal-400">Preview passed — ready to sign</span>
+      </div>
+
+      {/* Verification checklist */}
+      <div className="space-y-1.5">
+        {[
+          `Skill enforced ${artifact.skill.appliedRuleIds.length} safety rules`,
+          `Monad Testnet verified (chain ${artifact.networkEvidence?.chainId ?? 10143})`,
+          "Unsigned tx built — your private key was never involved",
+          "PRESENT_BEFORE_SIGNING rule satisfied",
+        ].map((item) => (
+          <div key={item} className="flex items-center gap-2 text-xs">
+            <CheckCircle2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+            <span className="text-muted-foreground">{item}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Wallet mismatch — pre-flight notice; send will also block if not resolved */}
+      {walletMismatch && walletAddress && (
+        <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-300">
+          <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+          <span>
+            Connected wallet ({walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}) does not match the preview sender ({tx.from.slice(0, 6)}…{tx.from.slice(-4)}). Switch to the correct account in your wallet before sending — the app will verify this automatically and block if it does not match.
+          </span>
+        </div>
+      )}
+
+      {/* No wallet */}
+      {!hasWallet && (
+        <p className="text-xs text-amber-400">No wallet detected. Install MetaMask to sign and send.</p>
+      )}
+
+      {/* What happens */}
+      <p className="text-xs text-muted-foreground leading-relaxed">
+        Clicking below opens your wallet with the pre-built unsigned transaction.{" "}
+        <strong className="text-foreground">You review and confirm inside your wallet</strong> — the app never touches your private key.
+        {isWrapTx && <> This will wrap <strong className="text-foreground">{artifact.amount} MON → WMON</strong> on Monad Testnet. WMON will appear in your wallet after confirmation.</>}
+        {" "}If your wallet is on the wrong network, you will be prompted to switch to Monad Testnet first.
+      </p>
+
+      <Button
+        onClick={handleSend}
+        disabled={!hasWallet || status !== "idle"}
+        className="w-full gap-2 bg-teal-500 hover:bg-teal-400 text-black font-semibold shadow-lg shadow-teal-500/20"
+      >
+        {status === "switching" ? <><Loader2 className="w-4 h-4 animate-spin" /> Switching to Monad Testnet…</>
+        : status === "sending"  ? <><Loader2 className="w-4 h-4 animate-spin" /> Waiting for your signature…</>
+        : isWrapTx ? <><PlugZap className="w-4 h-4" /> Wrap MON → WMON via MetaMask</>
+        :            <><PlugZap className="w-4 h-4" /> Sign & Send via MetaMask</>}
+      </Button>
+
+      {sendError && (
+        <div className="flex items-start gap-2 text-xs text-destructive">
+          <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+          <span>{sendError}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Live preview tab ──────────────────────────────────────────────────────────
 
 const LIVE_STATUS_CHIPS = [
@@ -975,9 +1663,13 @@ const LIVE_STATUS_CHIPS = [
   { label: "Unsigned only", color: "text-rose-400 border-rose-500/40 bg-rose-500/10" },
 ] as const;
 
+// WMON = Wrapped MON, the canonical ERC-20 wrapper for native MON on Monad Testnet.
+// Sending MON to this address is a real wrap operation — a good demonstration target.
+const WMON_CONTRACT = "0x760AfE86e5de5fa0Ee542fc7B7B713e1c5425701";
+
 const DEFAULT_LIVE_FORM = {
-  sender: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-  recipient: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  sender: "",
+  recipient: WMON_CONTRACT,
   amount: "0.01",
 };
 
@@ -989,6 +1681,12 @@ function LivePreviewTab() {
 
   const errors = validate(form);
   const hasErrors = Object.keys(errors).length > 0;
+
+  // Called by WalletBar when a wallet address becomes available
+  const handleWalletAddress = useCallback((addr: string) => {
+    setForm((f) => ({ ...f, sender: addr }));
+    setTouched((t) => ({ ...t, sender: true }));
+  }, []);
 
   const handleField = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -1014,6 +1712,10 @@ function LivePreviewTab() {
     : state.stage === "ready" ? "ready"
     : "error";
 
+  const formReady = !!form.recipient && !!form.amount && parseFloat(form.amount) > 0;
+  const previewDone = state.stage === "ready";
+  const walletConnected = !!form.sender && form.sender.startsWith("0x") && form.sender.length === 42;
+
   return (
     <div className="space-y-6">
       {/* Chips */}
@@ -1027,10 +1729,18 @@ function LivePreviewTab() {
 
       {/* Subtitle */}
       <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
-        Enter a Monad Testnet sender address, recipient address, and amount. The agent fetches live on-chain
-        data, applies nine safety rules, and returns a structured preview —{" "}
+        Connect your wallet to auto-fill your sender address, enter a recipient and amount, then preview the transfer against live Monad Testnet data —{" "}
         <strong className="text-foreground">no signing, no broadcast</strong>.
       </p>
+
+      {/* Step guide */}
+      <StepGuide walletConnected={walletConnected} formReady={formReady} previewDone={previewDone} />
+
+      {/* Wallet connection bar */}
+      <WalletBar onAddressChange={handleWalletAddress} />
+
+      {/* Tech concepts panel */}
+      <TechConceptsSection />
 
       {/* Pipeline */}
       <PipelineStages status={pipelineStatus} />
@@ -1053,7 +1763,7 @@ function LivePreviewTab() {
                     className={showError("sender") ? "border-destructive" : ""} />
                   {showError("sender")
                     ? <p className="text-xs text-destructive">{errors.sender}</p>
-                    : <FieldHint>Wallet sending MON. Use a test address — no private keys needed.</FieldHint>}
+                    : <FieldHint>Auto-filled when you connect your wallet above. You can also paste any 0x… address — no private key needed.</FieldHint>}
                 </div>
 
                 {/* Recipient */}
@@ -1064,7 +1774,8 @@ function LivePreviewTab() {
                     className={showError("recipient") ? "border-destructive" : ""} />
                   {showError("recipient")
                     ? <p className="text-xs text-destructive">{errors.recipient}</p>
-                    : <FieldHint>Address receiving the MON transfer.</FieldHint>}
+                    : <FieldHint>Default: <span className="font-mono">WMON</span> — Wrapped MON contract on Monad Testnet. Replace with any address.</FieldHint>}
+                  {form.recipient.toLowerCase() === WMON_CONTRACT.toLowerCase() && <WrapExplainer />}
                 </div>
 
                 {/* Amount */}
@@ -1136,7 +1847,12 @@ function LivePreviewTab() {
           )}
 
           {state.stage === "ready" && state.artifact && (
-            <PreviewResult artifact={state.artifact} />
+            <>
+              <PreviewResult artifact={state.artifact} />
+              <div className="mt-4">
+                <SendPanel artifact={state.artifact} walletAddress={form.sender} />
+              </div>
+            </>
           )}
 
           {state.stage === "error" && (
@@ -1160,8 +1876,6 @@ function LivePreviewTab() {
 // ─────────────────────────────────────────────────────────────────────────────
 // ROOT PAGE
 // ─────────────────────────────────────────────────────────────────────────────
-
-type Tab = "mock" | "live";
 
 export default function Home() {
   const [tab, setTab] = useState<Tab>("mock");
@@ -1236,6 +1950,9 @@ export default function Home() {
             </>
           )}
         </div>
+
+        {/* Mode overview cards */}
+        <ModeOverview tab={tab} setTab={setTab} />
 
         {/* Safety notice */}
         <div className="flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-lg px-4 py-3">
