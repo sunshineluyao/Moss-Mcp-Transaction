@@ -77,6 +77,22 @@ flowchart TB
 
 ---
 
+## Screenshots
+
+### Mock Simulation — Success path
+
+![Mock simulation success path](assets/moss-mcp-transaction-preview-success.gif)
+
+### Mock Simulation — Rejected / Reverted paths
+
+![Mock simulation rejected path](assets/moss-mcp-transaction-preview-rejected.gif)
+
+### Full walkthrough
+
+![Full demo walkthrough](assets/moss-mcp-transaction-preview-demo.gif)
+
+---
+
 ## Evidence endpoints
 
 | Endpoint | Method | Description |
@@ -237,19 +253,22 @@ These drove the current single-language, single-action design.
 
 ## Demo animations
 
-Publication-quality MP4 animations created with [Manim Community Edition](https://www.manim.community/) are in the [`animations/`](animations/) directory. Each script is self-contained and re-renderable by competition judges.
+Scientific animations created with [Manim Community Edition](https://www.manim.community/) for competition submission. Pre-rendered MP4s (480p) are in [`animations/output/`](animations/output/); Python source scripts are in [`animations/`](animations/) and are re-renderable by judges.
 
-| Animation | Scene | What it shows |
-|-----------|-------|---------------|
-| [`architecture.py`](animations/architecture.py) | `ArchitectureFlow` | Live preview data flow: React UI → Agent Gateway → A2A → MCP stdio → Monad Testnet RPC |
-| [`transaction_lifecycle.py`](animations/transaction_lifecycle.py) | `TransactionLifecycle` | Single transfer preview: four MCP tools, live data, nine safety rules, final decision badge |
-| [`concepts.py`](animations/concepts.py) | `ConceptsOverview` | Four-quadrant protocol stack: A2A, MCP, Agent Skills, Agent Stack |
-| [`moss_monad.py`](animations/moss_monad.py) | `MossMonadRelation` | Side-by-side: official Moss (mainnet, chain 143) vs. this Testnet adapter (chain 10143) |
+| Download | Scene | What it shows |
+|----------|-------|---------------|
+| [▶ ArchitectureFlow.mp4](animations/output/ArchitectureFlow.mp4) | `ArchitectureFlow` | Live preview data flow: React UI → Agent Gateway → A2A → MCP stdio → Monad Testnet RPC |
+| [▶ TransactionLifecycle.mp4](animations/output/TransactionLifecycle.mp4) | `TransactionLifecycle` | Single transfer: four MCP tools, live data, nine safety rules, final decision badge |
+| [▶ ConceptsOverview.mp4](animations/output/ConceptsOverview.mp4) | `ConceptsOverview` | Four-quadrant protocol stack: A2A, MCP, Agent Skills, Agent Stack |
+| [▶ MossMonadRelation.mp4](animations/output/MossMonadRelation.mp4) | `MossMonadRelation` | Side-by-side: official Moss (mainnet, chain 143) vs. this Testnet adapter (chain 10143) |
 
-**Render all animations locally:**
+**Re-render locally** (requires Nix or a system with Cairo + Pango + FFmpeg):
 ```bash
-pip install manim      # requires Cairo, Pango, FFmpeg
-bash animations/render_all.sh
+# Nix (recommended — no pip needed)
+nix-shell -p python3Packages.manim --run "bash animations/render_all.sh"
+
+# Or with pip
+pip install manim && bash animations/render_all.sh
 ```
 
 See [`animations/README.md`](animations/README.md) for full prerequisites, render commands, and palette details.

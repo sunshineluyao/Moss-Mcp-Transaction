@@ -1,13 +1,28 @@
 #!/usr/bin/env bash
 # Renders all four Manim animation scenes to animations/output/
-# Usage: bash animations/render_all.sh
-# Requirements: manim (pip install manim) — see animations/README.md
+#
+# Usage:
+#   bash animations/render_all.sh            # uses manim on $PATH
+#   nix-shell -p python3Packages.manim --run "bash animations/render_all.sh"
+#
+# Quality flag (default -ql = 480p15, fastest):
+#   MANIM_QUALITY=-qh bash animations/render_all.sh   # 1080p60
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTPUT_DIR="$SCRIPT_DIR/output"
+MEDIA_DIR="$SCRIPT_DIR/.manim_media"
+QUALITY="${MANIM_QUALITY:--ql}"   # default: low quality (480p15) for speed
 mkdir -p "$OUTPUT_DIR"
+
+# Derive expected resolution subdir from quality flag
+case "$QUALITY" in
+  -ql) RES="480p15" ;;
+  -qm) RES="720p30" ;;
+  -qh) RES="1080p60" ;;
+  *)   RES="480p15" ;;
+esac
 
 render() {
   local file="$1"
@@ -15,27 +30,28 @@ render() {
   local out_name="$3"
 
   echo ""
-  echo "▶  Rendering $scene from $file ..."
-  manim -qh "$SCRIPT_DIR/$file" "$scene" --media_dir "$SCRIPT_DIR/.manim_media"
+  echo "▶  Rendering $scene from $file  [quality: $QUALITY → $RES] ..."
+  manim "$QUALITY" "$SCRIPT_DIR/$file" "$scene" --media_dir "$MEDIA_DIR"
 
-  # Manim places output in .manim_media/videos/<file_stem>/1080p60/<scene>.mp4
   local stem
   stem="$(basename "$file" .py)"
-  local src="$SCRIPT_DIR/.manim_media/videos/$stem/1080p60/${scene}.mp4"
+  local src="$MEDIA_DIR/videos/$stem/$RES/${scene}.mp4"
 
   if [[ -f "$src" ]]; then
     cp "$src" "$OUTPUT_DIR/$out_name"
     echo "   ✓  Saved to output/$out_name"
   else
     echo "   ✗  Could not find rendered file at $src"
+    echo "      Known paths under $MEDIA_DIR/videos/$stem/:"
+    find "$MEDIA_DIR/videos/$stem" -name "*.mp4" 2>/dev/null || true
     exit 1
   fi
 }
 
-render "architecture.py"         "ArchitectureFlow"      "architecture.mp4"
-render "transaction_lifecycle.py" "TransactionLifecycle"  "transaction_lifecycle.mp4"
-render "concepts.py"              "ConceptsOverview"      "concepts.mp4"
-render "moss_monad.py"            "MossMonadRelation"     "moss_monad.mp4"
+render "architecture.py"          "ArchitectureFlow"      "ArchitectureFlow.mp4"
+render "transaction_lifecycle.py" "TransactionLifecycle"  "TransactionLifecycle.mp4"
+render "concepts.py"              "ConceptsOverview"      "ConceptsOverview.mp4"
+render "moss_monad.py"            "MossMonadRelation"     "MossMonadRelation.mp4"
 
 echo ""
 echo "══════════════════════════════════════════"
