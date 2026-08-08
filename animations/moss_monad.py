@@ -14,14 +14,49 @@ WHITE = "#e2e8f0"
 GRAY = "#334155"
 GREEN = "#22c55e"
 
+CAPTION_COLOR = "#cbd5e1"
+CAPTION_Y = -3.6
+
+
+def make_caption(text, font_size=13):
+    return Text(text, font_size=font_size, color=CAPTION_COLOR, line_spacing=0.85)
+
 
 class MossMonadRelation(Scene):
     def construct(self):
         self.camera.background_color = NAVY
 
-        # Title
+        # ── Subtitle bar background ────────────────────────────────────────
+        cap_bg = Rectangle(
+            width=14.2, height=0.72,
+            fill_color="#000000", fill_opacity=0.55, stroke_width=0,
+        )
+        cap_bg.move_to([0, CAPTION_Y, 0])
+        self.add(cap_bg)
+
+        current_cap = [None]
+
+        def set_caption(new_text, rt=0.25):
+            new_mob = make_caption(new_text)
+            new_mob.move_to([0, CAPTION_Y, 0])
+            if current_cap[0] is None:
+                self.play(FadeIn(new_mob), run_time=rt)
+            else:
+                self.play(
+                    FadeOut(current_cap[0], run_time=rt * 0.6),
+                    FadeIn(new_mob, run_time=rt),
+                )
+            current_cap[0] = new_mob
+
+        def clear_caption(rt=0.2):
+            if current_cap[0] is not None:
+                self.play(FadeOut(current_cap[0]), run_time=rt)
+                current_cap[0] = None
+
+        # ── Title ──────────────────────────────────────────────────────────
         title = Text("Official Moss vs. This Testnet Adapter", font_size=30, color=TEAL)
         title.to_edge(UP, buff=0.3)
+        set_caption("How does this open-source adapter relate to the official Moss protocol on Monad?")
         self.play(Write(title), run_time=0.8)
         self.wait(0.3)
 
@@ -96,8 +131,10 @@ class MossMonadRelation(Scene):
         app_grp = VGroup(app_rect, app_title, app_badge, app_badge_lbl, app_texts)
 
         # Animate sides
+        set_caption("Official Moss runs on Monad Mainnet with a full DeFi suite — transfers, swaps, staking, and more.")
         self.play(FadeIn(moss_grp, shift=RIGHT * 0.3), run_time=0.8)
         self.wait(0.2)
+        set_caption("This adapter targets Monad Testnet — scoped to native MON transfers with preview only, no signing.")
         self.play(FadeIn(app_grp, shift=LEFT * 0.3), run_time=0.8)
         self.wait(0.3)
 
@@ -112,6 +149,7 @@ class MossMonadRelation(Scene):
         insp_lbl = Text("Safety model inspiration", font_size=13, color=AMBER, weight=BOLD)
         insp_lbl.move_to([0, 1.6, 0])
 
+        set_caption("The adapter's safety model is directly inspired by Moss — the same principles, applied to Testnet.")
         self.play(Create(insp_arrow), Write(insp_lbl), run_time=0.8)
         self.wait(0.3)
 
@@ -121,6 +159,7 @@ class MossMonadRelation(Scene):
             font_size=13, color=AMBER,
         )
         shared_title.move_to([0, 0.2, 0])
+        set_caption("Both systems share the same four-step pattern: discover, load, action, simulate.")
         self.play(FadeIn(shared_title), run_time=0.5)
         self.wait(0.4)
 
@@ -135,5 +174,7 @@ class MossMonadRelation(Scene):
             font_size=11, color=WHITE,
         )
         disc_lbl.move_to(disc.get_center())
+        set_caption("This is not official Moss — it's an open-source educational adapter built for competition.")
         self.play(FadeIn(disc), FadeIn(disc_lbl), run_time=0.6)
         self.wait(1.8)
+        clear_caption()

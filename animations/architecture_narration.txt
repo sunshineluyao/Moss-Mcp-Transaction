@@ -1,0 +1,40 @@
+NARRATION SCRIPT — ArchitectureFlow
+Scene file: animations/architecture.py
+Estimated duration: ~45 seconds
+=====================================
+
+[0:00 — Title appears]
+"Welcome to Moss MCP — a live transaction preview system built on Monad Testnet."
+
+[0:05 — React UI node fades in]
+"The React frontend is where users enter their transfer intent."
+
+[0:10 — Agent Gateway node fades in]
+"It forwards the request to our Agent Gateway, built with Express and the A2A SDK."
+
+[0:15 — A2A JSON-RPC node fades in]
+"The gateway communicates over the A2A JSON-RPC protocol at the /a2a endpoint."
+
+[0:20 — MCP stdio server node fades in]
+"An MCP stdio server exposes four narrowly-scoped blockchain tools."
+
+[0:26 — Monad Testnet RPC node fades in]
+"All live data originates from Monad Testnet — chain 10143."
+
+[0:30 — Annotation boxes appear below each node]
+"Each component plays a distinct role in the preview pipeline."
+
+[0:34 — SKILL.md box and dashed arrow appear]
+"A SKILL.md file encodes nine safety rules — loaded once at startup and hashed for integrity."
+
+[0:40 — Final green badge animates in]
+"The result: a verified unsigned transaction — ready for wallet review with no signing required."
+
+[0:44 — Hold on final frame]
+(silence — allow audience to read the badge)
+
+=====================================
+PRESENTER NOTES
+- Pause after each node appears to let the audience read the sublabel.
+- Emphasise "no signing required" on the final beat — this is the key safety message.
+- The SKILL.md moment is a good place to mention SHA-256 hash verification if Q&A follows.

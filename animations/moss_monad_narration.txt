@@ -1,0 +1,34 @@
+NARRATION SCRIPT — MossMonadRelation
+Scene file: animations/moss_monad.py
+Estimated duration: ~40 seconds
+=====================================
+
+[0:00 — Title appears]
+"How does this open-source adapter relate to the official Moss protocol on Monad?"
+
+[0:06 — Official Moss panel slides in from right]
+"Official Moss runs on Monad Mainnet with a full DeFi suite — transfers, swaps, staking, and more."
+
+[0:13 — This adapter panel slides in from left]
+"This adapter targets Monad Testnet — scoped to native MON transfers with preview only, no signing."
+
+[0:20 — Amber curved arrow and label animate in]
+"The adapter's safety model is directly inspired by Moss — the same principles, applied to Testnet."
+
+[0:27 — Shared pattern text fades in]
+"Both systems share the same four-step pattern: discover, load, action, simulate."
+
+[0:32 — Disclaimer bar fades in at bottom]
+"This is not official Moss — it's an open-source educational adapter built for competition."
+
+[0:36 — Hold on final frame]
+(silence — allow audience to read the disclaimer)
+
+=====================================
+PRESENTER NOTES
+- Lead with the contrast: Mainnet vs. Testnet, full DeFi vs. preview-only.
+- The curved arrow is the key moment — say "inspired by" not "copied from" to be precise.
+- The disclaimer is on screen as a courtesy; read it aloud so remote viewers don't miss it.
+- If judges ask about upgrading to Mainnet, note that the four-step pattern already maps to
+  the full Moss action set — the scope boundary is intentional for safety, not a limitation.
+- Chain IDs are on screen: Mainnet = 143, Testnet = 10143 — useful for technical Q&A.

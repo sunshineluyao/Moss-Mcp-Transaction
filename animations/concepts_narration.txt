@@ -1,0 +1,36 @@
+NARRATION SCRIPT — ConceptsOverview
+Scene file: animations/concepts.py
+Estimated duration: ~50 seconds
+=====================================
+
+[0:00 — Title appears]
+"Four open protocols form the foundation of the Moss MCP Transaction Preview system."
+
+[0:06 — Top-left quadrant: A2A slides in from right]
+"A2A is Google's open protocol for agent-to-agent communication — any agent can discover and call this gateway."
+
+[0:13 — Top-right quadrant: MCP slides in from left]
+"MCP, from Anthropic, defines how the gateway invokes blockchain tools over a stdio subprocess."
+
+[0:20 — Bottom-left quadrant: SKILL.md slides in from right]
+"SKILL.md is a version-controlled rule file, SHA-256 hashed at startup and embedded in every artifact."
+
+[0:27 — Bottom-right quadrant: BeeAI slides in from left]
+"BeeAI's Agent Stack enables external discovery of A2A-compatible agents like this one."
+
+[0:34 — Centre divider lines animate in]
+(brief pause)
+
+[0:36 — Centre label 'Moss MCP Transaction Preview' fades in]
+"Together, these four protocols make up the complete Moss MCP Transaction Preview stack."
+
+[0:41 — Hold on final frame]
+(silence — allow audience to read all four quadrants)
+
+=====================================
+PRESENTER NOTES
+- Each quadrant corresponds to a named open standard — stress "open" to reinforce composability.
+- A2A (Google) and MCP (Anthropic) are both industry-backed; mention this for credibility.
+- The SKILL.md SHA-256 hash is the tamper-evidence story — worth one sentence of elaboration.
+- BeeAI/Agent Stack may be less familiar; a brief "think of it as an agent registry" works well.
+- The centre label is intentionally small — it is the hub that all four protocols serve.

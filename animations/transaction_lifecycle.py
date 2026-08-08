@@ -15,14 +15,49 @@ GRAY = "#334155"
 GREEN = "#22c55e"
 RED = "#ef4444"
 
+CAPTION_COLOR = "#cbd5e1"
+CAPTION_Y = -3.6
+
+
+def make_caption(text, font_size=13):
+    return Text(text, font_size=font_size, color=CAPTION_COLOR, line_spacing=0.85)
+
 
 class TransactionLifecycle(Scene):
     def construct(self):
         self.camera.background_color = NAVY
 
+        # ── Subtitle bar background ────────────────────────────────────────
+        cap_bg = Rectangle(
+            width=14.2, height=0.72,
+            fill_color="#000000", fill_opacity=0.55, stroke_width=0,
+        )
+        cap_bg.move_to([0, CAPTION_Y, 0])
+        self.add(cap_bg)
+
+        current_cap = [None]
+
+        def set_caption(new_text, rt=0.25):
+            new_mob = make_caption(new_text)
+            new_mob.move_to([0, CAPTION_Y, 0])
+            if current_cap[0] is None:
+                self.play(FadeIn(new_mob), run_time=rt)
+            else:
+                self.play(
+                    FadeOut(current_cap[0], run_time=rt * 0.6),
+                    FadeIn(new_mob, run_time=rt),
+                )
+            current_cap[0] = new_mob
+
+        def clear_caption(rt=0.2):
+            if current_cap[0] is not None:
+                self.play(FadeOut(current_cap[0]), run_time=rt)
+                current_cap[0] = None
+
         # ── Title ──────────────────────────────────────────────────────────
         title = Text("Transaction Preview Lifecycle", font_size=32, color=TEAL)
         title.to_edge(UP, buff=0.3)
+        set_caption("Let's follow a single MON transfer from user intent to verified preview.")
         self.play(Write(title), run_time=0.8)
         self.wait(0.2)
 
@@ -40,6 +75,7 @@ class TransactionLifecycle(Scene):
         )
         intent_body.move_to(intent_rect.get_center() - UP * 0.2)
 
+        set_caption("The user specifies a sender address, a recipient, and an amount in native MON.")
         self.play(FadeIn(intent_rect), Write(intent_title), FadeIn(intent_body), run_time=0.7)
         self.wait(0.3)
 
@@ -53,6 +89,13 @@ class TransactionLifecycle(Scene):
         tool_rects = []
         tool_groups = []
         y_positions = [1.4, 0.3, -0.8, -1.9]
+
+        tool_captions = [
+            "preview_discover asks the MCP server which actions are available — here, transfer_native_mon.",
+            "preview_load retrieves the action schema: required fields and validation rules.",
+            "preview_action assembles the unsigned transaction — to, value, gas, and chain ID.",
+            "preview_simulate fetches live testnet data: balance, block number, and gas estimate.",
+        ]
 
         tool_label = Text("MCP Tool Calls (stdio)", font_size=13, color=AMBER)
         tool_label.move_to([2.8, 2.1, 0])
@@ -74,6 +117,7 @@ class TransactionLifecycle(Scene):
             tool_rects.append(rect)
             tool_groups.append(grp)
 
+            set_caption(tool_captions[i])
             self.play(FadeIn(grp, shift=LEFT * 0.2), run_time=0.45)
 
             # Connecting arrow from intent box after first tool
@@ -115,6 +159,7 @@ class TransactionLifecycle(Scene):
             data_rect.get_right(),
             buff=0.08, color=TEAL, stroke_width=1.5, tip_length=0.15,
         )
+        set_caption("The simulate tool returns real on-chain data: current block, sender balance, and gas cost.")
         self.play(FadeIn(data_rect), Write(data_title), Create(arr_live), run_time=0.5)
         self.play(FadeIn(data_fields, shift=UP * 0.1), run_time=0.5)
         self.wait(0.3)
@@ -127,6 +172,7 @@ class TransactionLifecycle(Scene):
         ]
         rules_title = Text("Safety Rules (SKILL.md)", font_size=13, color=VIOLET)
         rules_title.move_to([-2.5, -0.8, 0])
+        set_caption("Nine safety rules from SKILL.md are enforced at every step of the lifecycle.")
         self.play(FadeIn(rules_title), run_time=0.3)
 
         check_items = []
@@ -147,6 +193,7 @@ class TransactionLifecycle(Scene):
         self.wait(0.2)
 
         # Animate rules turning green
+        set_caption("All nine rules pass — no signing, testnet only, simulation required, and six more.")
         for i, (dot, lbl) in enumerate(check_items):
             check = Text("✓", font_size=11, color=GREEN)
             check.move_to(dot.get_center())
@@ -167,5 +214,7 @@ class TransactionLifecycle(Scene):
         badge.move_to([-2.5, -2.9, 0])
         badge_lbl = Text("✓  READY_FOR_WALLET_REVIEW", font_size=19, color=GREEN, weight=BOLD)
         badge_lbl.move_to(badge.get_center())
+        set_caption("Transaction preview complete — the unsigned transaction is ready for wallet review.")
         self.play(FadeIn(badge), Write(badge_lbl), run_time=0.8)
         self.wait(1.5)
+        clear_caption()

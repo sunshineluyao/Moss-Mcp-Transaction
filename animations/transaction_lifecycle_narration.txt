@@ -1,0 +1,47 @@
+NARRATION SCRIPT — TransactionLifecycle
+Scene file: animations/transaction_lifecycle.py
+Estimated duration: ~55 seconds
+========================================
+
+[0:00 — Title appears]
+"Let's follow a single MON transfer from user intent to verified preview."
+
+[0:06 — User Intent box fades in]
+"The user specifies a sender address, a recipient, and an amount in native MON."
+
+[0:12 — MCP tool header label appears]
+(brief pause — allow audience to locate the tool panel)
+
+[0:14 — preview_discover tool box slides in]
+"preview_discover asks the MCP server which actions are available — here, transfer_native_mon."
+
+[0:20 — preview_load tool box slides in]
+"preview_load retrieves the action schema: required fields and validation rules."
+
+[0:26 — preview_action tool box slides in]
+"preview_action assembles the unsigned transaction — to, value, gas, and chain ID."
+
+[0:32 — preview_simulate tool box slides in]
+"preview_simulate fetches live testnet data: balance, block number, and gas estimate."
+
+[0:38 — Live Testnet Data box appears with arrow from simulate]
+"The simulate tool returns real on-chain data: current block, sender balance, and gas cost."
+
+[0:44 — Safety Rules header and nine rule items appear]
+"Nine safety rules from SKILL.md are enforced at every step of the lifecycle."
+
+[0:48 — Rules animate from grey to green one by one]
+"All nine rules pass — no signing, testnet only, simulation required, and six more."
+
+[0:53 — Final green badge animates in]
+"Transaction preview complete — the unsigned transaction is ready for wallet review."
+
+[0:56 — Hold on final frame]
+(silence — allow audience to read the badge)
+
+========================================
+PRESENTER NOTES
+- The four MCP tool boxes are the core technical story — name each tool clearly.
+- The safety rule animation is fast; mention "nine rules" verbally to anchor the count.
+- Emphasise that at no point is a private key touched or a transaction broadcast.
+- If presenting live, offer to pause on the Live Testnet Data panel for questions.

@@ -14,14 +14,50 @@ AMBER = "#f59e0b"
 WHITE = "#e2e8f0"
 GRAY = "#334155"
 
+CAPTION_COLOR = "#cbd5e1"
+CAPTION_Y = -3.6
+
+
+def make_caption(text, font_size=13):
+    return Text(text, font_size=font_size, color=CAPTION_COLOR, line_spacing=0.85)
+
 
 class ArchitectureFlow(Scene):
     def construct(self):
         self.camera.background_color = NAVY
 
-        # Title
+        # ── Subtitle bar background ────────────────────────────────────────
+        cap_bg = Rectangle(
+            width=14.2, height=0.72,
+            fill_color="#000000", fill_opacity=0.55, stroke_width=0,
+        )
+        cap_bg.move_to([0, CAPTION_Y, 0])
+        self.add(cap_bg)
+
+        # Helper: swap caption text in place
+        current_cap = [None]
+
+        def set_caption(new_text, rt=0.25):
+            new_mob = make_caption(new_text)
+            new_mob.move_to([0, CAPTION_Y, 0])
+            if current_cap[0] is None:
+                self.play(FadeIn(new_mob), run_time=rt)
+            else:
+                self.play(
+                    FadeOut(current_cap[0], run_time=rt * 0.6),
+                    FadeIn(new_mob, run_time=rt),
+                )
+            current_cap[0] = new_mob
+
+        def clear_caption(rt=0.2):
+            if current_cap[0] is not None:
+                self.play(FadeOut(current_cap[0]), run_time=rt)
+                current_cap[0] = None
+
+        # ── Title ──────────────────────────────────────────────────────────
         title = Text("Moss MCP — Live Preview Data Flow", font_size=32, color=TEAL)
         title.to_edge(UP, buff=0.3)
+        set_caption("Welcome to Moss MCP — a live transaction preview system built on Monad Testnet.")
         self.play(Write(title), run_time=1.0)
         self.wait(0.3)
 
@@ -70,8 +106,18 @@ class ArchitectureFlow(Scene):
             "eth_getBalance\neth_estimateGas\neth_blockNumber",
         ]
 
+        # Node captions
+        node_captions = [
+            "The React frontend is where users enter their transfer intent.",
+            "It forwards the request to our Agent Gateway, built with Express and the A2A SDK.",
+            "The gateway communicates over the A2A JSON-RPC protocol at the /a2a endpoint.",
+            "An MCP stdio server exposes four narrowly-scoped blockchain tools.",
+            "All live data originates from Monad Testnet — chain 10143.",
+        ]
+
         # Animate nodes one by one
         for i in range(len(rects)):
+            set_caption(node_captions[i])
             self.play(
                 FadeIn(rects[i], shift=DOWN * 0.2),
                 Write(labels[i]),
@@ -119,6 +165,7 @@ class ArchitectureFlow(Scene):
             t.move_to(box.get_center())
             ann_objects.append(VGroup(box, t))
 
+        set_caption("Each component plays a distinct role in the preview pipeline.")
         self.play(
             *[FadeIn(a, shift=UP * 0.15) for a in ann_objects],
             run_time=0.8,
@@ -149,6 +196,7 @@ class ArchitectureFlow(Scene):
         skill_note = Text("loaded at startup", font_size=9, color=AMBER)
         skill_note.next_to(dashed_arrow, RIGHT, buff=0.08)
 
+        set_caption("A SKILL.md file encodes nine safety rules — loaded once at startup and hashed for integrity.")
         self.play(FadeIn(skill_grp), run_time=0.4)
         self.play(Create(dashed_arrow), FadeIn(skill_note), run_time=0.5)
         self.wait(0.4)
@@ -166,5 +214,8 @@ class ArchitectureFlow(Scene):
         badge.move_to([0, -2.7, 0])
         badge_lbl = Text("✓  READY_FOR_WALLET_REVIEW", font_size=18, color=TEAL, weight=BOLD)
         badge_lbl.move_to(badge.get_center())
+
+        set_caption("The result: a verified unsigned transaction — ready for wallet review with no signing required.")
         self.play(FadeIn(badge), Write(badge_lbl), run_time=0.8)
         self.wait(1.5)
+        clear_caption()
