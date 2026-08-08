@@ -6,3 +6,10 @@ id = "xti141K8oFLFWrVfyeyjx"
 uri = "file://.local/outputs/Moss-MCP-Bilingual-Deck.pptx"
 type = "slides"
 title = "Moss MCP Bilingual Deck.pptx"
+
+[[outputs]]
+id = "aarhHyGOaReujlvrrXKgl"
+uri = "file://.local/outputs/Moss-MCP-Bilingual-Deck.pdf"
+type = "pdf"
+title = "Moss MCP Bilingual Deck (PDF)"
+description = "PDF export of the Moss MCP competition deck — 10 slides, bilingual EN/ZH."
