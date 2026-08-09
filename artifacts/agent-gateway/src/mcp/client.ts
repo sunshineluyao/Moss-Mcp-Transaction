@@ -6,7 +6,8 @@
  */
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { McpTraceEntry } from "../shared/schema.js";
 
 const SERVER_NAME = "monad-testnet-preview";
@@ -15,9 +16,11 @@ const TRANSPORT = "stdio";
 
 /** Resolve the MCP server entry point — always from the artifact directory */
 function resolveServerPath(): string {
-  // process.cwd() == artifacts/agent-gateway when run via pnpm --filter
-  // The build places the MCP server at dist/mcp/server.mjs
-  return join(process.cwd(), "dist", "mcp", "server.mjs");
+  // Resolve relative to this bundled module (dist/index.mjs), NOT process.cwd().
+  // cwd differs between dev (artifacts/agent-gateway via pnpm --filter) and
+  // production (workspace root), but dist/mcp/server.mjs is always a sibling.
+  const distDir = dirname(fileURLToPath(import.meta.url));
+  return join(distDir, "mcp", "server.mjs");
 }
 
 export interface ToolCallResult {

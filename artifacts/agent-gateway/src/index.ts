@@ -255,8 +255,13 @@ async function createApp() {
   // (e.g. /agent-gateway/api/preview) without stripping the prefix.
   // Strip it here so all route handlers work identically in dev and prod.
   app.use((req, _res, next) => {
-    if (req.url.startsWith("/agent-gateway")) {
-      req.url = req.url.slice("/agent-gateway".length) || "/";
+    const prefix = "/agent-gateway";
+    if (
+      req.url === prefix ||
+      req.url.startsWith(`${prefix}/`) ||
+      req.url.startsWith(`${prefix}?`)
+    ) {
+      req.url = req.url.slice(prefix.length) || "/";
     }
     next();
   });

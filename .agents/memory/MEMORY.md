@@ -1,4 +1,5 @@
-- [Agent Gateway build pattern](agent-gateway-build.md) — packages:external in esbuild prevents CJS dynamic-require failures; MCP server path uses process.cwd(); public URL derived from REPLIT_DEV_DOMAIN.
+- [Agent Gateway build pattern](agent-gateway-build.md) — packages:external in esbuild prevents CJS dynamic-require failures; resolve sibling files via import.meta.url, never process.cwd() (cwd differs dev vs prod); public URL derived from REPLIT_DEV_DOMAIN.
+- [Production path-prefix routing](prod-path-prefix.md) — Replit prod proxy forwards full path (/agent-gateway/...) unstripped; services must strip their prefix in middleware, and health paths in artifact.toml must include the prefix.
 - [A2A SDK v1.0.1 type shapes](a2a-sdk-v1-types.md) — Part uses content.$case/value, SendMessageRequest needs tenant/metadata fields, AgentProvider.organization is required string.
 - [MCP CallTool result typing](mcp-calltool-typing.md) — callTool returns a union with toolResult variant; use `any` or cast result to access content[0] in tests; typed helper function pattern avoids TS7053 errors.
 - [Vitest test addresses must be EIP-55](vitest-eip55-addresses.md) — viem isAddress strict mode rejects non-checksummed mixed-case addresses; use Hardhat built-in accounts (0xf39Fd6e51…, 0x70997970…) for all integration test addresses.

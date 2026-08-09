@@ -53,6 +53,7 @@ args = ["node", "--enable-source-maps", "artifacts/agent-gateway/dist/index.mjs"
 [services.production.run.env]
 PORT = "8090"
 NODE_ENV = "production"
+PUBLIC_BASE_URL = "https://moss-mcp-transaction.replit.app/agent-gateway"
 
 [services.production.health.startup]
 path = "/agent-gateway/healthz"
