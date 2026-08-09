@@ -36,6 +36,10 @@ import {
   PreviewRequestSchema,
   type PreviewArtifact,
 } from "./shared/schema.js";
+import {
+  startSmokeMonitor,
+  getSmokeStatus,
+} from "./monitor/smokeMonitor.js";
 
 const PORT = Number(process.env.PORT ?? 3100);
 const NODE_ENV = process.env.NODE_ENV ?? "production";
@@ -313,6 +317,12 @@ async function createApp() {
     }
   });
 
+  // ── Scheduled smoke-check status ──────────────────────────────────────────
+  // Latest results of the scheduled production smoke check (see monitor/).
+  app.get("/api/smoke-status", (_req, res) => {
+    res.json(getSmokeStatus());
+  });
+
   // ── Skill metadata ────────────────────────────────────────────────────────
   app.get("/api/skill", (_req, res) => {
     res.json(skill);
@@ -363,6 +373,12 @@ createApp()
       process.stdout.write(
         `agent-gateway listening on port ${PORT} (${NODE_ENV})\n`
       );
+      // Scheduled production smoke monitor: enabled in production (every
+      // autoscale wake-up triggers a run, then every interval while warm),
+      // or explicitly via SMOKE_MONITOR=1 in development.
+      if (NODE_ENV === "production" || process.env.SMOKE_MONITOR === "1") {
+        startSmokeMonitor();
+      }
     });
   })
   .catch((err) => {
