@@ -53,6 +53,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import HowItWorks from "@/components/HowItWorks";
+import HealthStatus from "@/components/HealthStatus";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const MOSS_MCP_GITHUB = "https://github.com/nishuzumi/moss/tree/main/packages/mcp-server";
@@ -1947,7 +1948,8 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-1 shrink-0 ml-4">
+          <div className="flex items-center gap-2 shrink-0 ml-4">
+            <HealthStatus />
             <Badge variant="outline" className="font-mono bg-background hidden sm:flex">DEV_MOCK_ENV</Badge>
           </div>
         </div>

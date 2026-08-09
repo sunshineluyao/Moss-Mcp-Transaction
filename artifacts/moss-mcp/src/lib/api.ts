@@ -7,7 +7,7 @@ import type { PreviewArtifact, PreviewRequest, PreviewError } from "@/types/prev
 
 // In Replit's path-based routing, /agent-gateway is the agent-gateway service.
 // VITE_AGENT_GATEWAY_URL can override this for local dev outside Replit.
-const GATEWAY_BASE =
+export const GATEWAY_BASE =
   (import.meta.env.VITE_AGENT_GATEWAY_URL as string | undefined) ??
   "/agent-gateway";
 
