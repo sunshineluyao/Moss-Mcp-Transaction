@@ -20,6 +20,10 @@ author = "agent"
 task = "workflow.run"
 args = "artifacts/agent-gateway: Agent Gateway"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "smoke-prod"
+
 [[workflows.workflow]]
 name = "artifacts/agent-gateway: Agent Gateway"
 author = "agent"
@@ -27,6 +31,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "pnpm --filter @workspace/agent-gateway run dev"
+
+[[workflows.workflow]]
+name = "smoke-prod"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node scripts/smoke-prod.mjs"
+
+[workflows.workflow.metadata]
+isValidation = true
 
 [agent]
 stack = "PNPM_WORKSPACE"
