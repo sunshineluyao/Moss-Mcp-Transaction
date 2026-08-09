@@ -1163,7 +1163,26 @@ function ConceptCard({ concept, lang }: { concept: ConceptDef; lang: Lang }) {
 
 function TechConceptsSection() {
   const [open, setOpen] = useState(false);
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang, setLangState] = useState<Lang>(() => {
+    try {
+      const saved = window.localStorage.getItem("moss-lang");
+      return saved === "zh" ? "zh" : "en";
+    } catch {
+      return "en";
+    }
+  });
+
+  // Choosing a language should always produce a visible result:
+  // persist it and auto-expand the section if it's collapsed.
+  const setLang = (next: Lang) => {
+    setLangState(next);
+    setOpen(true);
+    try {
+      window.localStorage.setItem("moss-lang", next);
+    } catch {
+      /* private mode — ignore */
+    }
+  };
 
   return (
     <div className={`rounded-xl border transition-colors ${open ? "border-border/60 bg-card/20" : "border-border/30 bg-card/10"}`}>
@@ -1174,26 +1193,35 @@ function TechConceptsSection() {
           className="flex items-center gap-2 flex-1 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         >
           <Cpu className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-          <span className="text-xs font-semibold text-foreground">How it works</span>
-          <span className="text-xs text-muted-foreground">·</span>
-          <span className="text-xs font-semibold text-muted-foreground">工作原理</span>
+          <span className="text-xs font-semibold text-foreground">
+            {lang === "zh" ? "工作原理" : "How it works"}
+          </span>
+          <span className="text-xs text-muted-foreground hidden sm:inline">·</span>
+          <span className="text-xs font-semibold text-muted-foreground hidden sm:inline">
+            {lang === "zh" ? "How it works" : "工作原理"}
+          </span>
           {open
             ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground ml-1" />
             : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground ml-1" />}
         </button>
 
         {/* Language toggle */}
-        <div className="flex items-center rounded-md border border-border/50 overflow-hidden text-[11px] font-semibold shrink-0">
+        <div
+          role="group"
+          aria-label="Language / 语言"
+          className="flex items-center gap-0.5 rounded-full border border-border/50 bg-background/60 p-0.5 text-[11px] font-semibold shrink-0"
+        >
           <button
             onClick={() => setLang("en")}
-            className={`px-2.5 py-1 transition-colors ${lang === "en" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            aria-pressed={lang === "en"}
+            className={`px-2.5 py-0.5 rounded-full transition-colors ${lang === "en" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             EN
           </button>
-          <div className="w-px h-4 bg-border/50" />
           <button
             onClick={() => setLang("zh")}
-            className={`px-2.5 py-1 transition-colors ${lang === "zh" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            aria-pressed={lang === "zh"}
+            className={`px-2.5 py-0.5 rounded-full transition-colors ${lang === "zh" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             中文
           </button>
